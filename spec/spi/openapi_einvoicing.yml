@@ -1,0 +1,316 @@
+openapi: "3.0.0"
+info:
+  title: "E-Invoicing Service Provider Interface"
+  description: |
+    
+    The E-Invoicing Service Provider Interface (SPI) is designed to enable Chargebee to seamlessly communicate with various Electronic Invoicing Service Providers. This SPI facilitates the following key functionalities:
+    
+    - **Document Submission:** Submit electronic documents to E-Invoice Service Providers for processing and compliance.
+    - **Document Status Tracking:** Monitor the status of submitted e-invoices to ensure timely processing and resolution of any issues.
+    - **Document Download:** Download e-invoice documents for record-keeping, auditing, and compliance purposes.
+    
+    If you have an API that provides the services mentioned above and wish to integrate it with Chargebee, you can develop an adapter service following this specification. This will allow Chargebee to efficiently manage e-invoicing processes while ensuring compliance with local e-invoicing regulations.
+  version: "1.0.0"
+servers:
+  - url: "https://api.example.com"
+    description: "Production server (replace with actual service URL)"
+  - url: "https://sandbox.example.com"
+    description: "Sandbox server for testing"
+tags:
+  - name: "Documents"
+    description: "Operations related to e-invoicing documents"
+security:
+  - ApiKeyAuth: []
+paths:
+  /documents:
+    post:
+      tags: ["Documents"]
+      summary: "Submit Document"
+      description: "Submit a new document (invoice or credit note) to the e-invoicing service."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Document"
+      responses:
+        '201':
+          description: "Document submitted successfully."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentSubmissionResponse"
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal server error
+  /documents/{documentId}/status:
+    get:
+      tags: ["Documents"]
+      summary: "Get Document Status"
+      parameters:
+        - name: "documentId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Document status retrieved successfully."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentStatus"
+  /documents/{documentId}/download:
+    post:
+      tags: ["Documents"]
+      summary: "Download Document"
+      parameters:
+        - name: "documentId"
+          in: "path"
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Document downloaded successfully."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadDocumentResponse"
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: "X-API-Key"
+  schemas:
+    Document:
+      type: object
+      properties:
+        documentNumber:
+          type: string
+        documentIssueDate:
+          type: string
+          format: date
+        documentCurrencyCode:
+          type: string
+        amount:
+          type: number
+        dueDate:
+          type: string
+          format: date
+        note:
+          type: string
+        documentLines:
+          type: array
+          items:
+            type: object
+            properties:
+              lineId:
+                type: string
+              description:
+                type: string
+              amount:
+                type: number
+              quantity:
+                type: integer
+              name:
+                type: string
+              taxesDutiesFees:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    percentage:
+                      type: number
+                    category:
+                      type: string
+                    country:
+                      type: string
+                  required: ["percentage", "category", "country"]
+            required: ["lineId", "description", "amount", "quantity", "name", "taxesDutiesFees"]
+
+        accountingCustomerParty:
+          type: object
+          properties:
+            party:
+              type: object
+              properties:
+                companyName:
+                  type: string
+                address:
+                  type: object
+                  properties:
+                    street1:
+                      type: string
+                    street2:
+                      type: string
+                    zip:
+                      type: string
+                    city:
+                      type: string
+                    county:
+                      type: string
+                    country:
+                      type: string
+              required: ["companyName", "address"]
+            publicIdentifiers:
+              type: array
+              items:
+                type: object
+                properties:
+                  scheme:
+                    type: string
+                  id:
+                    type: string
+                required: ["scheme", "id"]
+          required: ["party", "publicIdentifiers"]
+
+        accountingSupplierParty:
+          type: object
+          properties:
+            party:
+              type: object
+              properties:
+                contact:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    phone:
+                      type: string
+                publicIdentifiers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      scheme:
+                        type: string
+                      id:
+                        type: string
+                    required: ["scheme", "id"]
+              required: ["contact", "publicIdentifiers"]
+          required: ["party"]
+
+        taxSubtotals:
+          type: array
+          items:
+            type: object
+            properties:
+              taxableAmount:
+                type: number
+              taxAmount:
+                type: number
+              percentage:
+                type: number
+              country:
+                type: string
+              category:
+                type: string
+            required: ["taxableAmount", "taxAmount", "percentage", "country", "category"]
+
+        paymentDetails:
+          type: array
+          items:
+            type: object
+            properties:
+              account:
+                type: string
+                nullable: true
+              branch_code:
+                type: string
+              code:
+                type: string
+              holder:
+                type: string
+              mandate:
+                type: string
+              network:
+                type: string
+              paymentId:
+                type: string
+
+      required:
+        - taxSubtotals
+        - documentNumber
+        - documentIssueDate
+        - documentCurrencyCode
+        - amount
+        - dueDate
+        - documentLines
+        - accountingCustomerParty
+        - accountingSupplierParty
+        - paymentDetails
+    DocumentSubmissionResponse:
+      type: object
+      properties:
+        documentId:
+          type: string
+        status:
+          type: string
+    DocumentStatus:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: "Unique identifier for the document."
+        status:
+          type: string
+          description: "Current status of the document (e.g., 'Pending', 'Processed', 'Rejected')."
+        submissionDate:
+          type: string
+          format: date-time
+          description: "Date and time when the document was submitted."
+        processingDetails:
+          type: object
+          properties:
+            processedDate:
+              type: string
+              format: date-time
+              description: "Date and time when the document was processed."
+            errors:
+              type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: "Error code."
+                  message:
+                    type: string
+                    description: "Detailed error message."
+              description: "List of errors encountered during processing, if any."
+          description: "Details about the document's processing status."
+      required:
+        - documentId
+        - status
+        - submissionDate
+    DownloadDocumentResponse:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: "Unique identifier for the document."
+        fileName:
+          type: string
+          description: "Name of the downloaded document file."
+        contentType:
+          type: string
+          description: "MIME type of the document (e.g., 'application/pdf')."
+        content:
+          type: string
+          format: byte
+          description: "Base64-encoded content of the document."
+      required:
+        - documentId
+        - fileName
+        - contentType
+        - content
+          
