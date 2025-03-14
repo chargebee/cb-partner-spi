@@ -22,7 +22,7 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
-  /documents:
+  einvoicing/documents:
     post:
       tags: ["Documents"]
       summary: "Submit Document"
@@ -46,7 +46,7 @@ paths:
           description: Unauthorized
         "500":
           description: Internal server error
-  /documents/{documentId}/status:
+  einvoicing/documents/{documentId}/status:
     get:
       tags: ["Documents"]
       summary: "Get Document Status"
@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentStatus"
-  /documents/{documentId}/download:
+  einvoicing/documents/{documentId}/download:
     post:
       tags: ["Documents"]
       summary: "Download Document"
@@ -90,26 +90,32 @@ components:
     Document:
       type: object
       properties:
-        documentNumber:
+        id:
           type: string
-        documentIssueDate:
+        type:
+          type: string
+          enum: ["INVOICE", "CREDIT_NOTE"]
+        issueDate:
           type: string
           format: date
-        documentCurrencyCode:
+        taxDate:
           type: string
-        amount:
-          type: number
+          format: date
+        currencyCode:
+          type: string
         dueDate:
           type: string
           format: date
+        amount:
+          type: number
         note:
           type: string
-        documentLines:
+        lines:
           type: array
           items:
             type: object
             properties:
-              lineId:
+              id:
                 type: string
               description:
                 type: string
@@ -119,7 +125,9 @@ components:
                 type: integer
               name:
                 type: string
-              taxesDutiesFees:
+              standardItemIdentification:
+                type: string
+              classifiedTaxCategory:
                 type: array
                 items:
                   type: object
@@ -131,7 +139,7 @@ components:
                     country:
                       type: string
                   required: ["percentage", "category", "country"]
-            required: ["lineId", "description", "amount", "quantity", "name", "taxesDutiesFees"]
+            required: ["id", "description", "amount", "quantity", "name", "classifiedTaxCategory"]
 
         accountingCustomerParty:
           type: object
@@ -139,7 +147,7 @@ components:
             party:
               type: object
               properties:
-                companyName:
+                name:
                   type: string
                 address:
                   type: object
@@ -152,12 +160,9 @@ components:
                       type: string
                     city:
                       type: string
-                    county:
-                      type: string
                     country:
                       type: string
-              required: ["companyName", "address"]
-            publicIdentifiers:
+            taxScheme:
               type: array
               items:
                 type: object
@@ -167,54 +172,122 @@ components:
                   id:
                     type: string
                 required: ["scheme", "id"]
-          required: ["party", "publicIdentifiers"]
-
+            legalEntity:
+              type: object
+              properties:
+                id:
+                  type: string
+                registrationName:
+                  type: string
+              required: ["id"]
+            Contact:
+              type: object
+              description: Represents the contact details of a company or organization in an e-invoice.
+              properties:
+                name:
+                  type: string
+                  description: Full name of the contact person.
+                  example: "Lisa Johnson"
+                telephone:
+                  type: string
+                  description: Telephone number of the contact person.
+                  example: "23434234"
+                electronicMail:
+                  type: string
+                  format: email
+                  description: Email address of the contact person.
+                  example: "lj@buyer.se"
+          required: ["party", "taxScheme"]
         accountingSupplierParty:
           type: object
           properties:
             party:
               type: object
               properties:
-                contact:
+                name:
+                  type: string
+                address:
                   type: object
                   properties:
-                    email:
+                    street1:
                       type: string
-                    firstName:
+                    street2:
                       type: string
-                    lastName:
+                    zip:
                       type: string
-                    phone:
+                    city:
                       type: string
-                publicIdentifiers:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      scheme:
-                        type: string
-                      id:
-                        type: string
-                    required: ["scheme", "id"]
-              required: ["contact", "publicIdentifiers"]
-          required: ["party"]
-
-        taxSubtotals:
-          type: array
-          items:
-            type: object
-            properties:
-              taxableAmount:
-                type: number
-              taxAmount:
-                type: number
-              percentage:
-                type: number
-              country:
-                type: string
-              category:
-                type: string
-            required: ["taxableAmount", "taxAmount", "percentage", "country", "category"]
+                    country:
+                      type: string
+            taxScheme:
+              type: array
+              items:
+                type: object
+                properties:
+                  scheme:
+                    type: string
+                  id:
+                    type: string
+                required: ["scheme", "id"]
+            legalEntity:
+              type: object
+              properties:
+                id:
+                  type: string
+                registrationName:
+                  type: string
+              required: ["id"]
+            Contact:
+              type: object
+              description: Represents the contact details of a company or organization in an e-invoice.
+              properties:
+                name:
+                  type: string
+                  description: Full name of the contact person.
+                  example: "Lisa Johnson"
+                telephone:
+                  type: string
+                  description: Telephone number of the contact person.
+                  example: "23434234"
+                electronicMail:
+                  type: string
+                  format: email
+                  description: Email address of the contact person.
+                  example: "lj@buyer.se"
+          required: ["party", "taxScheme"]
+        taxTotal:
+          type: object
+          description: Represents the total tax details for an invoice.
+          properties:
+            taxSubtotals:
+              type: array
+              description: List of tax breakdowns for different categories or jurisdictions.
+              items:
+              type: object
+              properties:
+                taxableAmount:
+          type: number
+          format: double
+          description: The amount that is subject to tax.
+          example: 10
+        taxAmount:
+          type: number
+          format: double
+          description: The calculated tax amount for the taxable amount.
+          example: 1.4
+        percentage:
+          type: number
+          format: double
+          description: The tax rate percentage applied to the taxable amount.
+          example: 14
+        country:
+          type: string
+          description: The country code where the tax applies.
+          example: "IN"
+        category:
+          type: string
+          description: The category of tax applied (e.g., VAT, SGST, CGST).
+          example: "sgst"
 
         paymentDetails:
           type: array
@@ -239,9 +312,10 @@ components:
 
       required:
         - taxSubtotals
-        - documentNumber
-        - documentIssueDate
-        - documentCurrencyCode
+        - Number
+        - IssueDate
+        - taxDate
+        - CurrencyCode
         - amount
         - dueDate
         - documentLines
