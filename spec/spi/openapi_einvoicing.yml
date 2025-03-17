@@ -22,7 +22,7 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
-  einvoicing/documents:
+  /einvoicing/documents:
     post:
       tags: ["Documents"]
       summary: "Submit Document"
@@ -46,7 +46,7 @@ paths:
           description: Unauthorized
         "500":
           description: Internal server error
-  einvoicing/documents/{documentId}/status:
+  /einvoicing/documents/{documentId}/status:
     get:
       tags: ["Documents"]
       summary: "Get Document Status"
@@ -63,7 +63,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentStatus"
-  einvoicing/documents/{documentId}/download:
+  /einvoicing/documents/{documentId}/download:
     post:
       tags: ["Documents"]
       summary: "Download Document"
@@ -110,36 +110,6 @@ components:
           type: number
         note:
           type: string
-        lines:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-              description:
-                type: string
-              amount:
-                type: number
-              quantity:
-                type: integer
-              name:
-                type: string
-              standardItemIdentification:
-                type: string
-              classifiedTaxCategory:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    percentage:
-                      type: number
-                    category:
-                      type: string
-                    country:
-                      type: string
-                  required: ["percentage", "category", "country"]
-            required: ["id", "description", "amount", "quantity", "name", "classifiedTaxCategory"]
 
         accountingCustomerParty:
           type: object
@@ -255,60 +225,159 @@ components:
                   description: Email address of the contact person.
                   example: "lj@buyer.se"
           required: ["party", "taxScheme"]
-        taxTotal:
-          type: object
-          description: Represents the total tax details for an invoice.
-          properties:
-            taxSubtotals:
-              type: array
-              description: List of tax breakdowns for different categories or jurisdictions.
-              items:
-              type: object
-              properties:
-                taxableAmount:
-          type: number
-          format: double
-          description: The amount that is subject to tax.
-          example: 10
-        taxAmount:
-          type: number
-          format: double
-          description: The calculated tax amount for the taxable amount.
-          example: 1.4
-        percentage:
-          type: number
-          format: double
-          description: The tax rate percentage applied to the taxable amount.
-          example: 14
-        country:
-          type: string
-          description: The country code where the tax applies.
-          example: "IN"
-        category:
-          type: string
-          description: The category of tax applied (e.g., VAT, SGST, CGST).
-          example: "sgst"
-
-        paymentDetails:
+        lines:
           type: array
           items:
             type: object
             properties:
-              account:
+              id:
                 type: string
-                nullable: true
-              branch_code:
+              description:
                 type: string
-              code:
+              amount:
+                type: number
+              quantity:
+                type: integer
+              name:
                 type: string
-              holder:
+              standardItemIdentification:
                 type: string
-              mandate:
-                type: string
-              network:
-                type: string
-              paymentId:
-                type: string
+              classifiedTaxCategory:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    percentage:
+                      type: number
+                    category:
+                      type: string
+                    country:
+                      type: string
+                  required: ["percentage", "category", "country"]
+            required: ["id", "description", "amount", "quantity", "name", "classifiedTaxCategory"]
+
+        taxTotal:
+          type: object
+          description: Represents the total tax details for an invoice.
+          properties:
+            taxAmount:
+              type: number
+              format: double
+            taxSubTotals:
+              type: array
+              items:
+                type: object
+                properties:
+                  taxableAmount:
+                    type: number
+                    format: double
+                    description: The amount that is subject to tax.
+                    example: 10
+                  taxAmount:
+                    type: number
+                    format: double
+                    description: The calculated tax amount for the taxable amount.
+                    example: 1.4
+                  percentage:
+                    type: number
+                    format: double
+                    description: The tax rate percentage applied to the taxable amount.
+                    example: 14
+                  country:
+                    type: string
+                    description: The country code where the tax applies.
+                    example: "IN"
+                  category:
+                    type: string
+                    description: The category of tax applied (e.g., VAT, SGST, CGST).
+                    example: "sgst"
+        delivery:
+          $ref: '#/components/schemas/Delivery'
+        paymentMeans:
+          $ref: '#/components/schemas/PaymentMeans'
+        paymentTerms:
+          $ref: '#/components/schemas/PaymentTerms'
+
+    Delivery:
+      type: object
+      properties:
+        actualDeliveryDate:
+          type: string
+          format: date
+        deliveryLocation:
+          $ref: '#/components/schemas/DeliveryLocation'
+        deliveryParty:
+          $ref: '#/components/schemas/DeliveryParty'
+
+    DeliveryLocation:
+      type: object
+      properties:
+        id:
+          type: string
+        schemeID:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+
+    Address:
+      type: object
+      properties:
+        streetName:
+          type: string
+        additionalStreetName:
+          type: string
+        cityName:
+          type: string
+        postalZone:
+          type: string
+        country:
+          $ref: '#/components/schemas/Country'
+
+    Country:
+      type: object
+      properties:
+        identificationCode:
+          type: string
+
+    DeliveryParty:
+      type: object
+      properties:
+        partyName:
+          type: string
+
+    PaymentMeans:
+      type: object
+      properties:
+        paymentMeansCode:
+          type: string
+        paymentMeansName:
+          type: string
+        paymentID:
+          type: string
+        payeeFinancialAccount:
+          $ref: '#/components/schemas/PayeeFinancialAccount'
+
+    PayeeFinancialAccount:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        financialInstitutionBranch:
+          $ref: '#/components/schemas/FinancialInstitutionBranch'
+
+    FinancialInstitutionBranch:
+      type: object
+      properties:
+        id:
+          type: string
+
+    PaymentTerms:
+      type: object
+      properties:
+        note:
+          type: string
 
       required:
         - taxSubtotals
