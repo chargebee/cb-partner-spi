@@ -8,7 +8,10 @@ info:
     - **Document Submission:** Submit electronic documents to E-Invoice Service Providers for processing and compliance.
     - **Document Status Tracking:** Monitor the status of submitted e-invoices to ensure timely processing and resolution of any issues.
     - **Document Download:** Download e-invoice documents for record-keeping, auditing, and compliance purposes.
-    
+    - **Registration Management:** Manage registrations with e-invoicing networks, allowing businesses to register and activate mandates.
+    - **Mandate Retrieval:** Retrieve country-specific mandates and required data fields for compliance with local regulations.
+    - **Trading Partner Search:** Search and retrieve information about trading partners within the e-invoicing ecosystem.
+
     If you have an API that provides the services mentioned above and wish to integrate it with Chargebee, you can develop an adapter service following this specification. This will allow Chargebee to efficiently manage e-invoicing processes while ensuring compliance with local e-invoicing regulations.
   version: "1.0.0"
 servers:
@@ -17,11 +20,66 @@ servers:
   - url: "https://sandbox.example.com"
     description: "Sandbox server for testing"
 tags:
+  - name: "Registrations"
+    description: "Operations related to e-invoicing registrations"
+  - name: "Mandates"
+    description: "Operations related to country mandates for e-invoicing compliance"
   - name: "Documents"
     description: "Operations related to e-invoicing documents"
+  - name: "Trading Partners"
+    description: "Operations related to searching and retrieving trading partner information"
+
 security:
   - ApiKeyAuth: []
 paths:
+  /registrations/{registrationId}:
+    get:
+      tags: ["Registrations"]
+      summary: Retrieve details of a specific registration
+      operationId: getRegistration
+      parameters:
+        - name: registrationId
+          in: path
+          required: true
+          description: The unique identifier of the registration
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Registration details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Registration not found
+  /registrations:
+    get:
+      tags: ["Registrations"]
+      summary: Retrieve a list of registrations
+      operationId: listRegistrations
+      responses:
+        '200':
+          description: A list of registrations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationsResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+
   /einvoicing/documents:
     post:
       tags: ["Documents"]
@@ -64,7 +122,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DocumentStatus"
   /einvoicing/documents/{documentId}/download:
-    post:
+    get:
       tags: ["Documents"]
       summary: "Download Document"
       parameters:
@@ -80,13 +138,238 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DownloadDocumentResponse"
+
+  /mandates:
+    get:
+      tags: ["Mandates"]
+      summary: Retrieve a list of country mandates supported by the E-Invoicing platform
+      operationId: getMandates
+      responses:
+        '200':
+          description: A list of mandates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MandatesResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+
+  /mandates/{mandateId}/data-input-fields:
+    get:
+      tags: ["Mandates"]
+      summary: Retrieve document field information for a specific country mandate and document type
+      operationId: getMandateDataInputFields
+      parameters:
+        - name: mandateId
+          in: path
+          required: true
+          description: The unique identifier of the mandate
+          schema:
+            type: string
+        - name: documentType
+          in: query
+          required: true
+          description: The type of document (e.g., 'Invoice', 'CreditNote')
+          schema:
+            type: string
+        - name: version
+          in: query
+          required: true
+          description: The version of the document type
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document field information for the specified mandate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataInputFieldsResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+  /trading-partners:
+    get:
+      tags: ["Trading Partners"]
+      summary: Search for participants in the e-invoicing directory
+      operationId: searchParticipants
+      parameters:
+        - name: $search
+          in: query
+          required: false
+          description: Search term to find participants by name or identifier
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          required: false
+          description: OData filter expression to refine the search results
+          schema:
+            type: string
+        - name: $top
+          in: query
+          required: false
+          description: Number of results to return
+          schema:
+            type: integer
+            default: 10
+        - name: $skip
+          in: query
+          required: false
+          description: Number of results to skip (for pagination)
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: A list of participants matching the search criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParticipantsResponse'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+
 components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: "X-API-Key"
   schemas:
+    Registration:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the registration
+        registrationType:
+          type: string
+          description: The type of registration (e.g., 'Invoice')
+        status:
+          type: object
+          properties:
+            code:
+              type: string
+              description: The status code (e.g., 'Completed')
+            message:
+              type: string
+              description: A message describing the registration status
+        company:
+          type: object
+          properties:
+            identifier:
+              type: string
+              description: The unique identifier for the company
+            displayName:
+              type: string
+              description: The display name of the company
+            location:
+              type: string
+              format: uri
+              description: The API location URL for the company
+        mandates:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredMandate'
+
+    RegisteredMandate:
+      type: object
+      properties:
+        countryMandate:
+          type: string
+          description: The specific mandate identifier for the country
+        countryCode:
+          type: string
+          description: The country code associated with the mandate
+        mandateType:
+          type: string
+          description: The type of mandate (e.g., 'B2B')
+    RegistrationsResponse:
+      type: object
+      properties:
+        recordSetCount:
+          type: integer
+          description: Total number of registrations
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/Registration'
+    MandatesResponse:
+      type: object
+      properties:
+        mandates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mandate'
+
+    Mandate:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the mandate
+        country:
+          type: string
+          description: The country associated with the mandate
+        description:
+          type: string
+          description: A brief description of the mandate
+        effectiveDate:
+          type: string
+          format: date
+          description: The date when the mandate becomes effective
+        documentTypes:
+          type: array
+          items:
+            type: string
+          description: List of document types applicable to the mandate
+
+    DataInputFieldsResponse:
+      type: object
+      properties:
+        mandateId:
+          type: string
+          description: The unique identifier of the mandate
+        documentType:
+          type: string
+          description: The type of document
+        version:
+          type: string
+          description: The version of the document type
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataInputField'
+
+    DataInputField:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the data input field
+        type:
+          type: string
+          description: The data type of the field (e.g., 'string', 'number')
+        required:
+          type: boolean
+          description: Indicates if the field is mandatory
+        description:
+          type: string
+          description: A brief description of the field
+
     Document:
       type: object
       properties:
@@ -456,4 +739,66 @@ components:
         - fileName
         - contentType
         - content
+    ParticipantsResponse:
+      type: object
+      properties:
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+    Participant:
+      type: object
+      properties:
+        participantId:
+          type: string
+          description: The unique identifier of the participant
+        participantName:
+          type: string
+          description: The name of the participant
+        country:
+          type: string
+          description: The country where the participant is located
+        status:
+          type: string
+          description: The current status of the participant (e.g., 'Active', 'Inactive')
+        identifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Identifier'
+          description: List of identifiers associated with the participant
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+          description: List of addresses associated with the participant
+        supportedDocumentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentType'
+          description: List of document types supported by the participant
+
+    Identifier:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of identifier (e.g., 'VAT', 'EORI')
+        value:
+          type: string
+          description: The value of the identifier
+
+    DocumentType:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of document (e.g., 'Invoice', 'CreditNote')
+        version:
+          type: string
+          description: The version of the document type
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: "X-API-Key"
           
