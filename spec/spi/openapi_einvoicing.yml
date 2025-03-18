@@ -32,7 +32,7 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
-  /registrations/{registrationId}:
+  /einvoicing/registrations/{registrationId}:
     get:
       tags: ["Registrations"]
       summary: Retrieve details of a specific registration
@@ -59,7 +59,7 @@ paths:
           description: Forbidden
         '404':
           description: Registration not found
-  /registrations:
+  /einvoicing/registrations:
     get:
       tags: ["Registrations"]
       summary: Retrieve a list of registrations
@@ -139,7 +139,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DownloadDocumentResponse"
 
-  /mandates:
+  /einvoicing/mandates:
     get:
       tags: ["Mandates"]
       summary: Retrieve a list of country mandates supported by the E-Invoicing platform
@@ -160,7 +160,7 @@ paths:
         '404':
           description: Not found
 
-  /mandates/{mandateId}/data-input-fields:
+  /einvoicing/mandates/{mandateId}/data-input-fields:
     get:
       tags: ["Mandates"]
       summary: Retrieve document field information for a specific country mandate and document type
@@ -199,7 +199,7 @@ paths:
           description: Forbidden
         '404':
           description: Not found
-  /trading-partners:
+  /einvoicing/trading-partners:
     get:
       tags: ["Trading Partners"]
       summary: Search for participants in the e-invoicing directory
