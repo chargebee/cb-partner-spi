@@ -656,12 +656,7 @@ components:
       properties:
         request_id:
           type: string
-        sender:
-          type: string
-          example: 9930:DE111111125
-        receiver:
-          type: string
-          example: 9930:DE010101010
+
         documents:
           type: array
           items:
@@ -682,56 +677,6 @@ components:
                 type: string
                 format: date-time
                 example: 2025-03-28T09:24:29Z
-        evidence:
-          type: object
-          required:
-            - receiving_accesspoint
-            - xml
-            - message_id
-            - transmission_id
-          properties:
-            receiving_accesspoint:
-              type: string
-              example: CN=PNL000151, OU=PEPPOL TEST AP, ...
-            xml:
-              type: string
-              description: Signed PEPPOL receipt envelope as a string
-            message_id:
-              type: string
-              example: f3c080c3-181f-44f6-9659-58b4a169a413@phase4
-            transmission_id:
-              type: string
-              format: uuid
-              example: e3eef927-06cf-4b13-903c-6f7a6f223449
-            partner_key:
-              type: string
-              nullable: true
-            signature:
-              type: string
-              nullable: true
-            signature_date_time:
-              type: string
-              format: date-time
-              nullable: true
-            signature_number:
-              type: string
-              nullable: true
-            qr_code:
-              type: string
-              nullable: true
-            smtp_response:
-              type: string
-              nullable: true
-            timestamp:
-              type: string
-              format: date-time
-              nullable: true
-            reporting_mta:
-              type: string
-              nullable: true
-            remote_mta_ip:
-              type: string
-              nullable: true
         network:
           type: string
           enum: [peppol]
