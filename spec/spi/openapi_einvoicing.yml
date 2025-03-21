@@ -9,7 +9,6 @@ info:
     - **Document Status Tracking:** Monitor the status of submitted e-invoices to ensure timely processing and resolution of any issues.
     - **Document Download:** Download e-invoice documents for record-keeping, auditing, and compliance purposes.
     - **Registration Management:** Manage registrations with e-invoicing networks, allowing businesses to register and activate mandates.
-    - **Mandate Retrieval:** Retrieve country-specific mandates and required data fields for compliance with local regulations.
     - **Trading Partner Search:** Search and retrieve information about trading partners within the e-invoicing ecosystem.
 
     If you have an API that provides the services mentioned above and wish to integrate it with Chargebee, you can develop an adapter service following this specification. This will allow Chargebee to efficiently manage e-invoicing processes while ensuring compliance with local e-invoicing regulations.
