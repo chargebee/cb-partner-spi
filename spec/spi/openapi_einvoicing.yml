@@ -22,8 +22,6 @@ tags:
     description: "Operations related to e-invoicing registrations"
   - name: "Documents"
     description: "Operations related to e-invoicing documents"
-  - name: "Trading Partners"
-    description: "Operations related to searching and retrieving trading partner information"
 
 security:
   - ApiKeyAuth: []
@@ -41,7 +39,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/RegistrationsResponse'
         '400':
-          description: Bad request
+          description: Bad request(TBA)
         '401':
           description: Unauthorized
         '403':
@@ -75,13 +73,15 @@ paths:
                         format: uuid
                         description: Unique identifier for tracing the request
         '400':
-          description: Invalid request
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DocumentSubmissionErrorResponse"
+                $ref: "#/components/schemas/DocumentErrorResponse"
         "401":
           description: Unauthorized
+        '403':
+          description: Forbidden
         "500":
           description: Unexpected error while processing request.
   /einvoicing/documents/{documentId}/status:
@@ -101,6 +101,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentStatus"
+        '400':
+          description: Bad request (TBA)
+        "401":
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        "500":
+          description: Unexpected error while processing request.
   /einvoicing/documents/{documentId}/download:
     get:
       tags: ["Documents"]
@@ -118,6 +128,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DownloadDocumentResponse"
+        '400':
+          description: Bad request
+        "401":
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        "500":
+          description: Unexpected error while processing request.
 
 components:
   schemas:
@@ -453,7 +473,7 @@ components:
             standardItemIdentification: CONS-APRIL
             classifiedTaxCategory:
               - percentage: 14
-                category: S
+                category: VAT
                 country: DE
         taxTotal:
           taxAmount: 14.00
@@ -578,31 +598,22 @@ components:
           description: "Unique identifier for the document."
         status:
           type: string
-          description: "Current status of the document (e.g., 'Pending', 'Processed', 'Rejected')."
+          description: "Current status of the document"
+          enum:
+            - Success
+            - Failed
+            - In-progress
         submissionDate:
           type: string
           format: date-time
           description: "Date and time when the document was submitted."
         processingDetails:
           type: object
-          properties:
-            processedDate:
-              type: string
-              format: date-time
-              description: "Date and time when the document was processed."
-            errors:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                    description: "Error code."
-                  message:
-                    type: string
-                    description: "Detailed error message."
-              description: "List of errors encountered during processing, if any."
-          description: "Details about the document's processing status."
+          $ref: "#/components/schemas/DocumentErrorResponse"
+      example:
+        documentId: DOC-20250402-0001
+        status: Success
+        submissionDate: 2025-04-02T07:39:31.815Z
       required:
         - documentId
         - status
@@ -620,7 +631,6 @@ components:
       properties:
         request_id:
           type: string
-
         documents:
           type: array
           items:
@@ -644,7 +654,13 @@ components:
         network:
           type: string
           enum: [peppol]
-          example: peppol
+      example:
+        request_id: "a3d56940-2827-4b87-a229-00d8b95cbe77"
+        documents:
+          - mime_type: "application/xml"
+            document_url: "https://provider.com/downloads/invoice-20250402.xml"
+            expires_at: "2025-03-28T09:24:29Z"
+        network: peppol
 
     ParticipantsResponse:
       type: object
@@ -703,16 +719,7 @@ components:
         version:
           type: string
           description: The version of the document type
-    ErrorDetail:
-      type: object
-      properties:
-        source:
-          type: string
-          description: The source of the error (e.g. field name)
-        details:
-          type: string
-          description: A human-readable description of the error
-    DocumentSubmissionErrorResponse:
+    DocumentErrorResponse:
       type: object
       properties:
         errors:
@@ -739,38 +746,9 @@ components:
               - message
       example:
         errors:
-          - code: PAYMENT_INSTRUCTION_FAILED
+          - code: MISSING_REQUIRED_DATA
             message: Payment instruction validation failed — missing or invalid IBAN.
             helpUrl: https://docs.provider.com/errors#PAYMENT_INSTRUCTION_FAILED
-
-
-    BasicErrorResponse:
-      additionalProperties: false
-      description: The basic error response containing the error message and the help
-        documentation link.
-      properties:
-        message:
-          description: The description of the error with details about it's cause.
-          maxLength: 250
-          type: string
-        helpUrl:
-          description: The link to the documentation for more information about the
-            error and the corrective action.
-          format: uri
-          type: string
-      required:
-        - message
-      type: object
-    ErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          type: string
-          description: Unique identifier for tracing the request
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
