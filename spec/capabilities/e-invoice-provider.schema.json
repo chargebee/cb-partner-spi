@@ -326,6 +326,16 @@
         "type": "string",
         "description": "Specifies the identifier of the Provider"
       },
+      "provider_type": {
+        "type": "array",
+        "description": "Specifies the list of the features that the Provider supports. In the case of E-invoicing Configuration this would just be E_INVOICING",
+        "items": {
+          "type": "string",
+          "enum": [
+            "E_INVOICING"
+          ]
+        }
+      },
       "display_name": {
         "type": "string",
         "description": "Specifies the display name of the Provider in Chargebee platform.",
