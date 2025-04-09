@@ -243,12 +243,12 @@
         "external_id":{
           "type":"string",
           "description":"Specifies the parameter name Provider expects.",
-          "example": ["productCode"]
+          "example": ["vat_number"]
         },
         "display_name":{
           "type":"string",
           "description":"Specifies the name of the parameter to be displayed in Chargebee platform.",
-          "example": ["Product Code"]
+          "example": ["Vat Number"]
         },
         "is_mandatory":{
           "type":"boolean",
