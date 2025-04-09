@@ -1,61 +1,65 @@
 {
-  "$schema":"http://json-schema.org/draft-06/schema#",
-  "$ref":"#/definitions/ProviderCapabilitySchema",
-  "definitions":{
-    "ProviderCapabilitySchema":{
-      "type":"object",
-      "description":"The main schema that defines the structure of both Provider's production and sandbox capabilities.",
-      "additionalProperties":false,
-      "properties":{
-        "prod":{
-          "$ref":"#/definitions/CapabilityBody"
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/ProviderCapabilitySchema",
+  "definitions": {
+    "ProviderCapabilitySchema": {
+      "type": "object",
+      "description": "The main schema that defines the structure of both Provider's production and sandbox capabilities.",
+      "additionalProperties": false,
+      "properties": {
+        "prod": {
+          "$ref": "#/definitions/CapabilityBody"
         },
-        "sandbox":{
-          "$ref":"#/definitions/CapabilityBody"
+        "sandbox": {
+          "$ref": "#/definitions/CapabilityBody"
         }
       },
-      "required":[
+      "required": [
         "prod",
         "sandbox"
       ],
-      "title":"ProviderCapabilitySchema"
+      "title": "ProviderCapabilitySchema"
     },
-    "CapabilityBody":{
-      "type":"object",
-      "description":"Specifies the capabilities and configurations of the Provider for a given environment (e.g., production or sandbox).",
-      "additionalProperties":false,
-      "properties":{
-        "identity_configuration":{
-          "$ref":"#/definitions/IdentityConfiguration",
-          "description":"Specifies Identity Configuration details of the Provider such as Logo url, description, compliance related details."
+    "CapabilityBody": {
+      "type": "object",
+      "description": "Specifies the capabilities and configurations of the Provider for a given environment (e.g., production or sandbox).",
+      "additionalProperties": false,
+      "properties": {
+        "identity_configuration": {
+          "$ref": "#/definitions/IdentityConfiguration",
+          "description": "Specifies Identity Configuration details of the Provider such as Logo url, description, compliance related details."
         },
-        "api_configuration":{
-          "$ref":"#/definitions/APIConfiguration",
-          "description":"Specifies API configuration details of the Provider including the base URL and any necessary credentials."
+        "api_configuration": {
+          "$ref": "#/definitions/APIConfiguration",
+          "description": "Specifies API configuration details of the Provider including the base URL and any necessary credentials."
         },
-        "capabilities":{
-          "$ref":"#/definitions/Capabilities",
-          "description":"Specifies the capabilities supported by the Provider with additional details such as supported countries and currencies."
+        "capabilities": {
+          "$ref": "#/definitions/Capabilities",
+          "description": "Specifies the capabilities supported by the Provider with additional details such as supported countries and currencies."
         },
-        "customer_identifiers":{
-          "type":"array",
-          "description":"Specifies the custom fields which the Provider supports for a customer to uniquely identify or mark the customer (Common for all supported countries).",
-          "items":{
-            "$ref":"#/definitions/Identifier"
+        "customer_identifiers": {
+          "type": "array",
+          "description": "Specifies the custom fields which the Provider supports for a customer to uniquely identify or mark the customer (Common for all supported countries).",
+          "items": {
+            "$ref": "#/definitions/Identifier"
           }
         },
-        "supported_number_of_line_items":{
-          "type":"integer",
-          "description":"Specifies the supported number of line items in an invoice or a credit note.",
-          "examples": [1200]
+        "supported_number_of_line_items": {
+          "type": "integer",
+          "description": "Specifies the supported number of line items in an invoice or a credit note.",
+          "examples": [
+            1200
+          ]
         },
-        "version":{
-          "type":"string",
-          "description":"Specifies the Semantic Versioning of the schema.",
-          "examples":["1.0.0"]
+        "version": {
+          "type": "string",
+          "description": "Specifies the Semantic Versioning of the schema.",
+          "examples": [
+            "1.0.0"
+          ]
         }
       },
-      "required":[
+      "required": [
         "api_configuration",
         "capabilities",
         "customer_identifiers",
@@ -63,99 +67,110 @@
         "supported_number_of_line_items",
         "version"
       ],
-      "title":"Prod"
+      "title": "Prod"
     },
-    "APIConfiguration":{
-      "type":"object",
-      "description":"Specifies API configuration details of the Provider including the base URL and any necessary credentials.",
-      "additionalProperties":false,
-      "properties":{
-        "api_base_url":{
-          "type":"string",
-          "description":"Specifies the Provider's Base URL.",
-          "format":"uri",
-          "qt-uri-protocols":[
+    "APIConfiguration": {
+      "type": "object",
+      "description": "Specifies API configuration details of the Provider including the base URL and any necessary credentials.",
+      "additionalProperties": false,
+      "properties": {
+        "api_base_url": {
+          "type": "string",
+          "description": "Specifies the Provider's Base URL.",
+          "format": "uri",
+          "qt-uri-protocols": [
             "https"
           ],
-          "examples": ["https://api.tax-provider.com/integrations/chargebee/api/v1"]
+          "examples": [
+            "https://api.tax-provider.com/integrations/chargebee/api/v1"
+          ]
         },
-        "credential_configuration":{
-          "type":"array",
-          "description":"Specifies the list of parameters that Provider needed for authentication & authorization.",
-          "items":{
-            "$ref":"#/definitions/CredentialConfiguration"
+        "credential_configuration": {
+          "type": "array",
+          "description": "Specifies the list of parameters that Provider needed for authentication & authorization.",
+          "items": {
+            "$ref": "#/definitions/CredentialConfiguration"
           }
         }
       },
-      "required":[
+      "required": [
         "api_base_url",
         "credential_configuration"
       ],
-      "title":"APIConfiguration"
+      "title": "APIConfiguration"
     },
-    "CredentialConfiguration":{
-      "type":"object",
-      "description":"Specifies the list of parameters that Provider needed for authentication & authorization.",
-      "additionalProperties":false,
-      "properties":{
-        "id":{
-          "type":"string",
-          "description":"Specifies the parameter name that Provider expects.",
-          "examples": ["api_key"]
+    "CredentialConfiguration": {
+      "type": "object",
+      "description": "Specifies the list of parameters that Provider needed for authentication & authorization.",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Specifies the parameter name that Provider expects.",
+          "examples": [
+            "api_key"
+          ]
         },
-        "name":{
-          "type":"string",
-          "description":"Specifies the name to be displayed for the provider app in Chargebee platform.",
-          "examples": ["E-invoice Provider API Key"]
+        "name": {
+          "type": "string",
+          "description": "Specifies the name to be displayed for the provider app in Chargebee platform.",
+          "examples": [
+            "E-invoice Provider API Key"
+          ]
         },
         "type": {
           "type": "string",
           "description": "Specifies the type of the parameter.",
-          "enum": ["text", "password"]
+          "enum": [
+            "text",
+            "password"
+          ]
         },
-        "is_sensitive":{
-          "type":"boolean",
-          "description":"Specifies the the case sensitivity of the parameter."
+        "is_sensitive": {
+          "type": "boolean",
+          "description": "Specifies the the case sensitivity of the parameter."
         },
-        "is_required":{
-          "type":"boolean",
-          "description":"Specifies if the Provider expects this parameter mandatorily."
+        "is_required": {
+          "type": "boolean",
+          "description": "Specifies if the Provider expects this parameter mandatorily."
         }
       },
-      "required":[
+      "required": [
         "id",
         "is_required",
         "is_sensitive",
         "name",
         "type"
       ],
-      "title":"CredentialConfiguration"
+      "title": "CredentialConfiguration"
     },
-    "Capabilities":{
-      "type":"object",
-      "additionalProperties":false,
-      "properties":{
-        "supported_countries":{
-          "$ref":"#/definitions/SupportedCountries",
-            "description":"Specifies the supported countries(ISO 3166 alpha-2 country code format) for e-invoicing and country specific data needed."
+    "Capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "supported_countries": {
+          "$ref": "#/definitions/SupportedCountries",
+          "description": "Specifies the supported countries(ISO 3166 alpha-2 country code format) for e-invoicing and country specific data needed."
         },
-        "supported_currencies":{
-          "type":"array",
-          "description":"Specifies the supported currencies(ISO 4217 format) by the Provider for the E-invoicing capability",
-          "items":{
-            "type":"string"
+        "supported_currencies": {
+          "type": "array",
+          "description": "Specifies the supported currencies(ISO 4217 format) by the Provider for the E-invoicing capability",
+          "items": {
+            "type": "string"
           },
-          "examples": ["USD"]
+          "examples": [
+            "USD"
+          ]
         },
-        "can_have_customer_identifiers":{
-          "type":"boolean",
-          "description":"Specifies if customer custom fields are supported."
+        "can_have_customer_identifiers": {
+          "type": "boolean",
+          "description": "Specifies if customer custom fields are supported."
         },
-        "is_get_activations_supported":{
+        "is_get_activations_supported": {
           "type": "boolean",
           "description": "Specifies if fetching all activations registered on provider portal is supported."
         },
-        "activation":{
+        "activation": {
           "type": "object",
           "description": "Specifies the activation related configuration.",
           "properties": {
@@ -165,24 +180,24 @@
             },
             "supported_countries": {
               "$ref": "#/definitions/SupportedCountries",
-                "description": "Specifies the countries(ISO 3166 alpha-2 country code format) supported for activation via Chargebee and country specific data needed for activation."
+              "description": "Specifies the countries(ISO 3166 alpha-2 country code format) supported for activation via Chargebee and country specific data needed for activation."
             }
           }
         },
-        "is_get_mandates_supported":{
+        "is_get_mandates_supported": {
           "type": "boolean",
           "description": "Specifies if fetching mandates for countries is supported."
         },
-        "is_get_e_invoice_status_supported":{
+        "is_get_e_invoice_status_supported": {
           "type": "boolean",
           "description": "Specifies if fetching e-invoice status for a given invoice is supported."
         },
-        "is_e_invoice_delivery_supported":{
+        "is_e_invoice_delivery_supported": {
           "type": "boolean",
           "description": "Specifies if e-invoice delivery to the customer is supported."
         }
       },
-      "required":[
+      "required": [
         "can_have_customer_identifiers",
         "supported_countries",
         "supported_currencies",
@@ -192,178 +207,212 @@
         "is_get_e_invoice_status_supported",
         "is_e_invoice_delivery_supported"
       ],
-      "title":"Capabilities"
+      "title": "Capabilities"
     },
-    "SupportedCountries":{
-      "type":"object",
-      "description":"Specifies the supported countries(ISO 3166 alpha-2 country code format) and country specific configuration.",
-      "patternProperties":{
-        "^[A-Z]{2}$":{
-          "type":"object",
-          "properties":{
-            "customFields":{
-              "type":"array",
-              "description":"Specifies the custom fields that are required or supported for the country.",
-              "items":{
-                "$ref":"#/definitions/Identifier"
-              }
-            }
-          }
-        }
+    "SupportedCountries": {
+      "type": "array",
+      "description": "Specifies the supported countries(ISO 3166 alpha-2 country code format) and country specific configuration.",
+      "items": {
+        "$ref": "#/definitions/SupportedCountry"
       },
-      "examples" : [
+      "examples": [
         {
-          "AT": {
-            "customFields": [
-              {
-                "external_id": "vat_number",
-                "display_name": "VAT Number",
-                "is_mandatory": true,
-                "is_default": false,
-                "field_type": "text"
-              },
-              {
-                "external_id": "gln_number",
-                "display_name": "GLN",
-                "is_mandatory": true,
-                "is_default": false,
-                "field_type": "text"
-              }
-            ]
-          }
+          "countryCode": "DE",
+          "customFields": [
+            {
+              "external_id": "email_address",
+              "display_name": "Email Address",
+              "is_mandatory": true,
+              "is_default": false,
+              "field_type": "text"
+            },
+            {
+              "external_id": "tax_id",
+              "display_name": "Tax ID",
+              "is_mandatory": true,
+              "is_default": true,
+              "field_type": "text"
+            }
+          ]
+        },
+        {
+          "countryCode": "AT",
+          "customFields": [
+            {
+              "external_id": "vat_number",
+              "display_name": "VAT Number",
+              "is_mandatory": true,
+              "is_default": false,
+              "field_type": "text"
+            },
+            {
+              "external_id": "company_registration",
+              "display_name": "Company Registration Number",
+              "is_mandatory": true,
+              "is_default": true,
+              "field_type": "text"
+            }
+          ]
         }
-      ],
-      "additionalProperties":false
+      ]
     },
-    "Identifier":{
-      "type":"object",
-      "description":"Specifies the custom identifiers for the entities such as Customer.",
-      "additionalProperties":false,
-      "properties":{
-        "external_id":{
-          "type":"string",
-          "description":"Specifies the parameter name Provider expects.",
-          "example": ["vat_number"]
+    "SupportedCountry": {
+      "type": "object",
+      "properties": {
+        "countryCode": {
+          "type": "string",
+          "description": "ISO 3166-1 alpha-2 country code",
+          "pattern": "^[A-Z]{2}$"
         },
-        "display_name":{
-          "type":"string",
-          "description":"Specifies the name of the parameter to be displayed in Chargebee platform.",
-          "example": ["Vat Number"]
-        },
-        "is_mandatory":{
-          "type":"boolean",
-          "description":"Specifies if the parameter is mandatory."
-        },
-        "is_default":{
-          "type":"boolean",
-          "deprecated": true,
-          "description":"Specifies if the parameter has a default value."
-        },
-        "field_type":{
-          "type":"string"
+        "customFields": {
+          "type": "array",
+          "description": "Specifies the custom fields that are required or supported for the country.",
+          "items": {
+            "$ref": "#/definitions/Identifier"
+          }
         }
       },
-      "required":[
-        "display_name",
-        "external_id",
-        "field_type"
-      ],
-      "title":"Identifier"
+      "required": [
+        "countryCode"
+      ]
     },
-    "IdentityConfiguration":{
-      "type":"object",
-      "description":"Specifies Identity Configuration details of the Provider such as Logo url, description, compliance related details.",
-      "additionalProperties":false,
-      "properties":{
-        "id":{
-          "type":"string",
-          "description":"Specifies the identifier of the Provider"
-        },
-        "display_name":{
-          "type":"string",
-          "description":"Specifies the display name of the Provider in Chargebee platform.",
-          "examples":["Anrok"]
-        },
-        "logo_url":{
-          "type":"string",
-          "description":"Specifies the logo url of the Provider to display in Chargebee platform.",
-          "format":"uri",
-          "qt-uri-protocols":[
-            "https"
-          ],
-          "qt-uri-extensions":[
-            ".png"
-          ]
-        },
-        "primary_description":{
-          "type":"array",
-          "description":"Specifies the primary description of the Provider.",
-          "items":{
-            "type":"string"
-          }
-        },
-        "secondary_description":{
-          "type":"array",
-          "description":"Specifies the secondary description of the Provider.",
-          "items":{
-            "type":"string"
-          }
-        },
-        "signup_url":{
-          "type":"string",
-          "description":"Specifies the url for the merchant to sign up with the provider.",
-          "format":"uri",
-          "qt-uri-protocols":[
-            "https"
-          ]
-        },
-        "consent_policy_url":{
-          "type":"string",
-          "description":"Specifies the url about the consent related details of the Provider for the merchant."
-        },
-        "privacy_policy_url":{
-          "type":"string",
-          "description":"Specifies the url about the privacy related details of the Provider for the merchant."
-        },
-        "terms_of_service_url":{
-          "type":"string",
-          "description":"Specifies the url about the terms of services related details of the Provider for the merchant.",
-          "format":"uri",
-          "qt-uri-protocols":[
-            "https"
-          ]
-        },
-        "documentation_url":{
-          "type":"string",
-          "description":"Specifies the url about the documentation details of the Provider for the merchant.",
-          "format":"uri",
-          "qt-uri-protocols":[
-            "https"
-          ],
-          "qt-uri-extensions":[
-            ".html"
-          ]
-        },
-        "support_email":{
-          "type":"string",
-          "description":"Specifies the support email of the Provider to reach out to incase of queries or escalations.",
-          "format":"email"
+    "additionalProperties": false
+  },
+  "Identifier": {
+    "type": "object",
+    "description": "Specifies the custom identifiers for the entities such as Customer.",
+    "additionalProperties": false,
+    "properties": {
+      "external_id": {
+        "type": "string",
+        "description": "Specifies the parameter name Provider expects.",
+        "example": [
+          "vat_number"
+        ]
+      },
+      "display_name": {
+        "type": "string",
+        "description": "Specifies the name of the parameter to be displayed in Chargebee platform.",
+        "example": [
+          "Vat Number"
+        ]
+      },
+      "is_mandatory": {
+        "type": "boolean",
+        "description": "Specifies if the parameter is mandatory."
+      },
+      "is_default": {
+        "type": "boolean",
+        "deprecated": true,
+        "description": "Specifies if the parameter has a default value."
+      },
+      "field_type": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "display_name",
+      "external_id",
+      "field_type"
+    ],
+    "title": "Identifier"
+  },
+  "IdentityConfiguration": {
+    "type": "object",
+    "description": "Specifies Identity Configuration details of the Provider such as Logo url, description, compliance related details.",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "Specifies the identifier of the Provider"
+      },
+      "display_name": {
+        "type": "string",
+        "description": "Specifies the display name of the Provider in Chargebee platform.",
+        "examples": [
+          "Anrok"
+        ]
+      },
+      "logo_url": {
+        "type": "string",
+        "description": "Specifies the logo url of the Provider to display in Chargebee platform.",
+        "format": "uri",
+        "qt-uri-protocols": [
+          "https"
+        ],
+        "qt-uri-extensions": [
+          ".png"
+        ]
+      },
+      "primary_description": {
+        "type": "array",
+        "description": "Specifies the primary description of the Provider.",
+        "items": {
+          "type": "string"
         }
       },
-      "required":[
-        "consent_policy_url",
-        "display_name",
-        "documentation_url",
-        "id",
-        "logo_url",
-        "primary_description",
-        "privacy_policy_url",
-        "secondary_description",
-        "signup_url",
-        "support_email",
-        "terms_of_service_url"
-      ],
-      "title":"IdentityConfiguration"
-    }
+      "secondary_description": {
+        "type": "array",
+        "description": "Specifies the secondary description of the Provider.",
+        "items": {
+          "type": "string"
+        }
+      },
+      "signup_url": {
+        "type": "string",
+        "description": "Specifies the url for the merchant to sign up with the provider.",
+        "format": "uri",
+        "qt-uri-protocols": [
+          "https"
+        ]
+      },
+      "consent_policy_url": {
+        "type": "string",
+        "description": "Specifies the url about the consent related details of the Provider for the merchant."
+      },
+      "privacy_policy_url": {
+        "type": "string",
+        "description": "Specifies the url about the privacy related details of the Provider for the merchant."
+      },
+      "terms_of_service_url": {
+        "type": "string",
+        "description": "Specifies the url about the terms of services related details of the Provider for the merchant.",
+        "format": "uri",
+        "qt-uri-protocols": [
+          "https"
+        ]
+      },
+      "documentation_url": {
+        "type": "string",
+        "description": "Specifies the url about the documentation details of the Provider for the merchant.",
+        "format": "uri",
+        "qt-uri-protocols": [
+          "https"
+        ],
+        "qt-uri-extensions": [
+          ".html"
+        ]
+      },
+      "support_email": {
+        "type": "string",
+        "description": "Specifies the support email of the Provider to reach out to incase of queries or escalations.",
+        "format": "email"
+      }
+    },
+    "required": [
+      "consent_policy_url",
+      "display_name",
+      "documentation_url",
+      "id",
+      "logo_url",
+      "primary_description",
+      "privacy_policy_url",
+      "secondary_description",
+      "signup_url",
+      "support_email",
+      "terms_of_service_url"
+    ],
+    "title": "IdentityConfiguration"
   }
+}
 }
