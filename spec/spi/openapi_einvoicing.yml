@@ -8,7 +8,7 @@ info:
     - **Document Submission:** Submit electronic documents to E-Invoice Service Providers for processing and compliance.
     - **Document Status Tracking:** Monitor the status of submitted e-invoices to ensure timely processing and resolution of any issues.
     - **Document Download:** Download e-invoice documents for record-keeping, auditing, and compliance purposes.
-    - **Registration Management:** Get registrations with e-invoicing networks, allowing businesses to register and activate mandates.
+    - **Activation Management:** Get Activations with e-invoicing networks, allowing businesses to register and activate mandates.
 
     If you have an API that provides the services mentioned above and wish to integrate it with Chargebee, you can develop an adapter service following this specification. This will allow Chargebee to efficiently manage e-invoicing processes while ensuring compliance with local e-invoicing regulations.
   version: "1.0.0"
@@ -18,26 +18,26 @@ servers:
   - url: "https://sandbox.example.com"
     description: "Sandbox server for testing"
 tags:
-  - name: "Registrations"
-    description: "Operations related to e-invoicing registrations"
+  - name: "Activations"
+    description: "Operations related to e-invoicing activations"
   - name: "Documents"
     description: "Operations related to e-invoicing documents"
 
 security:
   - ApiKeyAuth: []
 paths:
-  /einvoicing/registrations:
+  /einvoicing/activations:
     get:
-      tags: ["Registrations"]
-      summary: Retrieve a list of registrations
-      operationId: listRegistrations
+      tags: ["Activations"]
+      summary: Retrieve a list of Activations
+      operationId: listActivations
       responses:
         '200':
-          description: A list of registrations
+          description: A list of activations
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegistrationsResponse'
+                $ref: '#/components/schemas/ActivationsResponse'
         '400':
           description: Bad request(TBA)
         '401':
@@ -102,7 +102,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DocumentStatus"
         '400':
-          description: Bad request (TBA)
+          description: Bad request
         "401":
           description: Unauthorized
         '403':
@@ -141,12 +141,12 @@ paths:
 
 components:
   schemas:
-    Registration:
+    Activation:
       type: object
       properties:
         id:
           type: string
-          description: The unique identifier of the registration
+          description: The unique identifier of the activation
         status:
           type: object
           properties:
@@ -159,7 +159,7 @@ components:
                 - Pending
             message:
               type: string
-              description: A message describing the registration status
+              description: A message describing the activation status
         company:
           type: object
           properties:
@@ -190,23 +190,23 @@ components:
             - B2B
             - B2C
             - B2G
-    RegistrationsResponse:
+    ActivationsResponse:
       type: object
       properties:
-        registrationCount:
+        activationsCount:
           type: integer
-          description: Total number of registrations
+          description: Total number of Activations
         value:
           type: array
           items:
-            $ref: '#/components/schemas/Registration'
+            $ref: '#/components/schemas/Activation'
       example:
-        registrationCount: 1
+        activationsCount: 1
         value:
           - id: reg-123456789
             status:
               code: Completed
-              message: Registration completed successfully.
+              message: Activation completed successfully.
             company:
               identifier: DE123456789
               displayName: Acme GmbH
