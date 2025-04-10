@@ -470,7 +470,7 @@
                "type":"string",
                "description":"Specifies the identifier of the Provider"
             },
-            "provider_type":{
+            "type":{
                "type":"array",
                "description":"Specifies the list of the features that the Provider supports. Provider may support Tax or Tax Registration Number(TRN) Validation capabilities or both.",
                "items":{
