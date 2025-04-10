@@ -182,7 +182,8 @@
               "$ref": "#/definitions/SupportedCountries",
               "description": "Specifies the countries(ISO 3166 alpha-2 country code format) supported for activation via Chargebee and country specific data needed for activation."
             }
-          }
+          },
+          "required": ["is_supported"]
         },
         "is_get_mandates_supported": {
           "type": "boolean",
