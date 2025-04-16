@@ -160,23 +160,9 @@
             "USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CNY", "BRL", "MXN"
           ]
         },
-        "activation": {
-          "type": "object",
-          "description": "Specifies the activation related configuration for the E-invoicing provider.",
-          "properties": {
-            "remote_activation_supported": {
-              "type": "boolean",
-              "description": "Specifies if setting up activation on E-invoice provider portal via Chargebee is supported."
-            },
-            "retrieve_activation_supported": {
-              "type": "boolean",
-              "description": "Specifies if retrieving activation info from E-invoice provider portal via Chargebee is supported."
-            }
-          },
-          "required": [
-            "remote_activation_supported",
-            "retrieve_activation_supported"
-          ]
+        "retrieve_activation_supported": {
+          "type": "boolean",
+          "description": "Specifies if retrieving activation info from E-invoice provider portal via Chargebee is supported."
         },
         "retrieve_mandates_supported": {
           "type": "boolean",
@@ -194,7 +180,7 @@
       "required": [
         "supported_countries",
         "supported_currencies",
-        "activation",
+        "retrieve_activation_supported",
         "retrieve_mandates_supported",
         "retrieve_einvoice_status_supported",
         "customer_identifiers"
