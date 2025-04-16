@@ -145,7 +145,7 @@
          "properties":{
             "supported_countries":{
                "type":"array",
-               "description":"Specifies the supported countries(ISO 3166 alpha-2 country code format) by the Provider for all the capabilities such as Tax calculation, syncing invoices/credit notes, TRN validation. If supported countries are different for each capabilities, it shall be specified under the respective capability.",
+               "description":"Specifies the supported countries(ISO 3166 alpha-2 country code format) by the Provider for all the capabilities such as Tax calculation, syncing invoices/credit notes, Tax Registration Number validation. If supported countries are different for each capabilities, it shall be specified under the respective capability.",
                "items":{
                   "type":"string"
                },
@@ -209,9 +209,9 @@
                "$ref":"#/definitions/SyncCapabilities",
                "description":"Specifies details on credit note sync capability."
             },
-            "trn_validation_capabilities":{
-               "$ref":"#/definitions/TrnValidationCapabilities",
-               "description":"Specifies details on TRN validation capability."
+            "tax_reg_number_validation_capabilities":{
+               "$ref":"#/definitions/TaxRegNumValidationCapabilities",
+               "description":"Specifies details on Tax Registration Number validation capability."
             }
          },
          "required":[
@@ -307,7 +307,7 @@
          ],
          "title":"SyncCapabilities"
       },
-      "TrnValidationCapabilities":{
+      "TaxRegNumValidationCapabilities":{
          "type":"object",
          "additionalProperties":false,
          "properties":{
@@ -315,9 +315,20 @@
                "type":"boolean",
                "description":"Specifies if the capability is supported."
             },
+            "async_configuration": {
+               "type": "object",
+               "properties": {
+                  "is_supported": {
+                     "type": "boolean"
+                  }
+               },
+               "required": [
+                  "is_supported"
+               ]
+            },
             "batch_configuration":{
                "type":"object",
-               "description": "Specifies batch TRN Validation related configurations.",
+               "description": "Specifies batch Tax Registration Number Validation related configurations.",
                "properties":{
                   "is_supported":{
                      "type":"boolean",
@@ -342,7 +353,7 @@
                      "properties":{
                         "reference_number":{
                            "type":"object",
-                           "description":"Specifies about reference number configuration. Reference number is the number that provider provides as a proof of the TRN Validation.",
+                           "description":"Specifies about reference number configuration. Reference number is the number that provider provides as a proof of the Tax Registration Number Validation.",
                            "properties":{
                               "is_supported":{
                                  "type":"boolean",
@@ -477,7 +488,7 @@
                   "type":"string",
                   "enum":[
                      "TAX",
-                     "TRN_VALIDATION"
+                     "TAX_REG_NUMBER_VALIDATION"
                   ]
                }
             },
