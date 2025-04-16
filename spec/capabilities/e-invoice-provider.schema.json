@@ -89,6 +89,20 @@
         "api_base_url",
         "credential_configuration"
       ],
+      "examples": [
+        {
+          "api_base_url": "https://api.avalara-einv.com/integrations/chargebee/api/v1",
+          "credential_configuration": [
+            {
+              "id": "api_key",
+              "is_required": true,
+              "is_sensitive": true,
+              "name": "Avalara API Key",
+              "type": "text"
+            }
+          ]
+        }
+      ],
       "title": "APIConfiguration"
     },
     "CredentialConfiguration": {
@@ -105,9 +119,9 @@
         },
         "name": {
           "type": "string",
-          "description": "Specifies the name to be displayed for the E-invoicing provider app in Chargebee platform.",
+          "description": "Specifies the name of parameter to be displayed in the E-invoicing provider app on Chargebee platform.",
           "examples": [
-            "E-invoice Provider API Key"
+            "E-invoicing Provider API Key"
           ]
         },
         "type": {
@@ -133,6 +147,15 @@
         "is_sensitive",
         "name",
         "type"
+      ],
+      "examples": [
+        {
+          "id": "api_key",
+          "is_required": true,
+          "is_sensitive": true,
+          "name": "Avalara API Key",
+          "type": "text"
+        }
       ],
       "title": "CredentialConfiguration"
     },
@@ -162,7 +185,7 @@
         },
         "retrieve_activation_supported": {
           "type": "boolean",
-          "description": "Specifies if retrieving activation info from E-invoice provider portal via Chargebee is supported."
+          "description": "Specifies if retrieving merchant activation info from E-invoicing provider portal via Chargebee is supported."
         },
         "retrieve_mandates_supported": {
           "type": "boolean",
@@ -185,6 +208,41 @@
         "retrieve_einvoice_status_supported",
         "customer_identifiers"
       ],
+      "examples": [
+        {
+            "supported_countries": [
+                "DE", "AT", "FR", "IT", "ES", "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
+            ],
+            "supported_currencies": [
+                "USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CNY", "BRL", "MXN"
+            ],
+            "retrieve_activation_supported": true,
+            "retrieve_mandates_supported": false,
+            "retrieve_einvoice_status_supported": true,
+            "customer_identifiers": [
+                {
+                "external_id": "vat_number",
+                "display_name": "Vat Number",
+                "is_mandatory": true,
+                "is_default": false,
+                "field_type": "text",
+                "applicable_countries": [
+                    "DE", "AT", "FR", "IT", "ES"
+                ]
+                },
+              {
+                "external_id": "gln_number",
+                "display_name": "GLN",
+                "is_mandatory": false,
+                "is_default": false,
+                "field_type": "text",
+                "applicable_countries": [
+                    "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
+                ]
+              }
+            ]
+            }
+      ],
       "title": "Capabilities"
     },
     "CustomerIdentifiers": {
@@ -192,20 +250,7 @@
       "description": "Specifies the customer identifiers required for E-invoicing in different countries.",
       "items": {
         "$ref": "CustomerIdentifier"
-      },
-      "examples": [
-        {
-          "external_id": "vat_number",
-          "display_name": "Vat Number",
-          "is_mandatory": true,
-          "is_default": false,
-          "field_type": "text",
-          "supported_countries": [
-            "DE",
-            "AT"
-          ]
-        }
-      ]
+      }
     },
     "CustomerIdentifier": {
       "type": "object",
@@ -215,14 +260,14 @@
         "external_id": {
           "type": "string",
           "description": "Specifies the parameter name the E-invoicing provider expects.",
-          "example": [
+          "examples": [
             "vat_number"
           ]
         },
         "display_name": {
           "type": "string",
           "description": "Specifies the name of the parameter to be displayed in Chargebee platform.",
-          "example": [
+          "examples": [
             "Vat Number"
           ]
         },
@@ -255,6 +300,19 @@
         "field_type",
         "applicable_countries"
       ],
+      "examples": [
+        {
+          "external_id": "vat_number",
+          "display_name": "Vat Number",
+          "is_mandatory": true,
+          "is_default": false,
+          "field_type": "text",
+          "applicable_countries": [
+            "DE",
+            "AT"
+          ]
+        }
+      ]
       "title": "CustomerIdentifier"
     },
     "IdentityConfiguration": {
@@ -280,7 +338,7 @@
           "type": "string",
           "description": "Specifies the display name of the E-invoicing provider in Chargebee platform.",
           "examples": [
-            "Anrok"
+            "Avalara"
           ]
         },
         "logo_url": {
@@ -362,6 +420,28 @@
         "signup_url",
         "support_email",
         "terms_of_service_url"
+      ],
+      "examples": [
+        {
+          "consent_policy_url": " https://www.avalara-einv.com/privacy-terms",
+          "display_name": "Avalara E-invoicing",
+          "documentation_url": "https://www.chargebee.com/docs/2.0/avalara.html",
+          "id": "avalara",
+          "type": [
+            "E_INVOCING"
+          ],
+          "logo_url": "https://cdn.prod.website-avalara_files.einv_logo.svg",
+          "primary_description": [
+            "Avalara supports E-invoicing of your subscriptions to meet government mandates."
+          ],
+          "privacy_policy_url": " https://www.avalara-einv.com/privacy-terms",
+          "secondary_description": [
+            "Make your invoices compliant."
+          ],
+          "signup_url": "https://avalara-einv.com/contact/request-demo",
+          "support_email": "support@avalara-einv.com",
+          "terms_of_service_url": "https://www.avalara-einv.com/privacy-terms"
+        }
       ],
       "title": "IdentityConfiguration"
     }
