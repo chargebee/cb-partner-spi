@@ -218,7 +218,6 @@
             "can_have_customer_identifiers",
             "can_have_product_identifiers",
             "can_support_currency_inclusive_of_taxes",
-            "can_support_standalone_credit_notes",
             "can_sync_credit_notes",
             "can_sync_invoices",
             "can_validate_shipping_address",
