@@ -253,7 +253,7 @@
       "type": "array",
       "description": "Specifies the customer identifiers required for E-invoicing in different countries.",
       "items": {
-        "$ref": "CustomerIdentifier"
+        "$ref": "#/definitions/CustomerIdentifier"
       }
     },
     "CustomerIdentifier": {
