@@ -432,7 +432,7 @@
           "documentation_url": "https://www.chargebee.com/docs/2.0/avalara.html",
           "id": "avalara",
           "type": [
-            "EINVOCING"
+            "EINVOICING"
           ],
           "logo_url": "https://cdn.prod.website-avalara_files.einv_logo.svg",
           "primary_description": [
