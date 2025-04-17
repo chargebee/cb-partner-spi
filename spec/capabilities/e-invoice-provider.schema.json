@@ -139,6 +139,10 @@
         "is_required": {
           "type": "boolean",
           "description": "Specifies if the E-invoicing provider expects this parameter mandatorily."
+        },
+        "multi_entity_support": {
+          "type": "boolean",
+          "description": "Specifies if the parameter supports multiple values for different accounts of same merchant."
         }
       },
       "required": [
