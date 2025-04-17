@@ -133,7 +133,6 @@
                "type": "boolean",
                "description": "Specifies if the parameter supports multiple values for different accounts of same merchant."
             }
-            }
          },
          "required":[
             "id",
