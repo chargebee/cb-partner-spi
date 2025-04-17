@@ -330,11 +330,11 @@
         },
         "type": {
           "type": "array",
-          "description": "Specifies the list of the features that the E-invoicing provider supports. In the case of E-invoicing Integration this would be E_INVOICING",
+          "description": "Specifies the list of the features that the E-invoicing provider supports. In the case of E-invoicing Integration this would be EINVOICING",
           "items": {
             "type": "string",
             "enum": [
-              "E_INVOICING"
+              "EINVOICING"
             ]
           }
         },
@@ -432,7 +432,7 @@
           "documentation_url": "https://www.chargebee.com/docs/2.0/avalara.html",
           "id": "avalara",
           "type": [
-            "E_INVOCING"
+            "EINVOCING"
           ],
           "logo_url": "https://cdn.prod.website-avalara_files.einv_logo.svg",
           "primary_description": [
