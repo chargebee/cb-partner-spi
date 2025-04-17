@@ -128,6 +128,11 @@
             "is_required":{
                "type":"boolean",
                "description":"Specifies if the Provider expects this parameter mandatorily."
+            },
+            "multi_entity_support": {
+               "type": "boolean",
+               "description": "Specifies if the parameter supports multiple values for different accounts of same merchant."
+            }
             }
          },
          "required":[
