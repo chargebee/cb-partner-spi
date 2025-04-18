@@ -191,10 +191,6 @@
           "type": "boolean",
           "description": "Specifies if retrieving merchant activation info from E-invoicing provider portal via Chargebee is supported."
         },
-        "retrieve_mandates_supported": {
-          "type": "boolean",
-          "description": "Specifies if fetching mandates for countries is supported."
-        },
         "retrieve_einvoice_status_supported": {
           "type": "boolean",
           "description": "Specifies if fetching e-invoice status for a given invoice is supported."
@@ -208,7 +204,6 @@
         "supported_countries",
         "supported_currencies",
         "retrieve_activation_supported",
-        "retrieve_mandates_supported",
         "retrieve_einvoice_status_supported",
         "customer_identifiers"
       ],
@@ -221,7 +216,6 @@
                 "USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CNY", "BRL", "MXN"
             ],
             "retrieve_activation_supported": true,
-            "retrieve_mandates_supported": false,
             "retrieve_einvoice_status_supported": true,
             "customer_identifiers": [
                 {
