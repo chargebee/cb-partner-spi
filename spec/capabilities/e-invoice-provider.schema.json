@@ -43,21 +43,13 @@
           "examples": [
             1200
           ]
-        },
-        "version": {
-          "type": "string",
-          "description": "Specifies the Semantic Versioning of the schema.",
-          "examples": [
-            "1.0.0"
-          ]
         }
       },
       "required": [
         "api_configuration",
         "capabilities",
         "identity_configuration",
-        "supported_number_of_line_items",
-        "version"
+        "supported_number_of_line_items"
       ],
       "title": "Prod"
     },
