@@ -141,6 +141,26 @@
             },
             "api-reference/tax-reg-number-validate/docs/testing-with-postman"
           ]
+        }, {
+          "group": "Einvoicing SPI",
+          "version": "v1",
+          "pages": [
+            "api-reference/einvoicing-spi/docs/overview",
+            {
+              "group": "Activations",
+              "pages": [
+                "api-reference/activations/retrieve-a-list-of-activations"
+               ]
+            },
+            {
+              "group": "Documents",
+              "pages": [
+                "api-reference/documents/submit-a-new-document-invoice-or-credit-note-to-the-e-invoicing-service",
+                "api-reference/documents/get-document-status",
+                "api-reference/documents/download-document-mandatory"
+              ]
+            }
+          ]
         },
 
         "api-reference/troubleshooting"

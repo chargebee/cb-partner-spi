@@ -1,0 +1,1197 @@
+openapi: 3.0.3
+info:
+  description: "## Overview\nTax registration number validate is a Service Provider\
+    \ Interface (SPI) that helps Chargebee communicate with API platforms providing\
+    \ the following services:\n- Validate tax registration number\n- Validate tax\
+    \ registration numbers in batch\n\nIf you have an API that provides the services\
+    \ mentioned above and want Chargebee to be able to integrate with it, you can\
+    \ build an adapter service according to this specification.\n\n## Terminology\n\
+    Here's a list of terms we've used to describe this specification.\n### Merchant\
+    \ \n  Chargebee’s customer who is carrying out the business of selling products.\
+    \ Also known as the Seller. The Seller has one or more Chargebee accounts.\n###\
+    \ Chargebee \n The SaaS which manages subscriptions and revenue operations on\
+    \ behalf of the Merchant. Chargebee makes API calls to the Tax Service Adapter\
+    \ for tax estimation and tax filing of transactions between the Merchant and the\
+    \ Customer.\n### Customer \nMerchant’s customer who purchases products from the\
+    \ Merchant. Their customer record(s) and other details are stored within Chargebee\
+    \ under the Merchant’s account.\n### Service Provider\nThe service which provides\
+    \ services for merchants.\n### Service Adapter \nThe SPI for which the spec is\
+    \ defined in this document. This adapter serves the following purposes:\n- Translates\
+    \ API requests (as defined in this document) from Chargebee to the request format\
+    \ specified by the Service Provider's API.\n- Translates API responses from the\
+    \ Service Provider APIs to the format understood by Chargebee (as defined in this\
+    \ document).\n### Authorization\nChargebee uses HTTP header-based authorization\
+    \ for all the API endpoints associated with Service Adapter. We dynamically pass\
+    \ this authorization key in the HTTP header. The parameter that holds this key\
+    \ is found in the JSON object `api_configuration` required for configuring your\
+    \ onboarding on Chargebee's marketplace. In the `api_configuration` object, our\
+    \ [Taxes Service Adapter SPI](https://chargebee.atlassian.net/l/cp/ca5aZ1mA) checks\
+    \ the authorization key parameter from `credential_configuration.id` and creates\
+    \ the HTTP header-based input query parameter for authorization. The `credential_configuration`\
+    \ is an array of objects with an `id` attribute, and the value of `id` is the\
+    \ parameter containing the authorization key.\n  \n  Following are the JSON snippets\
+    \ for your reference.\n  \n   ```json\n      \"api_configuration\": {\n      \
+    \    \"api_base_url\": \"https://xyz.abc.com/chargebee\",\n          \"credential_configuration\"\
+    : [ \n            {\n              \"id\":\"authorization_key\",\n           \
+    \   \"name\": \"Authorization Key\", \n              \"type\": \"text\",\n   \
+    \           \"is_sensitive\": true \n            },\n            {\n         \
+    \     \"id\": \"client_secret\",\n              \"name\": \"Client Secret\",\n\
+    \              \"type\": \"text\",\n              \"is_sensitive\": true\n   \
+    \         }\n          ]\n        }\n   ```\n"
+  title: Tax Registration Number Validation Service Adapter SPI
+  version: 0.0.1
+servers:
+- description: Production SPI server.
+  url: https://rest.taxes.provider.com/api/v1
+- description: Sandbox SPI server.
+  url: https://sandbox.taxes.provider.com/api/v1
+security:
+- Authorization: []
+tags:
+- description: Endpoints to validate the credentials used for calling the Service
+    Provider.
+  name: Authentication
+- description: Endpoints to monitor the health of the Service Provider and the Service
+    Adapter.
+  name: Health
+- description: Endpoints to validate the tax registration number(s).
+  name: TrnValidate
+paths:
+  /health:
+    get:
+      description: This endpoint is used to fetch the health status of the Service
+        Provider.
+      operationId: fetchHealth
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                status: UP
+                version: 1.0.0
+                description: The service is healthy.
+                components:
+                - id: app-db-memory
+                  name: Application Database
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: UP
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: UP
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is healthy.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Fetch the health status of the Service Provider.
+      tags:
+      - Health
+      x-accepts: application/json
+  /credentials/validate:
+    post:
+      description: This endpoint is used to validate the credentials used to call
+        the Service Provider.
+      operationId: validateCredentials
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                status: VALID
+              schema:
+                $ref: '#/components/schemas/CredentialValidationResponse'
+          description: Authentication succeeded.
+        "401":
+          content:
+            application/json:
+              example:
+                status: INVALID
+              schema:
+                $ref: '#/components/schemas/CredentialValidationResponse'
+          description: Authentication failed.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Validate credentials
+      tags:
+      - Authentication
+      x-accepts: application/json
+  /trn/validate:
+    post:
+      description: This endpoint takes the details of tax registration number and
+        validate.
+      operationId: trnValidate
+      requestBody:
+        content:
+          application/json:
+            examples:
+              TrnValidateRequest:
+                $ref: '#/components/examples/TrnValidateRequest'
+              TrnValidateRequestAdditional:
+                $ref: '#/components/examples/TrnValidateRequestAdditional'
+            schema:
+              $ref: '#/components/schemas/TrnValidateRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                TrnValidateResponse:
+                  $ref: '#/components/examples/TrnValidateResponse'
+                TrnValidateResponseAdditional:
+                  $ref: '#/components/examples/TrnValidateResponseAdditional'
+              schema:
+                $ref: '#/components/schemas/TrnValidateResponse'
+          description: Request to validate the tax registration number submitted successfully.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrnValidateErrorResponse'
+          description: Bad request.
+        "401":
+          description: Unauthenticated request.
+        "403":
+          description: Unauthorized request.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Validate the tax registration number
+      tags:
+      - TrnValidate
+      x-content-type: application/json
+      x-accepts: application/json
+  /trn/validate/{requestId}:
+    get:
+      description: This endpoint takes the request id and returns the response of
+        the tax registration number
+      operationId: fetchTrnValidate
+      parameters:
+      - description: The unique request identifier.
+        explode: false
+        in: path
+        name: requestId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                TrnValidateResponse:
+                  $ref: '#/components/examples/TrnValidateResponse'
+              schema:
+                $ref: '#/components/schemas/TrnValidateResponse'
+          description: Response of tax registration number validation.
+        "401":
+          description: Unauthenticated request.
+        "403":
+          description: Unauthorized request.
+        "404":
+          description: Not found.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Get the response of tax registration number validate request
+      tags:
+      - TrnValidate
+      x-accepts: application/json
+  /trn/validate/batch:
+    post:
+      description: This endpoint takes the batch of tax registration numbers and validate.
+      operationId: trnValidateBatch
+      requestBody:
+        content:
+          application/json:
+            examples:
+              TrnValidateBatchRequest:
+                $ref: '#/components/examples/TrnValidateBatchRequest'
+              TrnValidateBatchRequestAdditional:
+                $ref: '#/components/examples/TrnValidateBatchRequestAdditional'
+            schema:
+              $ref: '#/components/schemas/TrnValidateBatchRequest'
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                TrnValidateBatchResponse:
+                  $ref: '#/components/examples/TrnValidateBatchResponse'
+              schema:
+                $ref: '#/components/schemas/TrnValidateBatchResponse'
+          description: Request to validate the batch of tax registration numbers being
+            processed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrnValidateErrorResponse'
+          description: Bad request.
+        "401":
+          description: Unauthenticated request.
+        "403":
+          description: Unauthorized request.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Validate the tax registration numbers in batch
+      tags:
+      - TrnValidate
+      x-content-type: application/json
+      x-accepts: application/json
+  /trn/validate/batch/{batchId}:
+    delete:
+      description: This endpoint takes the batch id and delete the running batch of
+        tax registration numbers validation request at server side.
+      operationId: deleteTrnValidateBatch
+      parameters:
+      - description: The unique batch request identifier.
+        in: path
+        name: batchId
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                BatchTrnValidateDeleteResponse:
+                  $ref: '#/components/examples/TrnValidateBatchDeleteResponse'
+              schema:
+                $ref: '#/components/schemas/TrnValidateBatchDeleteResponse'
+          description: Successfully deleted the request of batch of tax registration
+            numbers validation.
+        "401":
+          description: Unauthenticated request.
+        "403":
+          description: Unauthorized request.
+        "404":
+          description: Not found.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Delete the request of batch of tax registration numbers validation
+      tags:
+      - TrnValidate
+      x-accepts: application/json
+    get:
+      description: This endpoint takes the batch id and returns the response of batch
+        of tax registration numbers.
+      operationId: fetchTrnValidateBatch
+      parameters:
+      - description: The unique batch request identifier.
+        in: path
+        name: batchId
+        required: true
+        schema:
+          type: string
+      - description: The starting index of records to be returned.
+        in: query
+        name: offset
+        required: true
+        schema:
+          default: 0
+          type: integer
+      - description: The limit number of records to be returned.
+        in: query
+        name: limit
+        required: true
+        schema:
+          default: 100
+          type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                TrnValidateResponse:
+                  $ref: '#/components/examples/TrnValidateBatchResponse'
+              schema:
+                $ref: '#/components/schemas/TrnValidateBatchResponse'
+          description: Response of the batch of tax registration numbers validation.
+        "401":
+          description: Unauthenticated request.
+        "403":
+          description: Unauthorized request.
+        "404":
+          description: Not found.
+        "429":
+          description: Too many requests.
+        "500":
+          content:
+            application/json:
+              examples:
+                Error500:
+                  $ref: '#/components/examples/Error500Response'
+              schema:
+                $ref: '#/components/schemas/BasicErrorResponse'
+          description: Unexpected error while processing request.
+        "503":
+          content:
+            application/json:
+              example:
+                status: DOWN
+                version: 1.0.0
+                description: The service is unhealthy. Several components are down.
+                components:
+                - id: app-db-memory
+                  name: Application Database Memory Usage
+                  type: DATABASE
+                  status: UP
+                - id: adapter-server
+                  name: Adapter API Server
+                  type: ADAPTER
+                  status: DOWN
+                - id: service-server
+                  name: API Server
+                  type: API
+                  status: DOWN
+                time: 2022-11-01T10:42:08.131+05:30
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+          description: Service is unhealthy.
+      summary: Get the response of batch of tax registration numbers
+      tags:
+      - TrnValidate
+      x-accepts: application/json
+components:
+  examples:
+    TrnValidateRequest:
+      description: Request with minimal details required to validate the tax registration
+        number.
+      value:
+        trn: 40303265045
+        country:
+          code: FR
+    TrnValidateRequestAdditional:
+      description: Request with more details to validate the tax registration number.
+      value:
+        trn: 40303265045
+        country:
+          code: FR
+        trnType: VAT
+        externalId: cb-request-id
+        validOn: 10-09-2023 00:00:00
+        requesterTrn: FR12345678
+    TrnValidateResponse:
+      description: Response with minimal details of tax registration number validation.
+      value:
+        requestId: qwerty12345
+        trn: 40303265045
+        country:
+          name: France
+          code: FR
+        trnStatus: VALID
+    TrnValidateResponseAdditional:
+      description: Response with more details about tax registration number.
+      value:
+        requestId: qwerty12345
+        trn: 40303265045
+        country:
+          name: France
+          code: FR
+        trnStatus: VALID
+        name: Company Name
+        businessStatus: Active
+        isBusiness: true
+        address: "12, Company Road"
+        externalId: cb-request-id
+    TrnValidateBatchRequest:
+      description: Request with minimal details required to validate the batch of
+        tax registration numbers.
+      value:
+        batchName: x-trn-batch
+        trns:
+        - trn: 40303265045
+          country:
+            code: FR
+        - trn: 50303265045
+          country:
+            code: UK
+    TrnValidateBatchRequestAdditional:
+      description: Request with more details to validate the batch of tax registration
+        numbers.
+      value:
+        batchName: x-trn-batch
+        externalId: cb-request-id
+        trns:
+        - trn: 40303265045
+          country:
+            code: FR
+          trnType: VAT
+          externalId: cb-request-id
+          validOn: 10-09-2023 00:00:00
+          requesterTrn: FR12345678
+        - trn: 50303265045
+          country:
+            code: FR
+          trnType: VAT
+          externalId: cb-request-id
+          validOn: 10-09-2023 00:00:00
+          requesterTrn: FR12345678
+    TrnValidateBatchResponse:
+      description: Response with minimal details of tax registration number request.
+      value:
+        batchId: qwerty12345
+        batchName: x-trn-batch
+        status: COMPLETED
+        limit: 100
+        offset: 0
+        completionPercentage: 100
+        trns:
+        - trn: 40303265045
+          trnStatus: VALID
+          country:
+            name: France
+            code: FR
+        - trn: 50303265045
+          trnStatus: VALID
+          country:
+            name: The united kingdom
+            code: UK
+    TrnValidateBatchDeleteResponse:
+      description: Response with required details of deleting batch of tax registration
+        numbers validation.
+      value:
+        batchId: qwerty12345
+        message: successfully deleted
+    Error500Response:
+      description: Unexpected error during processing the request.
+      summary: Unexpected error.
+      value:
+        message: Unexpected error during processing the request.
+  parameters:
+    RequestIdPathParam:
+      description: The unique request identifier.
+      explode: false
+      in: path
+      name: requestId
+      required: true
+      schema:
+        type: string
+      style: simple
+  responses:
+    Error400TrnValidate:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TrnValidateErrorResponse'
+      description: Bad request.
+    Error429:
+      description: Too many requests.
+    Error500:
+      content:
+        application/json:
+          examples:
+            Error500:
+              $ref: '#/components/examples/Error500Response'
+          schema:
+            $ref: '#/components/schemas/BasicErrorResponse'
+      description: Unexpected error while processing request.
+    Error503:
+      content:
+        application/json:
+          example:
+            status: DOWN
+            version: 1.0.0
+            description: The service is unhealthy. Several components are down.
+            components:
+            - id: app-db-memory
+              name: Application Database Memory Usage
+              type: DATABASE
+              status: UP
+            - id: adapter-server
+              name: Adapter API Server
+              type: ADAPTER
+              status: DOWN
+            - id: service-server
+              name: API Server
+              type: API
+              status: DOWN
+            time: 2022-11-01T10:42:08.131+05:30
+          schema:
+            $ref: '#/components/schemas/HealthCheckResponse'
+      description: Service is unhealthy.
+    Error401:
+      description: Unauthenticated request.
+    Error403:
+      description: Unauthorized request.
+    Error404:
+      description: Not found.
+  schemas:
+    TrnValidateRequest:
+      additionalProperties: false
+      description: Contains the required properties for tax registration number validation
+        request
+      example:
+        trn: trn
+        country:
+          code: code
+          name: name
+        taxOfficeCode: taxOfficeCode
+        validOn: validOn
+        requesterTrn: requesterTrn
+        name: name
+        externalId: externalId
+        trnType: null
+      properties:
+        trn:
+          description: Tax registration number
+          type: string
+        country:
+          $ref: '#/components/schemas/Country'
+        trnType:
+          $ref: '#/components/schemas/TrnType'
+        name:
+          description: Name of the tag registration number owner
+          type: string
+        validOn:
+          description: Validate tax registration number on given date
+          format: dd-mm-yyyy HH:mm:ss
+          type: string
+        requesterTrn:
+          description: Tax registration number of the entity or person who is requesting
+            validation
+          type: string
+        taxOfficeCode:
+          description: "Code of the tax office, some country need it to validate tax\
+            \ registration number"
+          type: string
+        externalId:
+          description: "Way to relate the request and response, if passed then the\
+            \ same value should be returned in response"
+          type: string
+      required:
+      - country
+      - trn
+      type: object
+    TrnValidateResponse:
+      description: Contains the required properties for tax registration number validation
+        response
+      example:
+        trn: trn
+        country:
+          code: code
+          name: name
+        validationDataSource: validationDataSource
+        address: address
+        requestId: requestId
+        isBusiness: true
+        name: name
+        externalId: externalId
+        trnStatus: null
+        isRegistered: true
+        businessStatus: null
+        message: message
+      properties:
+        requestId:
+          description: "Unique id of the request, this is to refer later to fetch\
+            \ the response."
+          type: string
+        trn:
+          description: Tax registration number
+          type: string
+        country:
+          $ref: '#/components/schemas/Country'
+        name:
+          description: Name of the entity(may be an individual or a business company)
+            who owns the tax registration number
+          type: string
+        address:
+          description: Address of the entity(may be an individual or a business company)
+            who owns the tax registration number
+          type: string
+        trnStatus:
+          $ref: '#/components/schemas/TrnStatus'
+        isBusiness:
+          description: Indicates that tax registration number belong to a business
+            entity or not.
+          type: boolean
+        isRegistered:
+          description: Indicates that tax registration number is registered or not
+          type: boolean
+        businessStatus:
+          $ref: '#/components/schemas/BusinessStatus'
+        validationDataSource:
+          description: "Indicates name of the source of tax registration number validation\
+            \ (like database, vies)"
+          type: string
+        externalId:
+          description: The externalId passed in the request
+          type: string
+        message:
+          description: Any message about tax registration number validation request
+          type: string
+      required:
+      - country
+      - trn
+      type: object
+    TrnValidateBatchRequest:
+      allOf:
+      - $ref: '#/components/schemas/BatchRequest'
+      - $ref: '#/components/schemas/TrnValidateBatchRequest_allOf'
+    TrnValidateBatchResponse:
+      allOf:
+      - $ref: '#/components/schemas/BatchResponse'
+      - $ref: '#/components/schemas/TrnValidateBatchResponse_allOf'
+    TrnValidateBatchDeleteResponse:
+      allOf:
+      - $ref: '#/components/schemas/BatchDeleteResponse'
+    Country:
+      description: Defines the required properties to hold information about Country
+      example:
+        code: code
+        name: name
+      properties:
+        name:
+          description: Name of the country
+          type: string
+        code:
+          description: Code of the country
+          format: ISO
+          type: string
+      required:
+      - code
+      type: object
+    TrnStatus:
+      description: Indicates status of the tax registration number.
+      enum:
+      - VALID
+      - INVALID
+      - UNKNOWN
+      type: string
+    TrnType:
+      description: Indicates the type of the tax registration number.
+      enum:
+      - INDIVIDUAL
+      - BUSINESS
+      - GST
+      - VAT
+      - ENTITY
+      - UNKNOWN
+      type: string
+    BusinessStatus:
+      description: Indicate the status of the business of tax registration number.
+      enum:
+      - ACTIVE
+      - INACTIVE
+      - UNKNOWN
+      type: string
+    TrnValidateErrorResponse:
+      description: Defined the structure for validation error of tax registration
+        number validation.
+      properties:
+        errors:
+          items:
+            $ref: '#/components/schemas/TrnValidateErrorResponse_errors_inner'
+          type: array
+      required:
+      - errors
+      type: object
+    HealthCheckResponse:
+      example:
+        components:
+        - endpoints:
+          - endpoints
+          - endpoints
+          name: name
+          description: description
+          id: id
+          type: OTHER
+          status: null
+        - endpoints:
+          - endpoints
+          - endpoints
+          name: name
+          description: description
+          id: id
+          type: OTHER
+          status: null
+        description: description
+        time: 2000-01-23T04:56:07.000+00:00
+        version: version
+        status: null
+      properties:
+        version:
+          minLength: 1
+          type: string
+        description:
+          description: The description of the health status returned by the Service
+            Adapter.
+          maxLength: 250
+          type: string
+        status:
+          $ref: '#/components/schemas/HealthStatus'
+        components:
+          description: List of health status details for each component reported by
+            the Service Adapter.
+          items:
+            $ref: '#/components/schemas/HealthCheckComponent'
+          type: array
+        time:
+          description: The timestamp of the health status reported by the Service
+            Adapter.
+          format: date-time
+          type: string
+      required:
+      - components
+      - status
+      - time
+      type: object
+    HealthStatus:
+      description: The status of a specific component reported by the Service Adapter.
+      enum:
+      - UP
+      - DOWN
+      - WARN
+      type: string
+    HealthCheckComponent:
+      description: The health status details of a specific component reported by the
+        Service Adapter.
+      example:
+        endpoints:
+        - endpoints
+        - endpoints
+        name: name
+        description: description
+        id: id
+        type: OTHER
+        status: null
+      properties:
+        id:
+          description: The id of the component.
+          maxLength: 50
+          type: string
+        name:
+          description: The name of the component.
+          maxLength: 150
+          type: string
+        type:
+          description: |
+            The type of component affected when `status` is `WARN` or `DOWN`. The possible values are:
+            - `ADAPTER`: The reported status is for the Service Adapter.
+            - `API`: The reported status is for the Service Provider.
+            - `DATABASE`: The reported status is for a database dependency of the Service Provider.
+            - `SYSTEM`: The reported status is for any other known system component such as cache or gateway.
+            - `OTHER`: The reported status is either for a component that does not belong to the types described above or the source of the issue is unknown.
+          enum:
+          - OTHER
+          - SYSTEM
+          - API
+          - ADAPTER
+          - DATABASE
+          type: string
+        description:
+          description: The detailed status of the component.
+          maxLength: 250
+          type: string
+        status:
+          $ref: '#/components/schemas/HealthStatus'
+        endpoints:
+          description: "When the `status` of the component is not `UP`, then the list\
+            \ of endpoints affected."
+          items:
+            type: string
+          type: array
+      required:
+      - id
+      - name
+      - status
+      - type
+      type: object
+    BasicErrorResponse:
+      additionalProperties: false
+      description: The basic error response containing the error message and the help
+        documentation link.
+      properties:
+        message:
+          description: The description of the error with details about it's cause.
+          example: Invalid Credentials
+          maxLength: 250
+          type: string
+        helpUrl:
+          description: The link to the documentation for more information about the
+            error and the corrective action.
+          example: https://apidocs.chargebee.com#Authentication
+          format: uri
+          type: string
+      required:
+      - message
+      type: object
+    CredentialValidationResponse:
+      example:
+        status: null
+      properties:
+        status:
+          $ref: '#/components/schemas/CredentialStatus'
+      required:
+      - status
+      type: object
+    CredentialStatus:
+      description: The status of the credentials used for authentication.
+      enum:
+      - VALID
+      - INVALID
+      type: string
+    BatchRequest:
+      description: Contains required properties for batch request
+      properties:
+        batchName:
+          description: Name of the batch
+          type: string
+        externalId:
+          description: "Way to relate the request for future reference. Hold the reference\
+            \ value passed in request, expecting the same would be returned in response."
+          type: string
+      type: object
+    BatchResponse:
+      description: Contains the required properties for response of batch request.
+      properties:
+        batchId:
+          description: Id of the batch request.
+          type: string
+        batchName:
+          description: Name of the batch request.
+          type: string
+        status:
+          $ref: '#/components/schemas/Status'
+        limit:
+          description: "Use for the pagination for batch request, limit indicates\
+            \ the maximum number of records to be returned in the response."
+          type: integer
+        offset:
+          description: "Use for the pagination for batch request, offset indicates\
+            \ the starting point of records to be returned in the response."
+          type: integer
+        completionPercentage:
+          description: Percentage of batch request processing.
+          type: integer
+        externalId:
+          description: The externalId passed in request.
+          type: string
+      required:
+      - batchId
+      - limit
+      - offset
+      - status
+      type: object
+    Status:
+      description: This field indicates current status of the request at server side.
+      enum:
+      - COMPLETED
+      - FAILED
+      - RUNNING
+      - CANCELED
+      type: string
+    BatchDeleteResponse:
+      description: Response to delete the batch request
+      properties:
+        batchId:
+          description: Id of the batch request
+          type: string
+        message:
+          description: Message about deleting of batch request
+          type: string
+      required:
+      - batchId
+      type: object
+    ErrorCode:
+      description: The error codes classify the type of exception that occurred during
+        processing the request.
+      enum:
+      - INVALID_OPERATION
+      - SERVICE_EXCEPTION
+      - SERVICE_UNAVAILABLE
+      - SERVICE_LIMIT_EXCEEDED
+      - MISSING_REQUIRED_DATA
+      - INVALID_DATA
+      - INVALID_TYPE
+      - INVALID_FORMAT
+      - INVALID_RANGE
+      - LOCATION_VALIDATION_FAILED
+      type: string
+    TrnValidateBatchRequest_allOf:
+      description: Contains required properties for batch of tax registration numbers
+        validation request
+      properties:
+        trns:
+          description: List of tax registration numbers
+          items:
+            $ref: '#/components/schemas/TrnValidateRequest'
+          type: array
+      required:
+      - trns
+      type: object
+      example: null
+    TrnValidateBatchResponse_allOf:
+      description: Contains the required properties for batch of tax registration
+        numbers validation response
+      properties:
+        trns:
+          description: List of tax registration numbers
+          items:
+            $ref: '#/components/schemas/TrnValidateResponse'
+          type: array
+      required:
+      - trns
+      type: object
+      example: null
+    TrnValidateErrorResponse_errors_inner:
+      properties:
+        field:
+          description: The field of an entity that has the invalid value.
+          example: trn
+          maxLength: 250
+          type: string
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          description: A short message describing the reason for the error.
+          example: Tax registration number is missing.
+          maxLength: 250
+          type: string
+        helpUrl:
+          description: The link to the documentation for more information about the
+            error and the corrective action.
+          example: https://apidocs.chargebee.com#Authentication
+          type: string
+      required:
+      - code
+      - message
+      type: object
+  securitySchemes:
+    Authorization:
+      description: The json of all the parameters specified in authentication configuration
+        of tax app will be sent by Chargebee.
+      in: header
+      name: Authorization
+      type: apiKey
+
