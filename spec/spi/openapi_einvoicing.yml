@@ -307,7 +307,7 @@ components:
         taxDate:
           type: string
           format: date
-          description: The date used for determining tax.
+          description: The date used for determining tax. Format "YYYY-MM-DD"
         currencyCode:
           type: string
           description: The currency code (ISO 4217 format) for the document.
@@ -357,6 +357,10 @@ components:
             legalEntity:
               description: Legal entity of the customer party.
               $ref: '#/components/schemas/PartyLegalEntity'
+        paymentMeans:
+          type: object
+          description: Defines the method and details for payment.
+          $ref: '#/components/schemas/PaymentMeans'
         lines:
           type: array
           items:
@@ -394,11 +398,10 @@ components:
                       description: The tax rate percentage applicable to this tax category (e.g., 19 for 19% VAT).
                     category:
                       type: string
-                      description: A code or label identifying the type of tax category (e.g., standard, reduced, exempt).
+                      description: A code or label identifying the type of tax category.
                     country:
                       type: string
                       description: The ISO 3166-1 alpha-2 country code where the tax category is applicable (e.g., DE for Germany).
-                  required: ["percentage", "category", "country"]
             required: ["id", "description", "amount", "quantity", "name", "classifiedTaxCategory"]
 
         taxTotal:
@@ -465,6 +468,13 @@ components:
           taxScheme:
             - scheme: VAT
               id: DE987654321
+        paymentMeans:
+          code: ONLINE_PAYMENT_SERVICE
+          paymentID: "PAY-2024-00987"
+          cardAccount:
+            primaryAccountNumberID: "4111********1111"
+            cardHolderName: "Jane Smith"
+            networkID: "MASTERCARD"
         lines:
           - id: "1"
             description: Consulting Services - April
@@ -530,33 +540,6 @@ components:
         partyName:
           type: string
 
-    PaymentMeans:
-      type: object
-      properties:
-        paymentMeansCode:
-          type: string
-        paymentMeansName:
-          type: string
-        paymentID:
-          type: string
-        payeeFinancialAccount:
-          $ref: '#/components/schemas/PayeeFinancialAccount'
-
-    PayeeFinancialAccount:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        financialInstitutionBranch:
-          $ref: '#/components/schemas/FinancialInstitutionBranch'
-
-    FinancialInstitutionBranch:
-      type: object
-      properties:
-        id:
-          type: string
 
     PaymentTerms:
       type: object
@@ -576,6 +559,52 @@ components:
         - accountingCustomerParty
         - accountingSupplierParty
         - paymentDetails
+    PaymentMeans:
+      type: object
+      description: Defines the method and details for payment.
+      properties:
+        code:
+          type: string
+          description: The means, expressed as code, for how a payment is expected to be or has been settled.
+          enum:
+            - CREDIT_TRANSFER
+            - ONLINE_PAYMENT_SERVICE
+            - DIRECT_DEBIT
+        paymentID:
+          type: string
+          description: A textual value used to establish a link between the payment and the Invoice, issued by the Seller. Used for creditor's critical reconciliation information. This information element helps the Seller to assign an incoming payment to the relevant payment process.
+        payeeFinancialAccount:
+          type: object
+          description: A group of business terms to specify credit transfer payments.
+          properties:
+            id:
+              type: string
+              description: A unique identifier of the financial payment account, at a payment service provider, to which payment should be made. Such as IBAN or BBAN (e.g., IBAN).
+          required:
+            - id
+        paymentMandate:
+          type: object
+          description: A group of business terms to specify a direct debit.
+          properties:
+            id:
+              type: string
+              description: Unique identifier assigned by the Payee for referencing the direct debit mandate.
+            mandateType:
+              type: string
+              description: Type of mandate (e.g., SEPA, national DD agreement).
+        cardAccount:
+          type: object
+          description: A group of business terms providing information about card used for payment contemporaneous with invoice issuance.
+          properties:
+            primaryAccountNumberID:
+              type: string
+              description: The Primary Account Number (PAN) of the card used for payment.
+            cardHolderName:
+              type: string
+              description: The name of the payment card holder.
+            networkID:
+              type: string
+              description: The identifier of the card network. (e.g., VISA, MasterCard).
     DocumentSubmissionResponse:
       type: object
       properties:
