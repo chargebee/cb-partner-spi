@@ -8,7 +8,7 @@ info:
     
     Through this SPI, providers expose a minimal yet powerful set of APIs that allow Chargebee to submit billing documents (invoices, credit notes), track their compliance status, and retrieve finalized documents securely.
     
-    This framework ensures that Chargebee merchants remain compliant with diverse global e-invoicing mandates such as those in India, Italy, Mexico, Saudi Arabia, and more by abstracting the complexity of country-specific regulatory requirements.
+    This framework ensures that Chargebee merchants remain compliant with diverse global e-invoicing mandates by abstracting the complexity of country-specific regulatory requirements.
     
     ## Supported Capabilities
     
