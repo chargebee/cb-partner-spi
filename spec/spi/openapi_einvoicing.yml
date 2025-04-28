@@ -69,14 +69,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/DocumentSubmissionResponse"
-                  - type: object
-                    properties:
-                      request_id:
-                        type: string
-                        format: uuid
-                        description: Unique identifier for tracing the request
+                $ref: "#/components/schemas/DocumentSubmissionResponse"
         '400':
           description: Bad request
           content:
@@ -116,6 +109,10 @@ paths:
           description: Forbidden
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentNotFoundErrorResponse'
         '500':
           description: Unexpected error while processing request.
           content:
@@ -139,14 +136,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DownloadDocumentResponse"
-        '400':
-          description: Bad request
         "401":
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentNotFoundErrorResponse'
         '500':
           description: Unexpected error while processing request.
           content:
@@ -225,69 +224,6 @@ components:
               - network: PEPPOL
                 countryCode: DE
                 einvoicingType: B2B
-    MandatesResponse:
-      type: object
-      properties:
-        mandates:
-          type: array
-          items:
-            $ref: '#/components/schemas/Mandate'
-
-    Mandate:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the mandate
-        country:
-          type: string
-          description: The country associated with the mandate
-        description:
-          type: string
-          description: A brief description of the mandate
-        effectiveDate:
-          type: string
-          format: date
-          description: The date when the mandate becomes effective
-        documentTypes:
-          type: array
-          items:
-            type: string
-          description: List of document types applicable to the mandate
-
-    DataInputFieldsResponse:
-      type: object
-      properties:
-        mandateId:
-          type: string
-          description: The unique identifier of the mandate
-        documentType:
-          type: string
-          description: The type of document
-        version:
-          type: string
-          description: The version of the document type
-        fields:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataInputField'
-
-    DataInputField:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the data input field
-        type:
-          type: string
-          description: The data type of the field (e.g., 'string', 'number')
-        required:
-          type: boolean
-          description: Indicates if the field is mandatory
-        description:
-          type: string
-          description: A brief description of the field
-
     Document:
       type: object
       properties:
@@ -492,58 +428,6 @@ components:
               percentage: 14
               country: DE
               category: VAT
-    Delivery:
-      type: object
-      properties:
-        actualDeliveryDate:
-          type: string
-          format: date
-        deliveryLocation:
-          $ref: '#/components/schemas/DeliveryLocation'
-        deliveryParty:
-          $ref: '#/components/schemas/DeliveryParty'
-
-    DeliveryLocation:
-      type: object
-      properties:
-        id:
-          type: string
-        schemeID:
-          type: string
-        address:
-          $ref: '#/components/schemas/Address'
-    AddressTmp:
-      type: object
-      properties:
-        streetName:
-          type: string
-        additionalStreetName:
-          type: string
-        cityName:
-          type: string
-        postalZone:
-          type: string
-        country:
-          $ref: '#/components/schemas/Country'
-
-    Country:
-      type: object
-      properties:
-        identificationCode:
-          type: string
-
-    DeliveryParty:
-      type: object
-      properties:
-        partyName:
-          type: string
-
-
-    PaymentTerms:
-      type: object
-      properties:
-        note:
-          type: string
 
       required:
         - taxSubtotals
@@ -608,12 +492,17 @@ components:
       properties:
         documentId:
           type: string
+          description: The unique identifier assigned to the document by the e-invoicing provider. This identifier must be used for subsequent operations such as retrieving the document status and downloading the document.
         status:
           type: string
-          description: The status code
+          description: The current status of the submitted document.
           enum:
             - ACCEPTED
             - FAILED
+            - SUCCESS
+        request_id:
+          type: string
+          description: A unique identifier assigned to the request for tracking and correlation purposes across systems and logs.
       example:
         documentId: DOC-20250402-0002
         status: PENDING
@@ -628,9 +517,9 @@ components:
           type: string
           description: "The current status of the document submission."
           enum:
-            - Success
-            - Failed
-            - In-progress
+            - ACCEPTED
+            - FAILED
+            - SUCCESS
         submissionDate:
           type: string
           format: date-time
@@ -650,8 +539,6 @@ components:
       type: object
       required:
         - request_id
-        - sender
-        - receiver
         - documents
         - evidence
         - network
@@ -664,8 +551,6 @@ components:
             type: object
             required:
               - mime_type
-              - document_url
-              - expires_at
             properties:
               mime_type:
                 type: string
@@ -673,7 +558,11 @@ components:
               document_url:
                 type: string
                 format: uri
-                description: Presigned URL to access the document
+                description: Presigned URL to access the document. This param will be preferred if found over document_content.
+              document_content:
+                type: string
+                format: byte
+                description: Base64-encoded document content if URL is not available.
               expires_at:
                 type: string
                 format: date-time
@@ -688,64 +577,6 @@ components:
             document_url: "https://provider.com/downloads/invoice-20250402.xml"
             expires_at: "2025-03-28T09:24:29Z"
         network: peppol
-
-    ParticipantsResponse:
-      type: object
-      properties:
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/Participant'
-    Participant:
-      type: object
-      properties:
-        participantId:
-          type: string
-          description: The unique identifier of the participant
-        participantName:
-          type: string
-          description: The name of the participant
-        country:
-          type: string
-          description: The country where the participant is located
-        status:
-          type: string
-          description: The current status of the participant (e.g., 'Active', 'Inactive')
-        identifiers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Identifier'
-          description: List of identifiers associated with the participant
-        addresses:
-          type: array
-          items:
-            $ref: '#/components/schemas/Address'
-          description: List of addresses associated with the participant
-        supportedDocumentTypes:
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentType'
-          description: List of document types supported by the participant
-
-    Identifier:
-      type: object
-      properties:
-        type:
-          type: string
-          description: The type of identifier (e.g., 'VAT', 'EORI')
-        value:
-          type: string
-          description: The value of the identifier
-
-    DocumentType:
-      type: object
-      properties:
-        type:
-          type: string
-          description: The type of document (e.g., 'Invoice', 'CreditNote')
-        version:
-          type: string
-          description: The version of the document type
     DocumentSubmissionErrorResponse:
       type: object
       properties:
@@ -779,7 +610,7 @@ components:
           - code: MISSING_REQUIRED_DATA
             message: The request did not contain a required property 'taxAmount'
             helpUrl: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
-    DocumentStatusErrorResponse:
+    DocumentNotFoundErrorResponse:
       type: object
       properties:
         errors:
@@ -792,11 +623,6 @@ components:
                 description: Application-specific error code
                 enum:
                   - INVALID_OPERATION
-                  - SERVICE_EXCEPTION
-                  - SERVICE_UNAVAILABLE
-                  - SERVICE_LIMIT_EXCEEDED
-                  - MISSING_REQUIRED_DATA
-                  - INVALID_DATA
               message:
                 type: string
                 description: A short message describing the reason for the error.
@@ -809,9 +635,9 @@ components:
               - message
       example:
         errors:
-          - code: INVALID_DATA
+          - code: INVALID_OPERATION
             message: The requested document is not found.
-            helpUrl: https://docs.example.com/errors#INVALID_DATA
+            helpUrl: https://docs.example.com/errors#INVALID_OPERATION
     Address:
       type: object
       properties:
@@ -860,39 +686,15 @@ components:
           description: An identifier issued by an official registrar that identifies the party as a legal entity or person.
       required:
         - registrationName
-    GetActivationsErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              code:
-                type: string
-                description: Application-specific error code
-                enum:
-                  - INVALID_QUERY_PARAMETER
-                  - INVALID_PAGINATION
-                  - UNSUPPORTED_PARAMETER
-              message:
-                type: string
-                description: Human-readable error message
-              helpUrl:
-                type: string
-                format: uri
-                description: A URL to helpful documentation
-            required:
-              - code
-              - message
-      example:
-        errors:
-          - code: INVALID_QUERY_PARAMETER
-            message: The 'limit' parameter must be an integer.
     Error500Response:
       description: An unexpected error occurred while processing your request.
-      example:
-        message: An unexpected error occurred while processing your request.
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the unexpected error encountered.
+          example: "An unexpected error occurred while processing your request."
+      required:
+        - message
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
