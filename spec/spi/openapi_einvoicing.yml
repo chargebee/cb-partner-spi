@@ -82,7 +82,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DocumentErrorResponse"
+                $ref: "#/components/schemas/DocumentSubmissionErrorResponse"
         "401":
           description: Unauthorized
         '403':
@@ -110,8 +110,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DocumentStatus"
-        '400':
-          description: Bad request
         "401":
           description: Unauthorized
         '403':
@@ -614,7 +612,8 @@ components:
           type: string
           description: The status code
           enum:
-            - IN_PROGRESS
+            - ACCEPTED
+            - FAILED
       example:
         documentId: DOC-20250402-0002
         status: PENDING
@@ -624,10 +623,10 @@ components:
       properties:
         documentId:
           type: string
-          description: "Unique identifier for the document."
+          description: "Unique identifier for the document submitted."
         status:
           type: string
-          description: "Current status of the document"
+          description: "The current status of the document submission."
           enum:
             - Success
             - Failed
@@ -638,7 +637,7 @@ components:
           description: "Date and time when the document was submitted."
         processingDetails:
           type: object
-          $ref: "#/components/schemas/DocumentErrorResponse"
+          $ref: "#/components/schemas/DocumentSubmissionErrorResponse"
       example:
         documentId: DOC-20250402-0001
         status: Success
@@ -646,7 +645,6 @@ components:
       required:
         - documentId
         - status
-        - submissionDate
 
     DownloadDocumentResponse:
       type: object
@@ -748,7 +746,40 @@ components:
         version:
           type: string
           description: The version of the document type
-    DocumentErrorResponse:
+    DocumentSubmissionErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The error codes classify the type of exception that occurred during processing the request.
+                enum:
+                  - INVALID_OPERATION
+                  - SERVICE_EXCEPTION
+                  - SERVICE_UNAVAILABLE
+                  - SERVICE_LIMIT_EXCEEDED
+                  - MISSING_REQUIRED_DATA
+                  - INVALID_DATA
+              message:
+                type: string
+                description: A short message describing the reason for the error.
+              helpUrl:
+                type: string
+                format: uri
+                description: The link to the documentation for more information about the error and the corrective action.
+            required:
+              - code
+              - message
+      example:
+        errors:
+          - code: MISSING_REQUIRED_DATA
+            message: The request did not contain a required property 'taxAmount'
+            helpUrl: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    DocumentStatusErrorResponse:
       type: object
       properties:
         errors:
@@ -760,27 +791,27 @@ components:
                 type: string
                 description: Application-specific error code
                 enum:
-                  - INVALID_QUERY_PARAMETER       # Query param provided but invalid (type, format, etc.)
-                  - INVALID_PAGINATION            # Invalid pagination logic (e.g., offset not usable)
-                  - UNSUPPORTED_PARAMETER         # Parameter not supported by the API
-                  - MISSING_REQUIRED_PARAMETER    # Required parameter not provided
-                  - MALFORMED_PARAMETER           # Param value not properly structured/encoded
-                  - OUT_OF_RANGE_PARAMETER        # e.g., limit > 100
+                  - INVALID_OPERATION
+                  - SERVICE_EXCEPTION
+                  - SERVICE_UNAVAILABLE
+                  - SERVICE_LIMIT_EXCEEDED
+                  - MISSING_REQUIRED_DATA
+                  - INVALID_DATA
               message:
                 type: string
-                description: Human-readable error message
+                description: A short message describing the reason for the error.
               helpUrl:
                 type: string
                 format: uri
-                description: A URL to helpful documentation
+                description: The link to the documentation for more information about the error and the corrective action.
             required:
               - code
               - message
       example:
         errors:
-          - code: OUT_OF_RANGE_PARAMETER
-            message: The 'limit' parameter must be between 1 and 100.
-            helpUrl: https://docs.example.com/errors#OUT_OF_RANGE_PARAMETER
+          - code: INVALID_DATA
+            message: The requested document is not found.
+            helpUrl: https://docs.example.com/errors#INVALID_DATA
     Address:
       type: object
       properties:
