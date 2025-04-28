@@ -2,15 +2,24 @@ openapi: "3.0.0"
 info:
   title: "E-Invoicing Service Provider Interface"
   description: |
+    ## E-invoicing Service Provider Interface (SPI) — Overview
     
-    The E-Invoicing Service Provider Interface (SPI) is designed to enable Chargebee to seamlessly communicate with various Electronic Invoicing Service Providers. This SPI facilitates the following key functionalities:
+    The E-invoicing Service Provider Interface (SPI) defines the standard contract that enables Chargebee to seamlessly integrate with third-party e-invoicing providers across different countries and compliance frameworks.
     
-    - **Document Submission:** Submit electronic documents to E-Invoice Service Providers for processing and compliance.
-    - **Document Status Tracking:** Monitor the status of submitted e-invoices to ensure timely processing and resolution of any issues.
-    - **Document Download:** Download e-invoice documents for record-keeping, auditing, and compliance purposes.
-    - **Activation Management:** Get Activations with e-invoicing networks, allowing businesses to register and activate mandates.
-
-    If you have an API that provides the services mentioned above and wish to integrate it with Chargebee, you can develop an adapter service following this specification. This will allow Chargebee to efficiently manage e-invoicing processes while ensuring compliance with local e-invoicing regulations.
+    Through this SPI, providers expose a minimal yet powerful set of APIs that allow Chargebee to submit billing documents (invoices, credit notes), track their compliance status, and retrieve finalized documents securely.
+    
+    This framework ensures that Chargebee merchants remain compliant with diverse global e-invoicing mandates such as those in India, Italy, Mexico, Saudi Arabia, and more by abstracting the complexity of country-specific regulatory requirements.
+    
+    ## Supported Capabilities
+    
+    - Retrieve supported country and network activations for e-invoicing enablement.
+    - Submit billing documents for validation, compliance checks, and delivery to tax authorities or trading partners.
+    - Track the processing status of submitted documents, including success, failure, or in-progress states.
+    - Retrieve finalized e-invoicing documents for storage, audit, or customer presentation.
+    
+    ## Global Compliance Expansion
+    
+    The Chargebee E-invoicing SPI is designed to support multiple e-invoicing compliance models globally, including clearance models, post-audit models, and hybrid frameworks, helping businesses scale their operations across different regulatory landscapes without friction.
   version: "1.0.0"
 servers:
   - url: "https://api.example.com"
@@ -29,7 +38,15 @@ paths:
   /einvoicing/activations:
     get:
       tags: ["Activations"]
-      summary: Retrieve a list of Activations
+      summary: Retrieve a list of Activations.
+      description: |
+        Retrieves the list of country-level e-invoicing activations supported by the connected e-invoicing provider.
+        
+        Each activation represents the provider's capability to support e-invoicing in a specific country and network.
+        
+        This endpoint helps Chargebee determine which countries and e-invoicing networks can be activated for the provider.
+        
+        In Chargebee, once the E-invoicing Provider SPI app is connected successfully, this endpoint is called during the provider enablement flow for a country to fetch the available activation options.
       operationId: listActivations
       responses:
         '200':
@@ -55,8 +72,14 @@ paths:
   /einvoicing/documents:
     post:
       tags: ["Documents"]
-      summary: "Submit Document (Mandatory)"
-      description: "Submit a new document (invoice or credit note) to the e-invoicing service."
+      summary: "Submit a new document (invoice or credit note) to the e-invoicing service."
+      description: |
+        Submits a new document, such as an invoice or credit note, to the connected e-invoicing provider for validation, compliance checks, and transmission to the relevant tax authorities or business partners.
+        
+        This endpoint is mandatory for enabling document submission through the Chargebee E-invoicing SPI framework.
+        The submitted document must comply with the provider’s format and schema requirements.
+        
+        In Chargebee, this endpoint is called when a new charge invoice, credit note, or other supported billing document is generated and needs to be processed through the connected e-invoicing provider.
       requestBody:
         required: true
         content:
@@ -90,6 +113,12 @@ paths:
     get:
       tags: ["Documents"]
       summary: "Get Document Status"
+      description: |
+        Retrieves the current processing status of a document previously submitted to the connected e-invoicing provider.
+        
+        The status provides insights into whether the document has been successfully processed, is still under validation, has failed, or has been rejected by tax authorities or intermediaries.
+        
+        In Chargebee, this endpoint is triggered when a merchant clicks the "Get Status" button from the Chargebee UI to retrieve the latest processing status of the document.
       parameters:
         - name: "documentId"
           in: "path"
@@ -123,6 +152,14 @@ paths:
     get:
       tags: ["Documents"]
       summary: "Download Document  (Mandatory)"
+      description: |
+        Retrieves the document content associated with the provided documentId from the connected e-invoicing provider.
+        
+        The document may be returned either as a direct binary stream (such as a PDF or XML file) or as a pre-signed URL, depending on the provider’s capabilities and the SPI implementation.
+        
+        In Chargebee, this endpoint is triggered when a merchant chooses to download the issued invoice or related document from the Chargebee UI.
+        
+        Implementing this endpoint is mandatory for all SPI providers to support document retrieval operations.
       parameters:
         - name: "documentId"
           in: "path"
