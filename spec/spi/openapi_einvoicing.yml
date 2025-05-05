@@ -1,25 +1,36 @@
 openapi: "3.0.0"
 info:
   title: "E-Invoicing Service Provider Interface"
-  description: |
+  description: >
     ## E-invoicing Service Provider Interface (SPI) — Overview
+      Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle.
     
-    The E-invoicing Service Provider Interface (SPI) defines the standard contract that enables Chargebee to seamlessly integrate with third-party e-invoicing providers across different countries and compliance frameworks.
+    - Retrieve E-invoicing Activations:
+        - Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
+        - Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
+        - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
+    - Document Submission:
+       - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
+    - Status Tracking:
+       - Tracks the real-time processing status of submitted documents whether accepted, successful, failed, or still in progress.
+    - Final Document Retrieval:
+       - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
+
+    Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing servies are the  certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
     
-    Through this SPI, providers expose a minimal yet powerful set of APIs that allow Chargebee to submit billing documents (invoices, credit notes), track their compliance status, and retrieve finalized documents securely.
     
-    This framework ensures that Chargebee merchants remain compliant with diverse global e-invoicing mandates by abstracting the complexity of country-specific regulatory requirements.
+    ## The Role of the E-invoicing Adapter App:
+      - To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
+
+    ## Building an E-invoicing Adapter App
+      To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI by developing an adapter app. This is required in the following scenarios:
     
-    ## Supported Capabilities
-    
-    - Retrieve supported country and network activations for e-invoicing enablement.
-    - Submit billing documents for validation, compliance checks, and delivery to tax authorities or trading partners.
-    - Track the processing status of submitted documents, including success, failure, or in-progress states.
-    - Retrieve finalized e-invoicing documents for storage, audit, or customer presentation.
-    
-    ## Global Compliance Expansion
-    
-    The Chargebee E-invoicing SPI is designed to support multiple e-invoicing compliance models globally, including clearance models, post-audit models, and hybrid frameworks, helping businesses scale their operations across different regulatory landscapes without friction.
+      - As an E-invoicing Provider:
+        - Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
+      - As a System Integrator:
+          description: Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
+
+    By implementing the E-invoicing SPI, you enable Chargebee to support global regulatory compliance through a scalable and region-agnostic architecture.
   version: "1.0.0"
 servers:
   - url: "https://api.example.com"
@@ -35,6 +46,10 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
+  /health:
+    $ref: './paths/health.yml'
+  /credentials/validate:
+    $ref: './paths/credentials.yml'
   /einvoicing/activations:
     get:
       tags: ["Activations"]
