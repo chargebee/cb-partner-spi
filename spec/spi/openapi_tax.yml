@@ -434,19 +434,17 @@ paths:
               examples:
                 AddressValidationValidResponse:
                   $ref: '#/components/examples/AddressValidationValidResponse'
-                AddressValidationInvalidResponse:
-                  $ref: '#/components/examples/AddressValidationInvalidResponse'
         '400':
           description: Bad request.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
-              example:
-                errors:
-                  - code: INVALID_DATA
-                    message: Empty address provided.
-                    entity: Address
+              examples:
+                AddressValidationBadRequestResponse:
+                  $ref: '#/components/examples/AddressValidationBadRequestResponse'
+                AddressValidationInvalidResponse:
+                  $ref: '#/components/examples/AddressValidationInvalidResponse'
         '401':
           $ref: './schemas/errors.yml#/components/responses/Error401'
         '403':
@@ -495,27 +493,25 @@ paths:
               examples:
                 CheckAddressTaxabilityValidResponse-Option1:
                   $ref: '#/components/examples/CheckAddressTaxabilityValidResponse-Option1'
-                CheckAddressTaxabilityInvalidResponse-Option1:
-                  $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option1'
                 CheckAddressTaxabilityValidResponse-Option2:
                   $ref: '#/components/examples/CheckAddressTaxabilityValidResponse-Option2'
-                CheckAddressTaxabilityInvalidResponse-Option2:
-                  $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option2'
                 CheckAddressTaxabilityValidResponse-Option3:
                   $ref: '#/components/examples/CheckAddressTaxabilityValidResponse-Option3'
-                CheckAddressTaxabilityInvalidResponse-Option3:
-                  $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option3'
         '400':
           description: Bad request.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
-              example:
-                errors:
-                  - code: INVALID_DATA
-                    message: Empty address provided.
-                    entity: Address
+              examples:
+                CheckAddressTaxabilityInvalidResponse-Option1:
+                  $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option1'
+                CheckAddressTaxabilityInvalidResponse-Option2:
+                  $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option2'
+                CheckAddressTaxabilityInvalidResponse-Option3:
+                  $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option3'
+                CheckAddressTaxabilityBadRequestResponse:
+                  $ref: '#/components/examples/CheckAddressTaxabilityBadRequestResponse'
         '401':
           $ref: './schemas/errors.yml#/components/responses/Error401'
         '403':
@@ -1266,7 +1262,6 @@ components:
       description: The validation status of an address.
       enum:
         - VALID
-        - INVALID
     Address:
       type: object
       description: Represents the address used for validation.
@@ -2558,7 +2553,18 @@ components:
       summary: Invalid address verification response
       description: The address provided for verification was Invalid
       value:
-        status: INVALID
+        errors:
+          - code: INVALID_DATA
+            message: Invalid address provided.
+            entity: Address
+    AddressValidationBadRequestResponse:
+      summary: Bad Request address verification response
+      description: The request provided for verification was Invalid/contained invalid data
+      value:
+        errors:
+        - code: INVALID_DATA
+          message: Empty address provided.
+          entity: Address
     CheckAddressTaxabilityValidRequest-Option1:
       summary: Taxable address request (city + state + country + postalCode)
       description: Taxable address with combination of city,state,country,postalCode sent in a post request
@@ -2592,7 +2598,10 @@ components:
       summary: Non-taxable address  Response (city + state + country + postalCode)
       description: Invalid Response based on combination of city,state,country,postalCode sent in a post request
       value:
-        isTaxable: false
+        errors:
+          - code: INVALID_DATA
+            message: Invalid address provided.
+            entity: Address
     CheckAddressTaxabilityValidRequest-Option2:
       summary: Taxable address request (city + country + postalCode)
       description: Taxable address with combination of city,country,postalCode sent in a post request
@@ -2626,7 +2635,10 @@ components:
       summary: Non-taxable address response (city + country + postalCode)
       description: Invalid response based on combination of city,country,postalCode sent in a post request
       value:
-        isTaxable: false
+        errors:
+          - code: INVALID_DATA
+            message: Invalid address provided.
+            entity: Address
     CheckAddressTaxabilityValidRequest-Option3:
       summary: Taxable address request (postalCode)
       description: Taxable address with combination of city,state,postalCode sent in a post request
@@ -2660,7 +2672,18 @@ components:
       summary: Non-taxable address response (postalCode)
       description: Non-taxable address response based on combination of city,state,postalCode sent in a post request
       value:
-        isTaxable: false
+        errors:
+          - code: INVALID_DATA
+            message: Invalid address provided.
+            entity: Address
+    CheckAddressTaxabilityBadRequestResponse:
+      summary: Bad Request address check taxability response
+      description: The request provided for check taxability was Invalid/contained invalid data
+      value:
+        errors:
+          - code: INVALID_DATA
+            message: Empty address provided.
+            entity: Address
     Error400ResponseMissingMerchantId:
       summary: Empty merchant id.
       description: Merchant id is empty.
