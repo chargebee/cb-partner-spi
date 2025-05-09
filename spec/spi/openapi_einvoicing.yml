@@ -130,53 +130,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error500_response'
-  /webhooks/einvoicing/document-status:
+  /webhooks/einvoicing/document_status:
     post:
       tags:
         - Webhooks
       summary: Receive document status updates from the e-invoicing provider
       description: |
-        This webhook endpoint is invoked by the e-invoicing adapter or provider once a document (invoice or credit note) has been processed. 
+        This webhook endpoint is invoked by the e-invoicing adapter or provider once a document (invoice or credit note) has been processed.
 
-        The payload includes the unique document identifier and the current processing status such as `SUBMITTED`, `ACCEPTED`, `REJECTED`, or `FAILED`.
+        The payload includes the unique document identifier and the final status of the document submission, such as `SUBMITTED`, `ACCEPTED`, `REJECTED`, or `FAILED`.
 
-        Chargebee consumes this webhook to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
+        Chargebee will primarily rely on this webhook endpoint to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
+
+        Chargebee will share the webhook URL to be invoked by the e-invoicing adapter application.
+
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - documentId
-                - status
-                - timestamp
-              properties:
-                documentId:
-                  type: string
-                  description: Unique identifier of the submitted document.
-                status:
-                  type: string
-                  enum:
-                    - SUBMITTED
-                    - ACCEPTED
-                    - REJECTED
-                    - FAILED
-                  description: Current status of the document after processing by
-                    the provider.
-                message:
-                  type: string
-                  description: Optional message describing the status result or any
-                    error.
-                timestamp:
-                  type: string
-                  format: date-time
-                  description: ISO 8601 timestamp indicating when the status was determined.
+              $ref: '#/components/schemas/document_status_webhook_payload'
       responses:
         '200':
-          description: Webhook received and acknowledged.
+          description: Webhook payload received and validated successfully. No retry required.
+        '202':
+          description: Webhook accepted for asynchronous processing.
         '400':
-          description: Invalid payload or document not recognized.
+          description: Invalid payload or required fields missing.
+        '401':
+          description: Unauthorized request. Signature validation failed or sender is not allowed.
+        '422':
+          description: Payload was well-formed but could not be processed (e.g., unknown document ID).
+        '500':
+          description: Internal server error. Retry may be attempted by the sender.
   /einvoicing/documents/{document_id}/status:
     get:
       tags:
@@ -872,6 +858,47 @@ components:
             the party as a legal entity or person.
       required:
         - registrationName
+    document_status_webhook_payload:
+      type: object
+      required:
+        - documentId
+        - documentType
+        - status
+        - timestamp
+      properties:
+        documentId:
+          type: string
+          description: Unique identifier of the submitted document.
+        documentType:
+          type: string
+          enum:
+            - INVOICE
+            - CREDIT_NOTE
+          description: Type of the document that was processed.
+        status:
+          type: string
+          enum:
+            - SUBMITTED
+            - ACCEPTED
+            - REJECTED
+            - FAILED
+          description: Current status of the document after processing by the provider.
+        message:
+          type: string
+          description: Optional message describing the status result or any error.
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp indicating when the status was determined.
+        providerId:
+          type: string
+          description: Identifier of the e-invoicing provider (useful in multi-provider environments).
+        externalRef:
+          type: string
+          description: External reference ID or transaction ID from the provider.
+        attempt:
+          type: integer
+          description: Retry attempt count from the sender, if applicable.
     error500_response:
       description: An unexpected error occurred while processing your request.
       properties:
