@@ -1,43 +1,58 @@
-openapi: "3.0.0"
+openapi: 3.0.0
 info:
-  title: "E-Invoicing Service Provider Interface"
-  description: |
+  title: E-Invoicing Service Provider Interface
+  description: >
     ## E-invoicing Service Provider Interface (SPI) — Overview
+      Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle.
     
-    The E-invoicing Service Provider Interface (SPI) defines the standard contract that enables Chargebee to seamlessly integrate with third-party e-invoicing providers across different countries and compliance frameworks.
+    - Retrieve E-invoicing Activations:
+        - Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
+        - Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
+        - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
+    - Document Submission:
+       - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
+    - Status Tracking:
+       - Tracks the real-time processing status of submitted documents whether accepted, successful, failed, or still in progress.
+    - Final Document Retrieval:
+       - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
+
+    Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing servies are the  certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
     
-    Through this SPI, providers expose a minimal yet powerful set of APIs that allow Chargebee to submit billing documents (invoices, credit notes), track their compliance status, and retrieve finalized documents securely.
     
-    This framework ensures that Chargebee merchants remain compliant with diverse global e-invoicing mandates by abstracting the complexity of country-specific regulatory requirements.
+    ## The Role of the E-invoicing Adapter App:
+      - To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
+
+    ## Building an E-invoicing Adapter App
+      To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI by developing an adapter app. This is required in the following scenarios:
     
-    ## Supported Capabilities
-    
-    - Retrieve supported country and network activations for e-invoicing enablement.
-    - Submit billing documents for validation, compliance checks, and delivery to tax authorities or trading partners.
-    - Track the processing status of submitted documents, including success, failure, or in-progress states.
-    - Retrieve finalized e-invoicing documents for storage, audit, or customer presentation.
-    
-    ## Global Compliance Expansion
-    
-    The Chargebee E-invoicing SPI is designed to support multiple e-invoicing compliance models globally, including clearance models, post-audit models, and hybrid frameworks, helping businesses scale their operations across different regulatory landscapes without friction.
+      - As an E-invoicing Provider:
+        - Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
+      - As a System Integrator:
+          description: Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
+
+    By implementing the E-invoicing SPI, you enable Chargebee to support global regulatory compliance through a scalable and region-agnostic architecture.
   version: "1.0.0"
 servers:
-  - url: "https://api.example.com"
-    description: "Production server (replace with actual service URL)"
-  - url: "https://sandbox.example.com"
-    description: "Sandbox server for testing"
+  - url: https://api.example.com
+    description: Production server (replace with actual service URL)
+  - url: https://sandbox.example.com
+    description: Sandbox server for testing
 tags:
-  - name: "Activations"
-    description: "Operations related to e-invoicing activations"
-  - name: "Documents"
-    description: "Operations related to e-invoicing documents"
-
+  - name: Activations
+    description: Operations related to e-invoicing activations
+  - name: Documents
+    description: Operations related to e-invoicing documents
 security:
   - ApiKeyAuth: []
 paths:
+  /health:
+    $ref: ./paths/health.yml
+  /credentials/validate:
+    $ref: ./paths/credentials.yml
   /einvoicing/activations:
     get:
-      tags: ["Activations"]
+      tags:
+        - Activations
       summary: Retrieve a list of Activations.
       description: |
         Retrieves the list of country-level e-invoicing activations supported by the connected e-invoicing provider.
@@ -46,7 +61,7 @@ paths:
         
         This endpoint helps Chargebee determine which countries and e-invoicing networks can be activated for the provider.
         
-        In Chargebee, once the E-invoicing Provider SPI app is connected successfully, this endpoint is called during the provider enablement flow for a country to fetch the available activation options.
+        In Chargebee, this endpoint is called during the provider configuration for a specific country. It retrieves the activations that are already set up or in progress in the provider’s platform, helping users understand the available or pending e-invoicing capabilities.
       operationId: listActivations
       responses:
         '200':
@@ -54,7 +69,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ActivationsResponse'
+                $ref: '#/components/schemas/activations_response'
         '401':
           description: Unauthorized
         '403':
@@ -66,40 +81,46 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error500Response'
-
-
+                $ref: '#/components/schemas/error500_response'
   /einvoicing/documents:
     post:
-      tags: ["Documents"]
-      summary: "Submit a new document (invoice or credit note) to the e-invoicing service."
-      description: |
-        Submits a new document, such as an invoice or credit note, to the connected e-invoicing provider for validation, compliance checks, and transmission to the relevant tax authorities or business partners.
-        
-        This endpoint is mandatory for enabling document submission through the Chargebee E-invoicing SPI framework.
-        The submitted document must comply with the provider’s format and schema requirements.
-        
-        In Chargebee, this endpoint is called when a new charge invoice, credit note, or other supported billing document is generated and needs to be processed through the connected e-invoicing provider.
+      tags:
+        - Documents
+      summary: Submit a new document (invoice or credit note) to the e-invoicing service.
+      description: 'Submits a new document, such as an invoice or credit note, to
+        the connected e-invoicing provider for validation, compliance checks, and
+        transmission to the relevant tax authorities or business partners.
+
+
+        This endpoint is MANDATORY for enabling document submission through the Chargebee
+        E-invoicing SPI framework.
+
+
+        In Chargebee, this endpoint is called when a new invoice, credit note, or
+        other supported billing document is generated and needs to be processed through
+        the connected e-invoicing provider.
+
+        '
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Document"
+              $ref: '#/components/schemas/document'
       responses:
         '200':
-          description: "Document submitted successfully."
+          description: Document submitted successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DocumentSubmissionResponse"
+                $ref: '#/components/schemas/document_submission_response'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DocumentSubmissionErrorResponse"
-        "401":
+                $ref: '#/components/schemas/document_submission_error_response'
+        '401':
           description: Unauthorized
         '403':
           description: Forbidden
@@ -108,31 +129,74 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error500Response'
-  /einvoicing/documents/{documentId}/status:
-    get:
-      tags: ["Documents"]
-      summary: "Get Document Status"
+                $ref: '#/components/schemas/error500_response'
+  /webhooks/einvoicing/document_status:
+    post:
+      tags:
+        - Webhooks
+      summary: Receive document status updates from the e-invoicing provider
       description: |
-        Retrieves the current processing status of a document previously submitted to the connected e-invoicing provider.
-        
-        The status provides insights into whether the document has been successfully processed, is still under validation, has failed, or has been rejected by tax authorities or intermediaries.
-        
-        In Chargebee, this endpoint is triggered when a merchant clicks the "Get Status" button from the Chargebee UI to retrieve the latest processing status of the document.
+        This webhook endpoint is invoked by the e-invoicing adapter or provider once a document (invoice or credit note) has been processed.
+
+        The payload includes the unique document identifier and the final status of the document submission, such as `SUBMITTED`, `ACCEPTED`, `REJECTED`, or `FAILED`.
+
+        Chargebee will primarily rely on this webhook endpoint to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
+
+        Chargebee will share the webhook URL to be invoked by the e-invoicing adapter application.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/document_status_webhook_payload'
+      responses:
+        '200':
+          description: Webhook payload received and validated successfully. No retry required.
+        '202':
+          description: Webhook accepted for asynchronous processing.
+        '400':
+          description: Invalid payload or required fields missing.
+        '401':
+          description: Unauthorized request. Signature validation failed or sender is not allowed.
+        '422':
+          description: Payload was well-formed but could not be processed (e.g., unknown document ID).
+        '500':
+          description: Internal server error. Retry may be attempted by the sender.
+  /einvoicing/documents/{document_id}/status:
+    get:
+      tags:
+        - Documents
+      summary: Get Document Status
+      description: 'Retrieves the current processing status of a document previously
+        submitted to the connected e-invoicing provider.
+
+
+        The status provides insights into whether the document has been successfully
+        processed, is still under validation, has failed, or has been rejected by
+        tax authorities or intermediaries.
+
+
+        In Chargebee, this endpoint is periodically called to retrieve the latest
+        processing status of the e-invoicing document. While Chargebee primarily relies
+        on the webhook listener to receive status updates, this endpoint serves as
+        a fallback mechanism to ensure status synchronization.
+
+        '
       parameters:
-        - name: "documentId"
-          in: "path"
+        - name: document_id
+          in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: "Document status retrieved successfully."
+          description: Document status retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DocumentStatus"
-        "401":
+                $ref: '#/components/schemas/document_status'
+        '401':
           description: Unauthorized
         '403':
           description: Forbidden
@@ -141,39 +205,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentNotFoundErrorResponse'
+                $ref: '#/components/schemas/document_not_found_error_response'
         '500':
           description: Unexpected error while processing request.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error500Response'
-  /einvoicing/documents/{documentId}/download:
+                $ref: '#/components/schemas/error500_response'
+  /einvoicing/documents/{document_id}/download:
     get:
-      tags: ["Documents"]
-      summary: "Download Document  (Mandatory)"
+      tags:
+        - Documents
+      summary: Download Document
       description: |
         Retrieves the document content associated with the provided documentId from the connected e-invoicing provider.
         
-        The document may be returned either as a direct binary stream (such as a PDF or XML file) or as a pre-signed URL, depending on the provider’s capabilities and the SPI implementation.
+        The document may be returned either as a pre-signed URL or as a direct binary stream (such as a PDF or XML file), depending on the provider’s capabilities and the SPI implementation.
         
-        In Chargebee, this endpoint is triggered when a merchant chooses to download the issued invoice or related document from the Chargebee UI.
+        In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
         
-        Implementing this endpoint is mandatory for all SPI providers to support document retrieval operations.
+        Implementing this endpoint is MANDATORY to support document retrieval operations.
       parameters:
-        - name: "documentId"
-          in: "path"
+        - name: document_id
+          in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: "Document downloaded successfully."
+          description: Document downloaded successfully.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DownloadDocumentResponse"
-        "401":
+                $ref: '#/components/schemas/download_document_response'
+        '401':
           description: Unauthorized
         '403':
           description: Forbidden
@@ -182,17 +247,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentNotFoundErrorResponse'
+                $ref: '#/components/schemas/document_not_found_error_response'
         '500':
           description: Unexpected error while processing request.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error500Response'
-
+                $ref: '#/components/schemas/error500_response'
 components:
   schemas:
-    Activation:
+    activation:
       type: object
       properties:
         id:
@@ -205,9 +269,9 @@ components:
               type: string
               description: The status code
               enum:
-                - Completed
-                - Failed
-                - Pending
+                - COMPLETED
+                - FAILED
+                - PENDING
             message:
               type: string
               description: A message describing the activation status
@@ -217,37 +281,39 @@ components:
             identifier:
               type: string
               description: The unique identifier for the company
-            displayName:
+            display_name:
               type: string
               description: The display name of the company
-        countryActivations:
+        country_activations:
           type: array
           items:
-            $ref: '#/components/schemas/countryActivation'
-
-    countryActivation:
+            $ref: '#/components/schemas/country_activation'
+    country_activation:
       type: object
       properties:
         network:
           type: string
-          description: The e-invoicing network associated with the activation (e.g., PEPPOL).
-        countryCode:
+          description: The e-invoicing network associated with the activation (e.g.,
+            PEPPOL).
+        country_code:
           type: string
-          description: ISO 3166-1 alpha-2 country code where the e-invoicing activation is applicable.
-        eInvoicingType:
+          description: ISO 3166-1 alpha-2 country code where the e-invoicing activation
+            is applicable.
+        einvoicing_type:
           type: string
-          description: Specifies the type of business transaction for which e-invoicing is applied.
+          description: Specifies the type of business transaction for which e-invoicing
+            is applied.
           enum:
             - B2B
             - B2C
             - B2G
-    ActivationsResponse:
+    activations_response:
       type: object
       properties:
         activations:
           type: array
           items:
-            $ref: '#/components/schemas/Activation'
+            $ref: '#/components/schemas/activation'
       example:
         activations:
           - id: reg-123456789
@@ -256,12 +322,12 @@ components:
               message: Activation completed successfully.
             company:
               identifier: DE123456789
-              displayName: Acme GmbH
-            countryActivations:
+              display_name: Acme GmbH
+            country_activations:
               - network: PEPPOL
-                countryCode: DE
-                einvoicingType: B2B
-    Document:
+                country_code: DE
+                einvoicing_type: B2B
+    document:
       type: object
       properties:
         id:
@@ -269,20 +335,22 @@ components:
           description: A Unique identifier of the document.
         type:
           type: string
-          enum: ["INVOICE", "CREDIT_NOTE"]
+          enum:
+            - INVOICE
+            - CREDIT_NOTE
           description: Type of document, either an invoice or a credit note.
-        issueDate:
+        issue_date:
           type: string
           format: date
           description: The date when the Document was issued. Format "YYYY-MM-DD"
-        taxDate:
+        tax_date:
           type: string
           format: date
           description: The date used for determining tax. Format "YYYY-MM-DD"
-        currencyCode:
+        currency_code:
           type: string
           description: The currency code (ISO 4217 format) for the document.
-        dueDate:
+        due_date:
           type: string
           format: date
           description: The date when the payment is due. Format "YYYY-MM-DD".
@@ -291,8 +359,33 @@ components:
           description: Total payable amount for the document, including taxes.
         note:
           type: string
-          description: A textual note that gives unstructured information that is relevant to the Document as a whole. Such as the reason for any correction or assignment note in case the document has been factored.
-        accountingSupplierParty:
+          description: A textual note that gives unstructured information that is
+            relevant to the Document as a whole. Such as the reason for any correction
+            or assignment note in case the document has been factored.
+        billing_reference:
+          type: array
+          description: A group of business terms providing information on one or more
+            preceding Invoices.
+          items:
+            type: object
+            properties:
+              invoice_document_reference:
+                type: object
+                description: A group of business terms providing information on one
+                  or more preceding Invoices.
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the referenced invoice.
+                  issue_date:
+                    type: string
+                    format: date
+                    description: Issue date of the referenced invoice.
+                required:
+                  - id
+          required:
+            - invoice_document_reference
+        accounting_supplier_party:
           type: object
           description: Party responsible for issuing the document (i.e., the supplier).
           properties:
@@ -301,16 +394,20 @@ components:
               description: Name of the supplier party.
             address:
               description: Address of the Supplier party.
-              $ref: '#/components/schemas/Address'
-            taxScheme:
+              $ref: '#/components/schemas/address'
+            tax_scheme:
               type: array
               description: List of tax identifiers associated with the supplier.
               items:
-                $ref: '#/components/schemas/TaxScheme'
-            legalEntity:
+                $ref: '#/components/schemas/tax_scheme'
+            legal_entity:
               description: Legal entity of the supplier party.
-              $ref: '#/components/schemas/PartyLegalEntity'
-        accountingCustomerParty:
+              $ref: '#/components/schemas/party_legal_entity'
+          required:
+            - address
+            - taxScheme
+            - legalEntity
+        accounting_customer_party:
           type: object
           description: Party responsible for receiving the invoice (i.e., the customer).
           properties:
@@ -319,19 +416,23 @@ components:
               description: Name of the customer party.
             address:
               description: Address of the customer party.
-              $ref: '#/components/schemas/Address'
-            taxScheme:
+              $ref: '#/components/schemas/address'
+            tax_scheme:
               type: array
               description: List of tax identifiers associated.
               items:
-                $ref: '#/components/schemas/TaxScheme'
-            legalEntity:
+                $ref: '#/components/schemas/tax_scheme'
+            legal_entity:
               description: Legal entity of the customer party.
-              $ref: '#/components/schemas/PartyLegalEntity'
-        paymentMeans:
+              $ref: '#/components/schemas/party_legal_entity'
+          required:
+            - address
+            - taxScheme
+            - legalEntity
+        payment_means:
           type: object
           description: Defines the method and details for payment.
-          $ref: '#/components/schemas/PaymentMeans'
+          $ref: '#/components/schemas/payment_means'
         lines:
           type: array
           items:
@@ -339,14 +440,16 @@ components:
             properties:
               id:
                 type: string
-                description: A unique identifier for the individual line within the document.
+                description: A unique identifier for the individual line within the
+                  document.
               description:
                 type: string
-                description: A textual note that gives unstructured information that is relevant to the document.
+                description: A textual note that gives unstructured information that
+                  is relevant to the document.
               quantity:
                 type: integer
                 description: The quantity of items (goods or services) that is charged.
-              unitPrice:
+              unit_price:
                 type: number
                 description: The unit price for this line.
               amount:
@@ -355,44 +458,53 @@ components:
               discount:
                 type: number
                 description: The discount applied to the line.
-              itemCode:
+              item_code:
                 type: string
-                description: The unique identifier (in Chargebee) of the product corresponding to the line.
-              classifiedTaxCategory:
+                description: The unique identifier (in Chargebee) of the product corresponding
+                  to the line.
+              classified_tax_category:
                 type: array
-                description: List of tax categories applicable to the invoice line, such as VAT or other indirect taxes.
+                description: List of tax categories applicable to the invoice line,
+                  such as VAT or other indirect taxes.
                 items:
                   type: object
                   properties:
                     percentage:
                       type: number
-                      description: The tax rate percentage applicable to this tax category (e.g., 19 for 19% VAT).
+                      description: The tax rate percentage applicable to this tax
+                        category (e.g., 19 for 19% VAT).
                     category:
                       type: string
                       description: A code or label identifying the type of tax category.
                     country:
                       type: string
-                      description: The ISO 3166-1 alpha-2 country code where the tax category is applicable (e.g., DE for Germany).
-            required: ["id", "description", "amount", "quantity", "name", "classifiedTaxCategory"]
-
-        taxTotal:
+                      description: The ISO 3166-1 alpha-2 country code where the tax
+                        category is applicable (e.g., DE for Germany).
+            required:
+              - id
+              - description
+              - amount
+              - quantity
+              - name
+              - classifiedTaxCategory
+        tax_total:
           type: object
           description: Represents the total tax details for the document.
           properties:
-            taxAmount:
+            tax_amount:
               type: number
               description: The total tax amount for the document.
               format: double
-            taxSubTotals:
+            tax_sub_totals:
               type: array
               items:
                 type: object
                 properties:
-                  taxableAmount:
+                  taxable_amount:
                     type: number
                     format: double
                     description: Total taxable amount for the category.
-                  taxAmount:
+                  tax_amount:
                     type: number
                     format: double
                     description: Total Tax amount for the category
@@ -409,127 +521,136 @@ components:
       example:
         id: INV-10001
         type: INVOICE
-        issueDate: 2025-04-02
-        taxDate: 2025-04-02
-        currencyCode: EUR
-        dueDate: 2025-04-30
-        amount: 114.00
+        issue_date: 2025-04-02
+        tax_date: 2025-04-02
+        currency_code: EUR
+        due_date: 2025-04-30
+        amount: 114.0
         note: Payment due in 28 days.
-        accountingCustomerParty:
+        accounting_customer_party:
           party:
             name: Example Buyer GmbH
             address:
               street1: Berliner Str. 123
               street2: 2nd Floor
-              zip: "10115"
+              zip: '10115'
               city: Berlin
               country: DE
-          taxScheme:
+          tax_scheme:
             - scheme: VAT
               id: DE123456789
-        accountingSupplierParty:
+        accounting_supplier_party:
           party:
             name: Example Seller GmbH
             address:
               street1: Hauptstr. 456
               street2: Suite 5
-              zip: "50667"
+              zip: '50667'
               city: Cologne
               country: DE
-          taxScheme:
+          tax_scheme:
             - scheme: VAT
               id: DE987654321
-        paymentMeans:
+        payment_means:
           code: ONLINE_PAYMENT_SERVICE
-          paymentID: "PAY-2024-00987"
-          cardAccount:
-            primaryAccountNumberID: "4111********1111"
-            cardHolderName: "Jane Smith"
-            networkID: "MASTERCARD"
+          payment_id: PAY-2024-00987
+          card_account:
+            primary_account_number_id: 4111********1111
+            card_holder_name: Jane Smith
+            network_id: MASTERCARD
         lines:
-          - id: "1"
+          - id: '1'
             description: Consulting Services - April
-            amount: 100.00
+            amount: 100.0
             quantity: 1
             name: Consulting
-            standardItemIdentification: CONS-APRIL
-            classifiedTaxCategory:
+            standard_item_identification: CONS-APRIL
+            classified_tax_category:
               - percentage: 14
                 category: VAT
                 country: DE
-        taxTotal:
-          taxAmount: 14.00
-          taxSubTotals:
-            - taxableAmount: 100.00
-              taxAmount: 14.00
+        tax_total:
+          tax_amount: 14.0
+          tax_sub_totals:
+            - taxable_amount: 100.0
+              tax_amount: 14.0
               percentage: 14
               country: DE
               category: VAT
-
       required:
-        - taxSubtotals
-        - Number
-        - IssueDate
+        - id
+        - type
+        - issueDate
         - taxDate
-        - CurrencyCode
+        - currencyCode
         - amount
         - dueDate
-        - documentLines
+        - lines
         - accountingCustomerParty
         - accountingSupplierParty
-        - paymentDetails
-    PaymentMeans:
+        - taxTotal
+    payment_means:
       type: object
       description: Defines the method and details for payment.
       properties:
         code:
           type: string
-          description: The means, expressed as code, for how a payment is expected to be or has been settled.
+          description: The means, expressed as code, for how a payment is expected
+            to be or has been settled.
           enum:
             - CREDIT_TRANSFER
             - ONLINE_PAYMENT_SERVICE
             - DIRECT_DEBIT
-        paymentID:
+        payment_id:
           type: string
-          description: A textual value used to establish a link between the payment and the Invoice, issued by the Seller. Used for creditor's critical reconciliation information. This information element helps the Seller to assign an incoming payment to the relevant payment process.
-        payeeFinancialAccount:
+          description: A textual value used to establish a link between the payment
+            and the Invoice, issued by the Seller. Used for creditor's critical reconciliation
+            information. This information element helps the Seller to assign an incoming
+            payment to the relevant payment process.
+        payee_financial_account:
           type: object
           description: A group of business terms to specify credit transfer payments.
           properties:
             id:
               type: string
-              description: A unique identifier of the financial payment account, at a payment service provider, to which payment should be made. Such as IBAN or BBAN (e.g., IBAN).
+              description: A unique identifier of the financial payment account, at
+                a payment service provider, to which payment should be made. Such
+                as IBAN or BBAN (e.g., IBAN).
           required:
             - id
-        paymentMandate:
+        payment_mandate:
           type: object
           description: A group of business terms to specify a direct debit.
           properties:
             id:
               type: string
-              description: Unique identifier assigned by the Payee for referencing the direct debit mandate.
-            mandateType:
+              description: Unique identifier assigned by the Payee for referencing
+                the direct debit mandate.
+            mandate_type:
               type: string
               description: Type of mandate (e.g., SEPA, national DD agreement).
-        cardAccount:
+        card_account:
           type: object
-          description: A group of business terms providing information about card used for payment contemporaneous with invoice issuance.
+          description: A group of business terms providing information about card
+            used for payment contemporaneous with invoice issuance.
           properties:
-            primaryAccountNumberID:
+            primary_account_number_i_d:
               type: string
               description: The Primary Account Number (PAN) of the card used for payment.
-            cardHolderName:
+            card_holder_name:
               type: string
               description: The name of the payment card holder.
-            networkID:
+            network_id:
               type: string
               description: The identifier of the card network. (e.g., VISA, MasterCard).
-    DocumentSubmissionResponse:
+    document_submission_response:
       type: object
       properties:
-        documentId:
+        document_id:
           type: string
-          description: The unique identifier assigned to the document by the e-invoicing provider. This identifier must be used for subsequent operations such as retrieving the document status and downloading the document.
+          description: The unique identifier assigned to the document by the e-invoicing
+            provider. This identifier must be used for subsequent operations such
+            as retrieving the document status and downloading the document.
         status:
           type: string
           description: The current status of the submitted document.
@@ -539,40 +660,43 @@ components:
             - SUCCESS
         request_id:
           type: string
-          description: A unique identifier assigned to the request for tracking and correlation purposes across systems and logs.
+          description: A unique identifier assigned to the request for tracking and
+            correlation purposes across systems and logs.
+      required:
+        - document_id
+        - status
       example:
-        documentId: DOC-20250402-0002
+        document_id: DOC-20250402-0002
         status: PENDING
         request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-    DocumentStatus:
+    document_status:
       type: object
       properties:
-        documentId:
+        document_id:
           type: string
-          description: "Unique identifier for the document submitted."
+          description: Unique identifier for the document submitted.
         status:
           type: string
-          description: "The current status of the document submission."
+          description: The current status of the document submission.
           enum:
             - ACCEPTED
             - FAILED
             - SUCCESS
-        submissionDate:
+        submission_date:
           type: string
           format: date-time
-          description: "Date and time when the document was submitted."
-        processingDetails:
+          description: Date and time when the document was submitted.
+        processing_details:
           type: object
-          $ref: "#/components/schemas/DocumentSubmissionErrorResponse"
+          $ref: '#/components/schemas/document_submission_error_response'
       example:
-        documentId: DOC-20250402-0001
+        document_id: DOC-20250402-0001
         status: Success
-        submissionDate: 2025-04-02T07:39:31.815Z
+        submission_date: 2025-04-02T07:39:31.815Z
       required:
-        - documentId
+        - document_id
         - status
-
-    DownloadDocumentResponse:
+    download_document_response:
       type: object
       required:
         - request_id
@@ -591,11 +715,15 @@ components:
             properties:
               mime_type:
                 type: string
-                example: application/xml
+                description: The MIME type of the document.
+                enum:
+                  - application/xml
+                  - application/pdf
               document_url:
                 type: string
                 format: uri
-                description: Presigned URL to access the document. This param will be preferred if found over document_content.
+                description: Presigned URL to access the document. This param will
+                  be preferred if found over document_content.
               document_content:
                 type: string
                 format: byte
@@ -603,18 +731,20 @@ components:
               expires_at:
                 type: string
                 format: date-time
+                description: The time until which the document url is valid.
                 example: 2025-03-28T09:24:29Z
         network:
           type: string
-          enum: [peppol]
+          enum:
+            - peppol
       example:
-        request_id: "a3d56940-2827-4b87-a229-00d8b95cbe77"
+        request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: "application/xml"
-            document_url: "https://provider.com/downloads/invoice-20250402.xml"
-            expires_at: "2025-03-28T09:24:29Z"
+          - mime_type: application/xml
+            document_url: https://provider.com/downloads/invoice-20250402.xml
+            expires_at: '2025-03-28T09:24:29Z'
         network: peppol
-    DocumentSubmissionErrorResponse:
+    document_submission_error_response:
       type: object
       properties:
         errors:
@@ -624,7 +754,8 @@ components:
             properties:
               code:
                 type: string
-                description: The error codes classify the type of exception that occurred during processing the request.
+                description: The error codes classify the type of exception that occurred
+                  during processing the request.
                 enum:
                   - INVALID_OPERATION
                   - SERVICE_EXCEPTION
@@ -635,10 +766,11 @@ components:
               message:
                 type: string
                 description: A short message describing the reason for the error.
-              helpUrl:
+              help_url:
                 type: string
                 format: uri
-                description: The link to the documentation for more information about the error and the corrective action.
+                description: The link to the documentation for more information about
+                  the error and the corrective action.
             required:
               - code
               - message
@@ -646,8 +778,8 @@ components:
         errors:
           - code: MISSING_REQUIRED_DATA
             message: The request did not contain a required property 'taxAmount'
-            helpUrl: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
-    DocumentNotFoundErrorResponse:
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    document_not_found_error_response:
       type: object
       properties:
         errors:
@@ -663,10 +795,11 @@ components:
               message:
                 type: string
                 description: A short message describing the reason for the error.
-              helpUrl:
+              help_url:
                 type: string
                 format: uri
-                description: The link to the documentation for more information about the error and the corrective action.
+                description: The link to the documentation for more information about
+                  the error and the corrective action.
             required:
               - code
               - message
@@ -674,8 +807,8 @@ components:
         errors:
           - code: INVALID_OPERATION
             message: The requested document is not found.
-            helpUrl: https://docs.example.com/errors#INVALID_OPERATION
-    Address:
+            help_url: https://docs.example.com/errors#INVALID_OPERATION
+    address:
       type: object
       properties:
         line1:
@@ -699,7 +832,7 @@ components:
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code.
-    TaxScheme:
+    tax_scheme:
       type: object
       properties:
         scheme:
@@ -707,34 +840,76 @@ components:
           description: Name or type of the tax scheme (e.g., Germany VAT Number).
         id:
           type: string
-          description: The identification scheme identifier of the party electronic address.
+          description: The identification scheme identifier of the party electronic
+            address.
       required:
         - scheme
         - id
-    PartyLegalEntity:
+    party_legal_entity:
       type: object
       description: Legal entity information of the party.
       properties:
-        registrationName:
+        registration_name:
           type: string
           description: The full formal name by which the party is registered.
-        companyID:
+        company_id:
           type: string
-          description: An identifier issued by an official registrar that identifies the party as a legal entity or person.
+          description: An identifier issued by an official registrar that identifies
+            the party as a legal entity or person.
       required:
         - registrationName
-    Error500Response:
+    document_status_webhook_payload:
+      type: object
+      required:
+        - documentId
+        - documentType
+        - status
+        - timestamp
+      properties:
+        documentId:
+          type: string
+          description: Unique identifier of the submitted document.
+        documentType:
+          type: string
+          enum:
+            - INVOICE
+            - CREDIT_NOTE
+          description: Type of the document that was processed.
+        status:
+          type: string
+          enum:
+            - SUBMITTED
+            - ACCEPTED
+            - REJECTED
+            - FAILED
+          description: Current status of the document after processing by the provider.
+        message:
+          type: string
+          description: Optional message describing the status result or any error.
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp indicating when the status was determined.
+        providerId:
+          type: string
+          description: Identifier of the e-invoicing provider (useful in multi-provider environments).
+        externalRef:
+          type: string
+          description: External reference ID or transaction ID from the provider.
+        attempt:
+          type: integer
+          description: Retry attempt count from the sender, if applicable.
+    error500_response:
       description: An unexpected error occurred while processing your request.
       properties:
         message:
           type: string
           description: A human-readable description of the unexpected error encountered.
-          example: "An unexpected error occurred while processing your request."
+          example: An unexpected error occurred while processing your request.
       required:
         - message
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: "X-API-Key"
-
+      name: X-API-Key
