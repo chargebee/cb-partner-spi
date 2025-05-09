@@ -61,7 +61,7 @@ paths:
         
         This endpoint helps Chargebee determine which countries and e-invoicing networks can be activated for the provider.
         
-        In Chargebee, once the E-invoicing Provider SPI app is connected successfully, this endpoint is called during the provider enablement flow for a country to fetch the available activation options.
+        In Chargebee, this endpoint is called during the provider configuration for a specific country. It retrieves the activations that are already set up or in progress in the provider’s platform, helping users understand the available or pending e-invoicing capabilities.
       operationId: listActivations
       responses:
         '200':
@@ -213,7 +213,7 @@ paths:
         
         The document may be returned either as a pre-signed URL or as a direct binary stream (such as a PDF or XML file), depending on the provider’s capabilities and the SPI implementation.
         
-        In Chargebee, this endpoint is triggered when a merchant chooses to download the issued invoice or related document from the Chargebee UI.
+        In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
         
         Implementing this endpoint is MANDATORY to support document retrieval operations.
       parameters:
@@ -261,9 +261,9 @@ components:
               type: string
               description: The status code
               enum:
-                - Completed
-                - Failed
-                - Pending
+                - COMPLETED
+                - FAILED
+                - PENDING
             message:
               type: string
               description: A message describing the activation status
