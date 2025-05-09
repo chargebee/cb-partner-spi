@@ -91,10 +91,9 @@ paths:
       description: |
         Submits a new document, such as an invoice or credit note, to the connected e-invoicing provider for validation, compliance checks, and transmission to the relevant tax authorities or business partners.
         
-        This endpoint is mandatory for enabling document submission through the Chargebee E-invoicing SPI framework.
-        The submitted document must comply with the provider’s format and schema requirements.
+        This endpoint is MANDATORY for enabling document submission through the Chargebee E-invoicing SPI framework.
         
-        In Chargebee, this endpoint is called when a new charge invoice, credit note, or other supported billing document is generated and needs to be processed through the connected e-invoicing provider.
+        In Chargebee, this endpoint is called when a new invoice, credit note, or other supported billing document is generated and needs to be processed through the connected e-invoicing provider.
       requestBody:
         required: true
         content:
@@ -124,6 +123,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error500Response'
+  /webhooks/einvoicing/document-status:
+    post:
+      tags:
+        - "Webhooks"
+      summary: "Receive document status updates from the e-invoicing provider"
+      description: |
+        This webhook endpoint is invoked by the e-invoicing adapter or provider once a document (invoice or credit note) has been processed. 
+
+        The payload includes the unique document identifier and the current processing status such as `SUBMITTED`, `ACCEPTED`, `REJECTED`, or `FAILED`.
+
+        Chargebee consumes this webhook to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - documentId
+                - status
+                - timestamp
+              properties:
+                documentId:
+                  type: string
+                  description: Unique identifier of the submitted document.
+                status:
+                  type: string
+                  enum: [SUBMITTED, ACCEPTED, REJECTED, FAILED]
+                  description: Current status of the document after processing by the provider.
+                message:
+                  type: string
+                  description: Optional message describing the status result or any error.
+                timestamp:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 timestamp indicating when the status was determined.
+      responses:
+        '200':
+          description: Webhook received and acknowledged.
+        '400':
+          description: Invalid payload or document not recognized.
+
   /einvoicing/documents/{documentId}/status:
     get:
       tags: ["Documents"]
@@ -133,7 +174,7 @@ paths:
         
         The status provides insights into whether the document has been successfully processed, is still under validation, has failed, or has been rejected by tax authorities or intermediaries.
         
-        In Chargebee, this endpoint is triggered when a merchant clicks the "Get Status" button from the Chargebee UI to retrieve the latest processing status of the document.
+        In Chargebee, this endpoint is periodically called to retrieve the latest processing status of the e-invoicing document. While Chargebee primarily relies on the webhook listener to receive status updates, this endpoint serves as a fallback mechanism to ensure status synchronization.
       parameters:
         - name: "documentId"
           in: "path"
@@ -166,15 +207,15 @@ paths:
   /einvoicing/documents/{documentId}/download:
     get:
       tags: ["Documents"]
-      summary: "Download Document  (Mandatory)"
+      summary: "Download Document"
       description: |
         Retrieves the document content associated with the provided documentId from the connected e-invoicing provider.
         
-        The document may be returned either as a direct binary stream (such as a PDF or XML file) or as a pre-signed URL, depending on the provider’s capabilities and the SPI implementation.
+        The document may be returned either as a pre-signed URL or as a direct binary stream (such as a PDF or XML file), depending on the provider’s capabilities and the SPI implementation.
         
         In Chargebee, this endpoint is triggered when a merchant chooses to download the issued invoice or related document from the Chargebee UI.
         
-        Implementing this endpoint is mandatory for all SPI providers to support document retrieval operations.
+        Implementing this endpoint is MANDATORY to support document retrieval operations.
       parameters:
         - name: "documentId"
           in: "path"
@@ -307,6 +348,28 @@ components:
         note:
           type: string
           description: A textual note that gives unstructured information that is relevant to the Document as a whole. Such as the reason for any correction or assignment note in case the document has been factored.
+        billing_reference:
+          type: array
+          description: A group of business terms providing information on one or more preceding Invoices.
+          items:
+            type: object
+            properties:
+              invoice_document_reference:
+                type: object
+                description: A group of business terms providing information on one or more preceding Invoices.
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the referenced invoice.
+                  issue_date:
+                    type: string
+                    format: date
+                    description: Issue date of the referenced invoice.
+                required:
+                  - id
+          required:
+            - invoice_document_reference
+
         accountingSupplierParty:
           type: object
           description: Party responsible for issuing the document (i.e., the supplier).
@@ -325,6 +388,7 @@ components:
             legalEntity:
               description: Legal entity of the supplier party.
               $ref: '#/components/schemas/PartyLegalEntity'
+          required: ["address", taxScheme, legalEntity]
         accountingCustomerParty:
           type: object
           description: Party responsible for receiving the invoice (i.e., the customer).
@@ -343,6 +407,7 @@ components:
             legalEntity:
               description: Legal entity of the customer party.
               $ref: '#/components/schemas/PartyLegalEntity'
+          required: ["address", taxScheme, legalEntity]
         paymentMeans:
           type: object
           description: Defines the method and details for payment.
@@ -482,17 +547,17 @@ components:
               category: VAT
 
       required:
-        - taxSubtotals
-        - Number
-        - IssueDate
+        - id
+        - type
+        - issueDate
         - taxDate
-        - CurrencyCode
+        - currencyCode
         - amount
         - dueDate
-        - documentLines
+        - lines
         - accountingCustomerParty
         - accountingSupplierParty
-        - paymentDetails
+        - taxTotal
     PaymentMeans:
       type: object
       description: Defines the method and details for payment.
@@ -542,7 +607,7 @@ components:
     DocumentSubmissionResponse:
       type: object
       properties:
-        documentId:
+        document_id:
           type: string
           description: The unique identifier assigned to the document by the e-invoicing provider. This identifier must be used for subsequent operations such as retrieving the document status and downloading the document.
         status:
@@ -555,14 +620,18 @@ components:
         request_id:
           type: string
           description: A unique identifier assigned to the request for tracking and correlation purposes across systems and logs.
+      required:
+        - document_id
+        - status
       example:
-        documentId: DOC-20250402-0002
+        document_id: DOC-20250402-0002
         status: PENDING
         request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+
     DocumentStatus:
       type: object
       properties:
-        documentId:
+        document_id:
           type: string
           description: "Unique identifier for the document submitted."
         status:
@@ -572,19 +641,19 @@ components:
             - ACCEPTED
             - FAILED
             - SUCCESS
-        submissionDate:
+        submission_date:
           type: string
           format: date-time
           description: "Date and time when the document was submitted."
-        processingDetails:
+        processing_details:
           type: object
           $ref: "#/components/schemas/DocumentSubmissionErrorResponse"
       example:
-        documentId: DOC-20250402-0001
+        document_id: DOC-20250402-0001
         status: Success
-        submissionDate: 2025-04-02T07:39:31.815Z
+        submission_date: 2025-04-02T07:39:31.815Z
       required:
-        - documentId
+        - document_id
         - status
 
     DownloadDocumentResponse:
@@ -606,7 +675,10 @@ components:
             properties:
               mime_type:
                 type: string
-                example: application/xml
+                description: The MIME type of the document.
+                enum:
+                  - application/xml
+                  - application/pdf
               document_url:
                 type: string
                 format: uri
@@ -618,6 +690,7 @@ components:
               expires_at:
                 type: string
                 format: date-time
+                description: The time until which the document url is valid.
                 example: 2025-03-28T09:24:29Z
         network:
           type: string
@@ -650,7 +723,7 @@ components:
               message:
                 type: string
                 description: A short message describing the reason for the error.
-              helpUrl:
+              help_url:
                 type: string
                 format: uri
                 description: The link to the documentation for more information about the error and the corrective action.
@@ -661,7 +734,7 @@ components:
         errors:
           - code: MISSING_REQUIRED_DATA
             message: The request did not contain a required property 'taxAmount'
-            helpUrl: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
     DocumentNotFoundErrorResponse:
       type: object
       properties:
@@ -678,7 +751,7 @@ components:
               message:
                 type: string
                 description: A short message describing the reason for the error.
-              helpUrl:
+              help_url:
                 type: string
                 format: uri
                 description: The link to the documentation for more information about the error and the corrective action.
@@ -689,7 +762,7 @@ components:
         errors:
           - code: INVALID_OPERATION
             message: The requested document is not found.
-            helpUrl: https://docs.example.com/errors#INVALID_OPERATION
+            help_url: https://docs.example.com/errors#INVALID_OPERATION
     Address:
       type: object
       properties:
