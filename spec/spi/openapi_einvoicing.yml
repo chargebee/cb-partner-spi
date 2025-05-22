@@ -107,6 +107,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/document'
+            examples:
+              invoice_document_submission_success:
+                $ref: '#/components/examples/invoice_document_submission_success'
+              credit_note_document_submission_success:
+                $ref: '#/components/examples/credit_note_document_submission_success'
       responses:
         '200':
           description: Document submitted successfully.
@@ -138,9 +143,11 @@ paths:
       description: |
         This webhook endpoint is invoked by the e-invoicing adapter application once a document (invoice or credit note) has been processed, provided that Chargebee has whitelisted the adapter's IP address.
 
-        The payload includes the unique document identifier and the final status of the document submission, such as `SUBMITTED`, `ACCEPTED`, `REJECTED`, or `FAILED`.
+        The payload includes the unique document identifier and the final status of the document submission, such as SUBMITTED, ACCEPTED, REJECTED, or FAILED.
 
         Chargebee will primarily rely on this webhook endpoint to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
+
+        This endpoint is idempotent. Repeated submissions with the same document identifier and status will not result in duplicate processing.
 
       requestBody:
         required: true
@@ -516,65 +523,7 @@ components:
                   category:
                     type: string
                     description: The category of tax applied (e.g., VAT).
-      example:
-        id: INV-10001
-        type: INVOICE
-        issue_date: 2025-04-02
-        tax_date: 2025-04-02
-        currency_code: EUR
-        due_date: 2025-04-30
-        amount: 114.0
-        note: Payment due in 28 days.
-        accounting_customer_party:
-          party:
-            name: Example Buyer GmbH
-            address:
-              street1: Berliner Str. 123
-              street2: 2nd Floor
-              zip: '10115'
-              city: Berlin
-              country: DE
-          tax_scheme:
-            - scheme: VAT
-              id: DE123456789
-        accounting_supplier_party:
-          party:
-            name: Example Seller GmbH
-            address:
-              street1: Hauptstr. 456
-              street2: Suite 5
-              zip: '50667'
-              city: Cologne
-              country: DE
-          tax_scheme:
-            - scheme: VAT
-              id: DE987654321
-        payment_means:
-          code: ONLINE_PAYMENT_SERVICE
-          payment_id: PAY-2024-00987
-          card_account:
-            primary_account_number_id: 4111********1111
-            card_holder_name: Jane Smith
-            network_id: MASTERCARD
-        lines:
-          - id: '1'
-            description: Consulting Services - April
-            amount: 100.0
-            quantity: 1
-            name: Consulting
-            standard_item_identification: CONS-APRIL
-            classified_tax_category:
-              - percentage: 14
-                category: VAT
-                country: DE
-        tax_total:
-          tax_amount: 14.0
-          tax_sub_totals:
-            - taxable_amount: 100.0
-              tax_amount: 14.0
-              percentage: 14
-              country: DE
-              category: VAT
+
       required:
         - id
         - type
@@ -809,13 +758,13 @@ components:
     address:
       type: object
       properties:
-        line1:
+        line_1:
           type: string
           description: First line of the address.
-        line2:
+        line_2:
           type: string
           description: Second line of the address.
-        line3:
+        line_3:
           type: string
           description: Third line of the address.
         zip:
@@ -901,6 +850,128 @@ components:
           example: An unexpected error occurred while processing your request.
       required:
         - message
+  examples:
+    invoice_document_submission_success:
+      description: A sample tax estimation request.
+      value:
+        id: INV-10001
+        type: INVOICE
+        issue_date: '2025-04-02'
+        tax_date: '2025-04-02'
+        currency_code: EUR
+        due_date: '2025-04-30'
+        amount: 114.0
+        note: Payment due in 28 days.
+        accounting_supplier_party:
+          name: Example Seller GmbH
+          address:
+            line_1: Hauptstr. 456
+            line_2: Suite 5
+            zip: '50667'
+            city: Cologne
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE987654321
+        accounting_customer_party:
+          name: Example Buyer GmbH
+          address:
+            line_1: Berliner Str. 123
+            line_2: 2nd Floor
+            zip: '10115'
+            city: Berlin
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE123456789
+        payment_means:
+          code: ONLINE_PAYMENT_SERVICE
+          payment_id: PAY-2024-00987
+          card_account:
+            primary_account_number_id: 4111********1111
+            card_holder_name: Jane Smith
+            network_id: MASTERCARD
+        lines:
+          - id: '1'
+            description: Consulting Services - April
+            quantity: 1
+            unit_price: 100.0
+            amount: 100.0
+            item_code: CONS-APRIL
+            classified_tax_category:
+              percentage: 14
+              category: VAT
+              country: DE
+        tax_total:
+          tax_amount: 14.0
+          tax_sub_totals:
+            - taxable_amount: 100.0
+              tax_amount: 14.0
+              percentage: 14
+              country: DE
+              category: VAT
+    credit_note_document_submission_success:
+      description: A sample credit note document submission request.
+      value:
+        id: CN-20002
+        type: CREDIT_NOTE
+        issue_date: '2025-04-10'
+        tax_date: '2025-04-10'
+        currency_code: EUR
+        due_date: '2025-04-30'
+        amount: 50.0
+        note: Credit issued for April billing adjustment.
+        billing_reference:
+          - 'INV-10001'
+        accounting_supplier_party:
+          name: Example Seller GmbH
+          address:
+            line_1: Hauptstr. 456
+            line_2: Suite 5
+            zip: '50667'
+            city: Cologne
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE987654321
+        accounting_customer_party:
+          name: Example Buyer GmbH
+          address:
+            line_1: Berliner Str. 123
+            line_2: 2nd Floor
+            zip: '10115'
+            city: Berlin
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE123456789
+        payment_means:
+          code: ONLINE_PAYMENT_SERVICE
+          payment_id: PAY-2024-01002
+          card_account:
+            primary_account_number_id: 4111********2222
+            card_holder_name: John Doe
+            network_id: VISA
+        lines:
+          - id: '1'
+            description: Refund for overcharge in April
+            quantity: 1
+            unit_price: 50.0
+            amount: 50.0
+            item_code: APRIL-REFUND
+            classified_tax_category:
+              percentage: 14
+              category: VAT
+              country: DE
+        tax_total:
+          tax_amount: 7.0
+          tax_sub_totals:
+            - taxable_amount: 50.0
+              tax_amount: 7.0
+              percentage: 14
+              country: DE
+              category: VAT
+
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
