@@ -119,12 +119,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_submission_response'
+              examples:
+                einvoice_document_submission_pending:
+                  $ref: '#/components/examples/einvoice_document_submission_pending'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_submission_error_response'
+                einvoice_document_submission_failed:
+                  $ref: '#/components/examples/einvoice_document_submission_failed'
         '401':
           description: Unauthorized
         '403':
@@ -612,10 +617,6 @@ components:
       required:
         - document_id
         - status
-      example:
-        document_id: DOC-20250402-0002
-        status: PENDING
-        request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
     document_status:
       type: object
       properties:
@@ -852,7 +853,7 @@ components:
         - message
   examples:
     invoice_document_submission_success:
-      description: A sample tax estimation request.
+      description: A sample invoice document submission request.
       value:
         id: INV-10001
         type: INVOICE
@@ -971,6 +972,20 @@ components:
               percentage: 14
               country: DE
               category: VAT
+    einvoice_document_submission_pending:
+      description: A sample response indicating the document is under processing.
+      value:
+        document_id: DOC-20250402-0002
+        status: PENDING
+        request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    einvoice_document_submission_failed:
+      description: A sample response indicating document submission failure due to missing required data.
+      value:
+        status: FAILED
+        errors:
+          - code: MISSING_REQUIRED_DATA
+            message: The request did not contain a required property 'taxAmount'
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
 
   securitySchemes:
     ApiKeyAuth:
