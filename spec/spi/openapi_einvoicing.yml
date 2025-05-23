@@ -128,6 +128,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_submission_error_response'
+              examples:
                 einvoice_document_submission_failed:
                   $ref: '#/components/examples/einvoice_document_submission_failed'
         '401':
@@ -206,6 +207,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_status'
+              examples:
+                successful_einvoice_document_submission_response:
+                  $ref: '#/components/examples/successful_einvoice_document_submission_response'
+                failed_einvoice_document_submission_response:
+                  $ref: '#/components/examples/failed_einvoice_document_submission_response'
+
         '401':
           description: Unauthorized
         '403':
@@ -986,6 +993,20 @@ components:
           - code: MISSING_REQUIRED_DATA
             message: The request did not contain a required property 'taxAmount'
             help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    successful_einvoice_document_submission_response:
+      description: A sample response indicating successful e-invoice document submission.
+      value:
+        document_id: DOC-20250402-0001
+        status: Success
+        submission_date: 2025-04-02T07:39:31.815Z
+    failed_einvoice_document_submission_response:
+      description: A sample failed document submission response due to unregistered VAT number.
+      value:
+        status: FAILED
+        errors:
+          - code: INVALID_DATA
+            message: The VAT number provided is not registered with the tax authority.
+
 
   securitySchemes:
     ApiKeyAuth:
