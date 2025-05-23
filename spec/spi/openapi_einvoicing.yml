@@ -45,8 +45,6 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
-  /health:
-    $ref: ./paths/health.yml
   /credentials/validate:
     $ref: ./paths/credentials.yml
   /einvoicing/activations:
@@ -160,7 +158,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/document_status_webhook_payload'
+              $ref: '#/components/schemas/document_status_webhook'
+            examples:
+              webhook_document_status_success:
+                $ref: '#/components/examples/webhook_document_status_success'
+              webhook_document_status_failed:
+                $ref: '#/components/examples/webhook_document_status_failed'
       responses:
         '200':
           description: Webhook payload received and validated successfully. No retry required.
@@ -255,6 +258,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/download_document_response'
+              examples:
+                einvoice_document_download_url_response:
+                  $ref: '#/components/examples/einvoice_document_download_url_response'
+                einvoice_document_download_stream_response:
+                  $ref: '#/components/examples/einvoice_document_download_stream_response'
         '401':
           description: Unauthorized
         '403':
@@ -271,6 +279,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error500_response'
+  /health:
+    $ref: ./paths/health.yml
 components:
   schemas:
     activation:
@@ -813,7 +823,7 @@ components:
             the party as a legal entity or person.
       required:
         - registrationName
-    document_status_webhook_payload:
+    document_status_webhook:
       type: object
       properties:
         document_id:
@@ -1006,8 +1016,48 @@ components:
         errors:
           - code: INVALID_DATA
             message: The VAT number provided is not registered with the tax authority.
-
-
+    einvoice_document_download_url_response:
+      description: A sample response with pre-signed S3 URL for document download.
+      value:
+        request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+        documents:
+          - mime_type: application/xml
+            document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
+            expires_at: '2025-03-28T09:24:29Z'
+        network: peppol
+    einvoice_document_download_stream_response:
+      description: A sample response with Base64-encoded XML and PDF document content.
+      value:
+        request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+        documents:
+          - mime_type: application/xml
+            document_content: PHh...Q0w+  # Base64-encoded XML content (truncated)
+            expires_at: '2025-03-28T09:24:29Z'
+          - mime_type: application/pdf
+            document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
+            expires_at: '2025-03-28T09:24:29Z'
+        network: peppol
+    webhook_document_status_success:
+      description: A sample webhook notification indicating successful document submission.
+      value:
+        document_id: INV-10001
+        document_type: INVOICE
+        status: ACCEPTED
+        timestamp: 2025-05-23T13:22:50.519Z
+        provider_id: avalara
+    webhook_document_status_failed:
+      description: A sample webhook notification indicating document submission failure.
+      value:
+        document_id: INV-10001
+        document_type: INVOICE
+        status: FAILED
+        timestamp: 2025-05-23T13:22:50.519Z
+        provider_id: avalara
+        errors:
+          errors:
+            - code: MISSING_REQUIRED_DATA
+              message: The request did not contain a required property 'taxAmount'
+              help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
