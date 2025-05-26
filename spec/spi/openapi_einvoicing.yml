@@ -99,6 +99,7 @@ paths:
         the connected e-invoicing provider.
 
         '
+      operationId: einvoiceingDocumentSubmission
       requestBody:
         required: true
         content:
@@ -152,7 +153,7 @@ paths:
         Chargebee will primarily rely on this webhook endpoint to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
 
         This endpoint is idempotent. Repeated submissions with the same document identifier and status will not result in duplicate processing.
-
+      operationId: einvoicingDocumentStatusWebhook
       requestBody:
         required: true
         content:
@@ -197,6 +198,7 @@ paths:
         a fallback mechanism to ensure status synchronization.
 
         '
+      operationId: einvoicingDocumentStatus
       parameters:
         - name: document_id
           in: path
@@ -245,6 +247,7 @@ paths:
         In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
         
         Implementing this endpoint is MANDATORY to support document retrieval operations.
+      operationId: einvoicingDocumentDownload
       parameters:
         - name: document_id
           in: path
@@ -457,7 +460,6 @@ components:
             - taxScheme
             - legalEntity
         payment_means:
-          type: object
           description: Defines the method and details for payment.
           $ref: '#/components/schemas/payment_means'
         lines:
@@ -652,7 +654,6 @@ components:
           format: date-time
           description: Date and time when the document was submitted.
         processing_details:
-          type: object
           $ref: '#/components/schemas/document_submission_error_response'
       example:
         document_id: DOC-20250402-0001

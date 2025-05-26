@@ -81,7 +81,7 @@ def openApiTask() {
 
             doLast {
                 def generatedApiDir = "$rootDir/generated/$spec.name/api"
-                def targetApiDir = "$rootDir/spec/spi/generated"
+                def targetApiDir = "$rootDir/spec/spi/generated/$spec.name"
                 copy {
                     from generatedApiDir
                     into targetApiDir
