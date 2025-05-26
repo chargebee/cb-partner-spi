@@ -7,7 +7,7 @@ Chargebee Partners can leverage this SPI to develop apps that seamlessly integra
 ## What are the available Chargebee Partner SPI? 
 Currently, Chargebee offer SPI for the following capabilities:
 
-- [Tax](https://spidocs.chargebee.com/api-reference/partner-spi/overview) <!-- should we have a better name for this? -->
+- [Tax](https://spidocs.chargebee.com/api-reference/partner-spi/overview)
 - [Tax Registration Number Validation](https://spidocs.chargebee.com/api-reference/partner-spi/overview)
 
 SPI allow partners to build custom apps by implementing the SPI-defined endpoints. The detailed OpenAPI specifications for this SPI can be found in the spec/spi folder of the repository:

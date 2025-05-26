@@ -1,47 +1,49 @@
-## E-invoicing Service Provider Interface (SPI) — Overview
+# Einvoicing SPI Integration
 
-Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle.
+Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle:
 
-1. **Retrieve E-invoicing Activations:**
+## Retrieve E-invoicing Activations
 
-Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
+- Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
+- Each activation reflects a country and e-invoicing network made available by the provider.
+- Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
 
-Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
+## Document Submission
 
-Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
+- Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
 
-2. **Document Submission:**
+## Status Tracking
 
-Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
+- Provides real-time tracking of the processing status of submitted documents, including states such as `accepted`, `in_progress`, `successful`, and `failed`.
 
-3. **Status Tracking:**
+## Final Document Retrieval
 
-Tracks the real-time processing status of submitted documents whether accepted, successful, failed, or still in progress.
+- Retrieves finalized and regulator-approved documents for archiving, auditing, or customer-facing use.
 
-4. **Final Document Retrieval:**
-
-Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
-
----
-Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing services are the certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
+Chargebee leverages external e-invoicing services to execute these operations effectively. These services are certified vendors offering APIs to manage e-invoicing compliance and document exchange with tax authorities.
 
 ---
 
 ## The Role of the E-invoicing Adapter App
 
-- To connect with external e-invoicing systems, Chargebee uses an **E-invoicing Adapter App** — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
+To connect with external e-invoicing systems, Chargebee uses an **E-invoicing Adapter App** — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system.
+
+This communication is governed by the **E-invoicing Service Provider Interface (SPI)**.
+
 ---
 
-## Building an E-invoicing Adapter App
+# Building an E-invoicing Adapter App
 
 To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI by developing an adapter app. This is required in the following scenarios:
 
-- **As an E-invoicing Provider:**
-    - Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
+### As an E-invoicing Provider
 
-- **As a System Integrator:**
-    - Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
+Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
+
+### As a System Integrator
+
+Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
 
 ---
 
-By implementing the E-invoicing SPI, you enable Chargebee to support global regulatory compliance through a scalable and region-agnostic architecture.
+By implementing the E-invoicing SPI, you enable Chargebee to support **global regulatory compliance** through a **scalable and region-agnostic architecture**.

@@ -146,18 +146,37 @@
           "version": "v1",
           "pages": [
             "api-reference/einvoicing-spi/docs/overview",
+            "api-reference/common/authorization",
             {
               "group": "Activations",
               "pages": [
-                "api-reference/activations/retrieve-a-list-of-activations"
+                "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations"
                ]
             },
             {
               "group": "Documents",
               "pages": [
-                "api-reference/documents/submit-a-new-document-invoice-or-credit-note-to-the-e-invoicing-service",
-                "api-reference/documents/get-document-status",
-                "api-reference/documents/download-document-mandatory"
+                "api-reference/einvoicing-spi/endpoints/v1/documents/submit-a-new-document-invoice-or-credit-note-to-the-e-invoicing-service",
+                "api-reference/einvoicing-spi/endpoints/v1/documents/get-document-status",
+                "api-reference/einvoicing-spi/endpoints/v1/documents/download-document"
+              ]
+            },
+            {
+              "group": "Webhooks",
+              "pages": [
+                "api-reference/einvoicing-spi/webhooks/receive-document-status-updates-from-the-e-invoicing-provider"
+              ]
+            },
+            {
+              "group": "Authentication",
+              "pages": [
+                "api-reference/common/validate-credentials"
+              ]
+            },
+            {
+              "group": "Health",
+              "pages": [
+                "api-reference/common/fetch-the-health-status-of-the-service-provider"
               ]
             }
           ]
