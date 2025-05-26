@@ -20,3 +20,7 @@ hs_err_pid*
 /.idea/
 /generated/
 /.DS_Store
+
+# intelliJ files
+cb-partner-spi.iml
+
