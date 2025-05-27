@@ -10,11 +10,12 @@ info:
         - Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
         - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
     - Document Submission:
-       - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
+        - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
     - Status Tracking:
-       - Provides real-time tracking of the processing status of submitted documents, including states such as *accepted*, *in_progress*, *successful*, and *failed*.
+        -  Chargebee supports webhook-based updates from the e-invoicing adapter, enabling asynchronous status updates as documents are processed.
+        - It also provides real-time tracking of the processing status of submitted documents, including states such as accepted, in_progress, successful, and failed.
     - Final Document Retrieval:
-       - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
+        - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
 
     Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing servies are the  certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
     
