@@ -698,7 +698,7 @@ components:
               expires_at:
                 type: string
                 format: date-time
-                description: The time until which the document url is valid.
+                description: The time until which the document URL is valid.
                 example: 2025-03-28T09:24:29Z
         network:
           type: string

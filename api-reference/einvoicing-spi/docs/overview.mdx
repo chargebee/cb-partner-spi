@@ -1,11 +1,11 @@
-# Einvoicing SPI Integration
+# E-Invoicing SPI Integration
 
-Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle:
+Chargebee streamlines e-invoicing compliance across regions by supporting the following operations throughout the billing lifecycle:
 
 ## Retrieve E-invoicing Activations
 
-- Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
-- Each activation reflects a country and e-invoicing network made available by the provider.
+- Retrieves the list of country and network activations configured in the connected e-invoicing provider platform.
+- Each activation corresponds to a specific country and e-invoicing network offered by the provider.
 - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
 
 ## Document Submission
@@ -19,7 +19,7 @@ Chargebee streamlines e-invoicing compliance across regions by facilitating the 
 
 ## Final Document Retrieval
 
-- Retrieves finalized and regulator-approved documents for archiving, auditing, or customer-facing use.
+- Retrieves finalized, regulator-approved documents for archiving, auditing, or customer use.
 
 Chargebee leverages external e-invoicing services to execute these operations effectively. These services are certified vendors offering APIs to manage e-invoicing compliance and document exchange with tax authorities.
 
@@ -27,35 +27,29 @@ Chargebee leverages external e-invoicing services to execute these operations ef
 
 ## The Role of the E-invoicing Adapter App
 
-To connect with external e-invoicing systems, Chargebee uses an **E-invoicing Adapter App** — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system.
+To communicate with external e-invoicing systems, Chargebee uses an **E-invoicing Adapter App** — a secure and standardized bridge between Chargebee and the e-invoicing system.
 
-This communication is governed by the **E-invoicing Service Provider Interface (SPI)**.
+This integration is governed by the **E-invoicing Service Provider Interface (SPI)**.
 
 ---
 
 # Building an E-invoicing Adapter App
 
-To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI(you can refer the spec file for this spi [here](https://github.com/chargebee/cb-partner-spi/blob/main/spec/spi/openapi_einvoicing.yml)) by developing an adapter app. This is required in the following scenarios:
+To integrate your e-invoicing system with Chargebee, you must implement the E-invoicing SPI.(You can refer to the spec file for this SPI [here](https://github.com/chargebee/cb-partner-spi/blob/main/spec/spi/openapi_einvoicing.yml)). You’ll need to build an adapter app in the following cases:
 
 ### As an E-invoicing Provider
 
-Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
+Connect your compliance platform to Chargebee so that merchants can automatically submit billing documents in a regulator-approved format.
 
 ### As a System Integrator
 
-Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
+Build a connector that bridges a third-party e-invoicing provider with Chargebee, enabling seamless integration for merchants.
 
----
 
 By implementing the E-invoicing SPI, you enable Chargebee to support **global regulatory compliance** through a **scalable and region-agnostic architecture**.
 
 ## JSON Schema for Einvoicing Provider
 
+Below is the Chargebee E-invoicing [JSON Schema](https://json-schema.org/docs). Use this schema to ensure that your E-invoicing data is structured
 
-JSON (JavaScript Object Notation) is a lightweight, text-based format commonly used to transmit data between web applications and servers. It is both human-readable and machine-parsable.
-
-JSON Schema, a standard established by the [Internet Engineering Task Force (IETF)](https://datatracker.ietf.org/doc/html/draft-zyp-json-schema-04#:~:text=JSON%20Schema%20is%20a%20JSON,interaction%20control%20of%20JSON%20data), defines the structure and constraints of a JSON document. It describes the expected properties, data types, and rules for interacting with JSON data, ensuring consistency and validity.
-
-Below is the Chargebee Einvoicing JSON Schema. Using this schema ensures that your Einvoicing data is structured accurately and complies with Chargebee’s platform requirements. This improves data consistency and simplifies integration with other systems or applications.
-
-[View Full Einvoicing provider JSON Schema](https://github.com/chargebee/cb-partner-spi/blob/einvoicing_spi/spec/capabilities/einvoicing-provider.schema.json)
+[View Full E-invoicing provider JSON Schema](https://github.com/chargebee/cb-partner-spi/blob/einvoicing_spi/spec/capabilities/einvoicing-provider.schema.json)
