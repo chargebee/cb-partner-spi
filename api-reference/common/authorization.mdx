@@ -1,0 +1,62 @@
+---
+stoplight-id: upohpgnjav634
+---
+
+## Overview
+Chargebee uses [**HTTP header-based authorization**](https://datatracker.ietf.org/doc/html/rfc7235) for all API endpoints related to the Service Adapter. This approach ensures secure and dynamic management of authorization credentials during API interactions.
+
+## How It Works
+- The **Authorization Key** for API calls is dynamically passed in the HTTP header, enabling secure and seamless integration.
+- This key is specified in the `[api_configuration](url)` object, which is part of the JSON configuration used during onboarding in Chargebee's marketplace. (Attach link)
+- During the application onboarding process in Chargebee, merchants provide the necessary authorization parameter values.
+- The Chargebee application uses these values to authenticate and make API calls to the Service Adapter.
+
+
+## Structure of `credential_configuration`
+- The `credential_configuration` is an array of objects, where each object represents a credential parameter.
+- Each object includes the following attributes:
+    - **`id`**: A unique identifier for the credential. For example, `authorization_key` or `client_secret`.
+    - **`name`**: A descriptive label of the credential.
+    - **`type`**:The credential type. For example, `text`.
+    - **`is_sensitive`**: Indicates whether the credential is sensitive.
+
+## JSON Configuration Example
+
+```json
+{
+  "api_configuration": {
+    "api_base_url": "https://chargebee.partnerX.com/v1",
+    "credential_configuration": [ 
+      {
+        "id": "api_key",
+        "name": "API Key", 
+        "type": "text",
+        "is_sensitive": true 
+      },
+      {
+        "id": "company_code",
+        "name": "Company code",
+        "type": "text",
+        "is_sensitive": false
+      }
+    ]
+  }
+}
+```
+
+## Authorization Header
+
+Below is the structure of authorization header that will be passed from Chargebee app to Service Adapter. Some of the 
+parameters are sent by default by Chargebee as mentioned in the example below:
+
+```json
+{
+--header 'Authorization: 
+{
+  "api_key": "api_keyX", 
+  "merchant_id": "merchant_id_partnerX", //sent by Chargebee by default
+  "company_code": "company_code_partnerX", //sent by Chargebee by default
+  "trace_id": "12345-abcde-67890" //sent by Chargebee by default
+}
+'
+}

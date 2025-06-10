@@ -10,17 +10,18 @@ info:
         - Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
         - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
     - Document Submission:
-       - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
+        - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
     - Status Tracking:
-       - Tracks the real-time processing status of submitted documents whether accepted, successful, failed, or still in progress.
+        -  Chargebee supports webhook-based updates from the e-invoicing adapter, enabling asynchronous status updates as documents are processed.
+        - It also provides real-time tracking of the processing status of submitted documents, including states such as accepted, in_progress, successful, and failed.
     - Final Document Retrieval:
-       - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
+        - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
 
     Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing servies are the  certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
     
     
     ## The Role of the E-invoicing Adapter App:
-      - To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
+      To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
 
     ## Building an E-invoicing Adapter App
       To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI by developing an adapter app. This is required in the following scenarios:
@@ -28,7 +29,7 @@ info:
       - As an E-invoicing Provider:
         - Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
       - As a System Integrator:
-          description: Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
+        - Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
 
     By implementing the E-invoicing SPI, you enable Chargebee to support global regulatory compliance through a scalable and region-agnostic architecture.
   version: "1.0.0"
@@ -45,8 +46,6 @@ tags:
 security:
   - ApiKeyAuth: []
 paths:
-  /health:
-    $ref: ./paths/health.yml
   /credentials/validate:
     $ref: ./paths/credentials.yml
   /einvoicing/activations:
@@ -101,12 +100,18 @@ paths:
         the connected e-invoicing provider.
 
         '
+      operationId: einvoiceingDocumentSubmission
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/document'
+            examples:
+              invoice_document_submission_success:
+                $ref: '#/components/examples/invoice_document_submission_success'
+              credit_note_document_submission_success:
+                $ref: '#/components/examples/credit_note_document_submission_success'
       responses:
         '200':
           description: Document submitted successfully.
@@ -114,12 +119,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_submission_response'
+              examples:
+                einvoice_document_submission_pending:
+                  $ref: '#/components/examples/einvoice_document_submission_pending'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_submission_error_response'
+              examples:
+                einvoice_document_submission_failed:
+                  $ref: '#/components/examples/einvoice_document_submission_failed'
         '401':
           description: Unauthorized
         '403':
@@ -136,20 +147,25 @@ paths:
         - Webhooks
       summary: Receive document status updates from the e-invoicing provider
       description: |
-        This webhook endpoint is invoked by the e-invoicing adapter or provider once a document (invoice or credit note) has been processed.
+        This webhook endpoint is invoked by the e-invoicing adapter application once a document (invoice or credit note) has been processed, provided that Chargebee has whitelisted the adapter's IP address.
 
-        The payload includes the unique document identifier and the final status of the document submission, such as `SUBMITTED`, `ACCEPTED`, `REJECTED`, or `FAILED`.
+        The payload includes the unique document identifier and the final status of the document submission, such as SUBMITTED, ACCEPTED, REJECTED, or FAILED.
 
         Chargebee will primarily rely on this webhook endpoint to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
 
-        Chargebee will share the webhook URL to be invoked by the e-invoicing adapter application.
-
+        This endpoint is idempotent. Repeated submissions with the same document identifier and status will not result in duplicate processing.
+      operationId: einvoicingDocumentStatusWebhook
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/document_status_webhook_payload'
+              $ref: '#/components/schemas/document_status_webhook'
+            examples:
+              webhook_document_status_success:
+                $ref: '#/components/examples/webhook_document_status_success'
+              webhook_document_status_failed:
+                $ref: '#/components/examples/webhook_document_status_failed'
       responses:
         '200':
           description: Webhook payload received and validated successfully. No retry required.
@@ -183,6 +199,7 @@ paths:
         a fallback mechanism to ensure status synchronization.
 
         '
+      operationId: einvoicingDocumentStatus
       parameters:
         - name: document_id
           in: path
@@ -196,6 +213,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/document_status'
+              examples:
+                successful_einvoice_document_submission_response:
+                  $ref: '#/components/examples/successful_einvoice_document_submission_response'
+                failed_einvoice_document_submission_response:
+                  $ref: '#/components/examples/failed_einvoice_document_submission_response'
+
         '401':
           description: Unauthorized
         '403':
@@ -225,6 +248,7 @@ paths:
         In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
         
         Implementing this endpoint is MANDATORY to support document retrieval operations.
+      operationId: einvoicingDocumentDownload
       parameters:
         - name: document_id
           in: path
@@ -238,6 +262,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/download_document_response'
+              examples:
+                einvoice_document_download_url_response:
+                  $ref: '#/components/examples/einvoice_document_download_url_response'
+                einvoice_document_download_stream_response:
+                  $ref: '#/components/examples/einvoice_document_download_stream_response'
         '401':
           description: Unauthorized
         '403':
@@ -254,6 +283,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error500_response'
+  /health:
+    $ref: ./paths/health.yml
 components:
   schemas:
     activation:
@@ -267,14 +298,14 @@ components:
           properties:
             code:
               type: string
-              description: The status code
+              description: The status code of the activation.
               enum:
                 - COMPLETED
                 - FAILED
                 - PENDING
             message:
               type: string
-              description: A message describing the activation status
+              description: A detailed message describing the activation status.
         company:
           type: object
           properties:
@@ -342,14 +373,14 @@ components:
         issue_date:
           type: string
           format: date
-          description: The date when the Document was issued. Format "YYYY-MM-DD"
+          description: The date when the document was issued. Format "YYYY-MM-DD"
         tax_date:
           type: string
           format: date
-          description: The date used for determining tax. Format "YYYY-MM-DD"
+          description: The date used to determine tax. Format "YYYY-MM-DD"
         currency_code:
           type: string
-          description: The currency code (ISO 4217 format) for the document.
+          description: The currency code [ISO 4217 format](https://en.wikipedia.org/wiki/ISO_4217) for the document.
         due_date:
           type: string
           format: date
@@ -430,7 +461,6 @@ components:
             - taxScheme
             - legalEntity
         payment_means:
-          type: object
           description: Defines the method and details for payment.
           $ref: '#/components/schemas/payment_means'
         lines:
@@ -518,65 +548,7 @@ components:
                   category:
                     type: string
                     description: The category of tax applied (e.g., VAT).
-      example:
-        id: INV-10001
-        type: INVOICE
-        issue_date: 2025-04-02
-        tax_date: 2025-04-02
-        currency_code: EUR
-        due_date: 2025-04-30
-        amount: 114.0
-        note: Payment due in 28 days.
-        accounting_customer_party:
-          party:
-            name: Example Buyer GmbH
-            address:
-              street1: Berliner Str. 123
-              street2: 2nd Floor
-              zip: '10115'
-              city: Berlin
-              country: DE
-          tax_scheme:
-            - scheme: VAT
-              id: DE123456789
-        accounting_supplier_party:
-          party:
-            name: Example Seller GmbH
-            address:
-              street1: Hauptstr. 456
-              street2: Suite 5
-              zip: '50667'
-              city: Cologne
-              country: DE
-          tax_scheme:
-            - scheme: VAT
-              id: DE987654321
-        payment_means:
-          code: ONLINE_PAYMENT_SERVICE
-          payment_id: PAY-2024-00987
-          card_account:
-            primary_account_number_id: 4111********1111
-            card_holder_name: Jane Smith
-            network_id: MASTERCARD
-        lines:
-          - id: '1'
-            description: Consulting Services - April
-            amount: 100.0
-            quantity: 1
-            name: Consulting
-            standard_item_identification: CONS-APRIL
-            classified_tax_category:
-              - percentage: 14
-                category: VAT
-                country: DE
-        tax_total:
-          tax_amount: 14.0
-          tax_sub_totals:
-            - taxable_amount: 100.0
-              tax_amount: 14.0
-              percentage: 14
-              country: DE
-              category: VAT
+
       required:
         - id
         - type
@@ -665,10 +637,6 @@ components:
       required:
         - document_id
         - status
-      example:
-        document_id: DOC-20250402-0002
-        status: PENDING
-        request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
     document_status:
       type: object
       properties:
@@ -687,7 +655,6 @@ components:
           format: date-time
           description: Date and time when the document was submitted.
         processing_details:
-          type: object
           $ref: '#/components/schemas/document_submission_error_response'
       example:
         document_id: DOC-20250402-0001
@@ -731,7 +698,7 @@ components:
               expires_at:
                 type: string
                 format: date-time
-                description: The time until which the document url is valid.
+                description: The time until which the document URL is valid.
                 example: 2025-03-28T09:24:29Z
         network:
           type: string
@@ -811,13 +778,13 @@ components:
     address:
       type: object
       properties:
-        line1:
+        line_1:
           type: string
           description: First line of the address.
-        line2:
+        line_2:
           type: string
           description: Second line of the address.
-        line3:
+        line_3:
           type: string
           description: Third line of the address.
         zip:
@@ -858,18 +825,13 @@ components:
             the party as a legal entity or person.
       required:
         - registrationName
-    document_status_webhook_payload:
+    document_status_webhook:
       type: object
-      required:
-        - documentId
-        - documentType
-        - status
-        - timestamp
       properties:
-        documentId:
+        document_id:
           type: string
           description: Unique identifier of the submitted document.
-        documentType:
+        document_type:
           type: string
           enum:
             - INVOICE
@@ -883,22 +845,22 @@ components:
             - REJECTED
             - FAILED
           description: Current status of the document after processing by the provider.
-        message:
-          type: string
-          description: Optional message describing the status result or any error.
         timestamp:
           type: string
           format: date-time
           description: ISO 8601 timestamp indicating when the status was determined.
-        providerId:
+        provider_id:
           type: string
           description: Identifier of the e-invoicing provider (useful in multi-provider environments).
-        externalRef:
-          type: string
-          description: External reference ID or transaction ID from the provider.
-        attempt:
-          type: integer
-          description: Retry attempt count from the sender, if applicable.
+        errors:
+          $ref: '#/components/schemas/document_submission_error_response'
+      required:
+        - document_id
+        - document_type
+        - status
+        - timestamp
+        - provider_id
+
     error500_response:
       description: An unexpected error occurred while processing your request.
       properties:
@@ -908,6 +870,196 @@ components:
           example: An unexpected error occurred while processing your request.
       required:
         - message
+  examples:
+    invoice_document_submission_success:
+      description: A sample invoice document submission request.
+      value:
+        id: INV-10001
+        type: INVOICE
+        issue_date: '2025-04-02'
+        tax_date: '2025-04-02'
+        currency_code: EUR
+        due_date: '2025-04-30'
+        amount: 114.0
+        note: Payment due in 28 days.
+        accounting_supplier_party:
+          name: Example Seller GmbH
+          address:
+            line_1: Hauptstr. 456
+            line_2: Suite 5
+            zip: '50667'
+            city: Cologne
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE987654321
+        accounting_customer_party:
+          name: Example Buyer GmbH
+          address:
+            line_1: Berliner Str. 123
+            line_2: 2nd Floor
+            zip: '10115'
+            city: Berlin
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE123456789
+        payment_means:
+          code: ONLINE_PAYMENT_SERVICE
+          payment_id: PAY-2024-00987
+          card_account:
+            primary_account_number_id: 4111********1111
+            card_holder_name: Jane Smith
+            network_id: MASTERCARD
+        lines:
+          - id: '1'
+            description: Consulting Services - April
+            quantity: 1
+            unit_price: 100.0
+            amount: 100.0
+            item_code: CONS-APRIL
+            classified_tax_category:
+              percentage: 14
+              category: VAT
+              country: DE
+        tax_total:
+          tax_amount: 14.0
+          tax_sub_totals:
+            - taxable_amount: 100.0
+              tax_amount: 14.0
+              percentage: 14
+              country: DE
+              category: VAT
+    credit_note_document_submission_success:
+      description: A sample credit note document submission request.
+      value:
+        id: CN-20002
+        type: CREDIT_NOTE
+        issue_date: '2025-04-10'
+        tax_date: '2025-04-10'
+        currency_code: EUR
+        due_date: '2025-04-30'
+        amount: 50.0
+        note: Credit issued for April billing adjustment.
+        billing_reference:
+          - 'INV-10001'
+        accounting_supplier_party:
+          name: Example Seller GmbH
+          address:
+            line_1: Hauptstr. 456
+            line_2: Suite 5
+            zip: '50667'
+            city: Cologne
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE987654321
+        accounting_customer_party:
+          name: Example Buyer GmbH
+          address:
+            line_1: Berliner Str. 123
+            line_2: 2nd Floor
+            zip: '10115'
+            city: Berlin
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE123456789
+        payment_means:
+          code: ONLINE_PAYMENT_SERVICE
+          payment_id: PAY-2024-01002
+          card_account:
+            primary_account_number_id: 4111********2222
+            card_holder_name: John Doe
+            network_id: VISA
+        lines:
+          - id: '1'
+            description: Refund for overcharge in April
+            quantity: 1
+            unit_price: 50.0
+            amount: 50.0
+            item_code: APRIL-REFUND
+            classified_tax_category:
+              percentage: 14
+              category: VAT
+              country: DE
+        tax_total:
+          tax_amount: 7.0
+          tax_sub_totals:
+            - taxable_amount: 50.0
+              tax_amount: 7.0
+              percentage: 14
+              country: DE
+              category: VAT
+    einvoice_document_submission_pending:
+      description: A sample response indicating the document is under processing.
+      value:
+        document_id: DOC-20250402-0002
+        status: PENDING
+        request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    einvoice_document_submission_failed:
+      description: A sample response indicating document submission failure due to missing required data.
+      value:
+        status: FAILED
+        errors:
+          - code: MISSING_REQUIRED_DATA
+            message: The request did not contain a required property 'taxAmount'
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    successful_einvoice_document_submission_response:
+      description: A sample response indicating successful e-invoice document submission.
+      value:
+        document_id: DOC-20250402-0001
+        status: Success
+        submission_date: 2025-04-02T07:39:31.815Z
+    failed_einvoice_document_submission_response:
+      description: A sample failed document submission response due to unregistered VAT number.
+      value:
+        status: FAILED
+        errors:
+          - code: INVALID_DATA
+            message: The VAT number provided is not registered with the tax authority.
+    einvoice_document_download_url_response:
+      description: A sample response with pre-signed S3 URL for document download.
+      value:
+        request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+        documents:
+          - mime_type: application/xml
+            document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
+            expires_at: '2025-03-28T09:24:29Z'
+        network: peppol
+    einvoice_document_download_stream_response:
+      description: A sample response with Base64-encoded XML and PDF document content.
+      value:
+        request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+        documents:
+          - mime_type: application/xml
+            document_content: PHh...Q0w+  # Base64-encoded XML content (truncated)
+            expires_at: '2025-03-28T09:24:29Z'
+          - mime_type: application/pdf
+            document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
+            expires_at: '2025-03-28T09:24:29Z'
+        network: peppol
+    webhook_document_status_success:
+      description: A sample webhook notification indicating successful document submission.
+      value:
+        document_id: INV-10001
+        document_type: INVOICE
+        status: ACCEPTED
+        timestamp: 2025-05-23T13:22:50.519Z
+        provider_id: avalara
+    webhook_document_status_failed:
+      description: A sample webhook notification indicating document submission failure.
+      value:
+        document_id: INV-10001
+        document_type: INVOICE
+        status: FAILED
+        timestamp: 2025-05-23T13:22:50.519Z
+        provider_id: avalara
+        errors:
+          errors:
+            - code: MISSING_REQUIRED_DATA
+              message: The request did not contain a required property 'taxAmount'
+              help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -27,19 +27,21 @@ To connect with external tax services, Chargebee requires a tax service adapterâ
 
 To integrate a tax service with Chargebee, you must implement the Tax SPI (you can refer the spec file for this spi [here](https://github.com/chargebee/cb-partner-spi/blob/main/spec/spi/openapi_tax.yml)) by developing a tax service adapter app. This is essential for one of the following scenarios:
 
-- **As a Tax Service Provider:**  
+- ### As a Tax Service Provider:  
   Connect your tax service with Chargebee to provide seamless tax calculation capabilities to merchants.
 
-- **As a Merchant:**  
+- ### As a Merchant:
   Connect your in-house tax software to Chargebee for tailored tax management.
 
-- **As a System Integrator:**  
+- ### As a System Integrator:
   Develop a connector to bridge a tax service provider and Chargebee, enabling integration for merchants.
 
 By implementing the Tax SPI, you enable Chargebee to perform tax-related operations efficiently, ensuring accurate compliance and streamlined workflows.
 
 ![How Chargebee interacts with the tax service via the adapter](./images/tax_spi_workflow.png)
 
-## Integrate your Tax Service Adapter App
+## JSON Schema for Tax Provider
 
-To integrate your Tax Service Adapter App you can follow the App Onboarding process from [here](../../../app-onboarding/guide).
+Below is the Chargebee Tax Provider [JSON Schema](https://json-schema.org/docs). Using this schema ensures that your tax provider data is structured accurately and complies with Chargebeeâ€™s platform requirements. This improves data consistency and simplifies integration with other systems or applications.
+
+[View Full Tax Provider JSON Schema](https://github.com/chargebee/cb-partner-spi/blob/main/spec/capabilities/tax-provider.schema.json)
