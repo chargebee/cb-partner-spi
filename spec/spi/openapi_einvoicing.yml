@@ -874,6 +874,7 @@ components:
         - status
         - timestamp
         - provider_id
+        - tenant_id
     error500_response:
       description: An unexpected error occurred while processing your request.
       properties:
