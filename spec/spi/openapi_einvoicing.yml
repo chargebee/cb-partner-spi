@@ -255,12 +255,12 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/document_download'
+        - name: request_id
+          in: query
+          required: true
+          schema:
+            type: string
+            description: The unique identifier of the document to be downloaded.
       responses:
         '200':
           description: Document downloaded successfully.
@@ -468,7 +468,7 @@ components:
             - legalEntity
         payment_means:
           type: array
-          description: Defines the method and details for payment.
+          description: A list of payment methods with corresponding payment details.
           items:
             $ref: '#/components/schemas/payment_means'
         lines:
@@ -874,14 +874,6 @@ components:
         - status
         - timestamp
         - provider_id
-    document_download:
-        type: object
-        properties:
-          request_id:
-            type: string
-            description: The unique identifier of the document to be downloaded.
-        required:
-          - request_id
     error500_response:
       description: An unexpected error occurred while processing your request.
       properties:
