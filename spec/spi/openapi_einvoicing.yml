@@ -100,7 +100,7 @@ paths:
         the connected e-invoicing provider.
 
         '
-      operationId: einvoiceingDocumentSubmission
+      operationId: einvoicingDocumentSubmission
       requestBody:
         required: true
         content:
@@ -255,6 +255,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: request_id
+          in: query
+          required: true
+          schema:
+            type: string
+            description: The unique identifier of the document to be downloaded.
       responses:
         '200':
           description: Document downloaded successfully.
@@ -461,8 +467,10 @@ components:
             - taxScheme
             - legalEntity
         payment_means:
-          description: Defines the method and details for payment.
-          $ref: '#/components/schemas/payment_means'
+          type: array
+          description: A list of payment methods with corresponding payment details.
+          items:
+            $ref: '#/components/schemas/payment_means'
         lines:
           type: array
           items:
@@ -666,11 +674,14 @@ components:
     download_document_response:
       type: object
       required:
+        - document_id
         - request_id
         - documents
         - evidence
         - network
       properties:
+        document_id:
+          type: string
         request_id:
           type: string
         documents:
@@ -852,6 +863,9 @@ components:
         provider_id:
           type: string
           description: Identifier of the e-invoicing provider (useful in multi-provider environments).
+        tenant_id:
+          type: string
+          description: Identifier of the tenant (merchant) for whom the document was processed.
         errors:
           $ref: '#/components/schemas/document_submission_error_response'
       required:
@@ -860,7 +874,7 @@ components:
         - status
         - timestamp
         - provider_id
-
+        - tenant_id
     error500_response:
       description: An unexpected error occurred while processing your request.
       properties:
@@ -905,12 +919,12 @@ components:
             - scheme: VAT
               id: DE123456789
         payment_means:
-          code: ONLINE_PAYMENT_SERVICE
-          payment_id: PAY-2024-00987
-          card_account:
-            primary_account_number_id: 4111********1111
-            card_holder_name: Jane Smith
-            network_id: MASTERCARD
+          - code: ONLINE_PAYMENT_SERVICE
+            payment_id: PAY-2024-00987
+            card_account:
+              primary_account_number_id: 4111********1111
+              card_holder_name: Jane Smith
+              network_id: MASTERCARD
         lines:
           - id: '1'
             description: Consulting Services - April
@@ -966,12 +980,12 @@ components:
             - scheme: VAT
               id: DE123456789
         payment_means:
-          code: ONLINE_PAYMENT_SERVICE
-          payment_id: PAY-2024-01002
-          card_account:
-            primary_account_number_id: 4111********2222
-            card_holder_name: John Doe
-            network_id: VISA
+          - code: ONLINE_PAYMENT_SERVICE
+            payment_id: PAY-2024-01002
+            card_account:
+              primary_account_number_id: 4111********2222
+              card_holder_name: John Doe
+              network_id: VISA
         lines:
           - id: '1'
             description: Refund for overcharge in April
@@ -1021,6 +1035,7 @@ components:
     einvoice_document_download_url_response:
       description: A sample response with pre-signed S3 URL for document download.
       value:
+        document_id: DOC-20250402-0001
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
           - mime_type: application/xml
@@ -1030,6 +1045,7 @@ components:
     einvoice_document_download_stream_response:
       description: A sample response with Base64-encoded XML and PDF document content.
       value:
+        document_id: DOC-20250402-0001
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
           - mime_type: application/xml
@@ -1047,6 +1063,7 @@ components:
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
         provider_id: avalara
+        tenant_id: einvoicing-test
     webhook_document_status_failed:
       description: A sample webhook notification indicating document submission failure.
       value:
@@ -1055,6 +1072,7 @@ components:
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
         provider_id: avalara
+        tenant_id: einvoicing-test
         errors:
           errors:
             - code: MISSING_REQUIRED_DATA
