@@ -372,7 +372,7 @@
                               "display_name"
                            ]
                         },
-                        "customFields":{
+                        "custom_fields":{
                            "type":"array",
                            "description":"Specifies the custom fields that are required or supported for the country.",
                            "items":{
@@ -392,7 +392,7 @@
                         "is_supported": true,
                         "display_name": "Reference number"
                       },
-                      "customFields": [
+                      "custom_fields": [
                         {
                           "external_id": "email_address",
                           "display_name": "Email Address",
@@ -429,14 +429,14 @@
                "type":"boolean",
                "description":"Specifies if invalid tax registration numbers are accepted."
             },
-            "supportedNumberOfLineItems":{
+            "supported_number_of_line_items":{
                "type":"integer",
                "description":"Specifies the supported number of line items."
             }
          },
          "required":[
             "accept_invalid_tax_reg_numbers",
-            "supportedNumberOfLineItems"
+            "supported_number_of_line_items"
          ],
          "title":"TaxCalculationCapabilities"
       },
