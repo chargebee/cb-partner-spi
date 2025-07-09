@@ -81,6 +81,178 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error500_response'
+  /einvoicing/get_data_input_fields:
+    post:
+      summary: Retrieve required input fields for multiple countries, networks, and transaction types.
+      description: |
+        This endpoint retrieves the list of input fields required for e-invoicing in the specified countries, networks, and transaction types.
+        The request body allows you to send multiple countries, networks, and transaction types, and the system will return the required and optional fields for each combination.
+      operationId: getDataInputFields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requests:
+                  type: array
+                  description: |
+                    An array of objects, where each object specifies a country, transaction type, and network. 
+                    Each combination will return the required and optional fields for the e-invoicing transaction.
+                  items:
+                    type: object
+                    properties:
+                      country_code:
+                        type: string
+                        description: |
+                          The ISO 3166-1 alpha-2 country code. This parameter specifies which country's e-invoicing rules are followed. 
+                          Different countries may have different requirements for e-invoicing.
+                        example: "DE"
+                      transaction_type:
+                        type: string
+                        description: |
+                          The type of transaction being performed. This is important as the required fields can vary based on the type of transaction:
+                          - **B2B (Business to Business)**: A transaction between two businesses.
+                          - **B2C (Business to Consumer)**: A transaction between a business and a consumer.
+                          - **B2G (Business to Government)**: A transaction between a business and a government agency.
+                        enum:
+                          - B2B
+                          - B2C
+                          - B2G
+                        example: "B2B"
+                      network:
+                        type: string
+                        description: |
+                          The e-invoicing network standard used for the transaction. This specifies the system or protocol for invoice submission, 
+                          such as PEPPOL, ZUGFeRD, or other country-specific standards.
+                        example: "PEPPOL"
+      responses:
+        '200':
+          description: Successfully retrieved the required input fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    description: "The list of results for each country, network, and transaction type combination."
+                    items:
+                      type: object
+                      properties:
+                        country_code:
+                          type: string
+                          description: "The ISO country code for the mandate."
+                          example: "DE"
+                        transaction_type:
+                          type: string
+                          description: "The type of transaction (B2B, B2C, B2G)."
+                          enum:
+                            - B2B
+                            - B2C
+                            - B2G
+                          example: "B2B"
+                        network:
+                          type: string
+                          description: "The e-invoicing network used for the transaction."
+                          example: "PEPPOL"
+                        required_fields:
+                          type: array
+                          description: "The list of required fields for the e-invoicing mandate."
+                          items:
+                            type: object
+                            properties:
+                              field_name:
+                                type: string
+                                description: "The name of the required field."
+                                example: "InvoiceNumber"
+                              description:
+                                type: string
+                                description: "A description of the field."
+                                example: "The unique number for the invoice."
+                              type:
+                                type: string
+                                description: "The data type of the field."
+                                example: "string"
+                              mandatory:
+                                type: boolean
+                                description: "Whether this field is mandatory."
+                                example: true
+                              sub_fields:
+                                type: array
+                                description: "Sub-fields for nested fields."
+                                items:
+                                  type: object
+                                  properties:
+                                    field_name:
+                                      type: string
+                                      description: "The nested sub-field name."
+                                      example: "AccountingSupplierParty.PostalAddress.StreetLine1"
+                                    description:
+                                      type: string
+                                      description: "A description of the sub-field."
+                                      example: "The first line of the street address."
+                                    type:
+                                      type: string
+                                      description: "The data type of the sub-field."
+                                      example: "string"
+                                    mandatory:
+                                      type: boolean
+                                      description: "Whether the sub-field is mandatory."
+                                      example: true
+                        optional_fields:
+                          type: array
+                          description: "The list of optional fields for the e-invoicing mandate."
+                          items:
+                            type: object
+                            properties:
+                              field_name:
+                                type: string
+                                description: "The name of the optional field."
+                                example: "DiscountAmount"
+                              description:
+                                type: string
+                                description: "A description of the field."
+                                example: "The discount applied to the invoice."
+                              type:
+                                type: string
+                                description: "The data type of the field."
+                                example: "decimal"
+                              mandatory:
+                                type: boolean
+                                description: "Whether the field is mandatory."
+                                example: false
+                              sub_fields:
+                                type: array
+                                description: "Sub-fields for nested optional fields."
+                                items:
+                                  type: object
+                                  properties:
+                                    field_name:
+                                      type: string
+                                      description: "The nested sub-field name."
+                                      example: "AccountingSupplierParty.PostalAddress.StreetLine1"
+                                    description:
+                                      type: string
+                                      description: "A description of the sub-field."
+                                      example: "The first line of the street address."
+                                    type:
+                                      type: string
+                                      description: "The data type of the sub-field."
+                                      example: "string"
+                                    mandatory:
+                                      type: boolean
+                                      description: "Whether the sub-field is mandatory."
+                                      example: true
+        '400':
+          description: Bad Request – The request is malformed or missing required parameters.
+        '404':
+          description: Not Found – The requested country or network does not exist or is not supported.
+        '500':
+          description: Internal Server Error – An error occurred on the server.
+      tags:
+        - Activations
   /einvoicing/documents:
     post:
       tags:
