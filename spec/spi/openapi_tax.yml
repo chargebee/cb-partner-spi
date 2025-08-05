@@ -1135,6 +1135,10 @@ components:
           type: string
           description: "The unique identifier for the Customer in Chargebee."
           maxLength: 50
+        company:
+          type: string
+          description: "The company name of the customer"
+          maxLength: 50
         address:
           $ref: '#/components/schemas/Address'
         taxRegistrationNumber:
