@@ -80,12 +80,12 @@ def openApiTask() {
             configFile.set("$rootDir/spec/spi/config.yml")
 
         doLast {
-            def sourceYamlFile = file("$rootDir/spec/spi/openapi_${spec.name}.yml")
+            def sourceYamlFile = file("$rootDir/generated/${spec.name}/api/openapi.yaml")
             def targetYamlDir = file("$rootDir/spec/spi/generated/${spec.name}/api")
             def targetFile = new File(targetYamlDir, "openapi.yaml")
             targetYamlDir.mkdirs()
             targetFile.text = sourceYamlFile.text
-    }
+        }
 }
 
         validateSpec.dependsOn(validateTaskName)
