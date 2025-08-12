@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: E-Invoicing Service Provider Interface
   description: >
-    ## E-invoicing Service Provider Interface (SPI) — Overview
+    ## E-invoicing Service Provider Interface (SPI) - Overview
       Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle.
     
     - Retrieve E-invoicing Activations:
@@ -12,8 +12,8 @@ info:
     - Document Submission:
         - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
     - Status Tracking:
-        -  Chargebee supports webhook-based updates from the e-invoicing adapter, enabling asynchronous status updates as documents are processed.
-        - It also provides real-time tracking of the processing status of submitted documents, including states such as accepted, in_progress, successful, and failed.
+        - Supports asynchronous document lifecycle tracking through webhook notifications sent by the e-invoicing adapter. These updates reflect real-time status changes as documents move through validation, compliance, and regulatory delivery stages.
+        - Allows on-demand status checks to retrieve the latest processing state of submitted documents, ensuring continued visibility even if webhook delivery is delayed or disrupted.
     - Final Document Retrieval:
         - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
 
@@ -21,7 +21,7 @@ info:
     
     
     ## The Role of the E-invoicing Adapter App:
-      To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App — a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
+      To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App -  a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
 
     ## Building an E-invoicing Adapter App
       To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI by developing an adapter app. This is required in the following scenarios:
@@ -55,12 +55,14 @@ paths:
       summary: Retrieve a list of Activations.
       description: |
         Retrieves the list of country-level e-invoicing activations supported by the connected e-invoicing provider.
-        
+
         Each activation represents the provider's capability to support e-invoicing in a specific country and network.
-        
-        This endpoint helps Chargebee determine which countries and e-invoicing networks can be activated for the provider.
-        
-        In Chargebee, this endpoint is called during the provider configuration for a specific country. It retrieves the activations that are already set up or in progress in the provider’s platform, helping users understand the available or pending e-invoicing capabilities.
+
+        Implementation of this endpoint is recommended only if the e-invoicing provider exposes an API to retrieve activations for a specific country.
+
+        This endpoint enables Chargebee to identify the countries and e-invoicing networks that are currently available for activation on the provider’s platform.
+
+        Within Chargebee, the endpoint is invoked during the provider configuration workflow for a selected country. It retrieves information about activations that are either already set up or currently in progress. This helps users assess which e-invoicing capabilities are available for use or require further setup.
       operationId: listActivations
       responses:
         '200':
@@ -80,7 +82,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error500_response'
+                $ref: '#/components/schemas/500_error_response'
   /einvoicing/data_input_fields:
     get:
       tags:
@@ -89,9 +91,10 @@ paths:
       description: |
         This optional SPI endpoint is used to retrieve the required and optional input fields for various e-invoicing scenarios supported by the provider. Each scenario is defined by a unique combination of country, e-invoicing network, and transaction type (B2B, B2C, or B2G).
         
-        Within Chargebee, this endpoint is invoked during the e-invoicing setup workflow, when a user maps fields between the provider’s schema and Chargebee’s internal data model for a specific combination of country, network, and transaction type.
+        Implementation of this endpoint is recommended only if the e-invoicing provider requires merchant to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
         
-        Implementation of this endpoint is recommended only if the e-invoicing provider requires end users to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
+        Within Chargebee, this endpoint is invoked during the e-invoicing setup workflow, when a user maps fields between the provider’s schema and Chargebee’s internal data model for a specific combination of country, network, and transaction type. Once this configuration is complete, the resulting field mappings are included in the document submission request and passed to the adapter via the field_mapping parameter, enabling the adapter to transform the SPI-compliant payload into the provider’s required format.
+
       operationId: getDataInputFields
       parameters:
         - name: country_code
@@ -157,20 +160,14 @@ paths:
       tags:
         - Documents
       summary: Submit a new document (invoice or credit note) to the e-invoicing service.
-      description: 'Submits a new document, such as an invoice or credit note, to
-        the connected e-invoicing provider for validation, compliance checks, and
-        transmission to the relevant tax authorities or business partners.
-
-
-        This endpoint is MANDATORY for enabling document submission through the Chargebee
-        E-invoicing SPI framework.
-
-
-        In Chargebee, this endpoint is called when a new invoice, credit note, or
-        other supported billing document is generated and needs to be processed through
-        the connected e-invoicing provider.
-
-        '
+      description: |
+        Submits a new document, such as an invoice or credit note, to the connected e-invoicing provider for validation, compliance checks, and delivery to the appropriate tax authorities or business partners.
+        
+        This endpoint is MANDATORY for enabling document submission through the Chargebee E-invoicing SPI framework.
+        
+        Within Chargebee, this endpoint is invoked asynchronously by an internal background job whenever a new invoice, credit note, or other supported billing document is generated and requires processing through the configured e-invoicing provider.
+        
+        If the e-invoicing provider requires the merchant to configure field mappings manually, instead of relying on predefined mappings managed by the provider or Chargebee, Chargebee will allow the merchant to complete this configuration within the application. The resulting field mappings will then be sent to the adapter as part of the `field_mapping` parameter during document submission.
       operationId: einvoicingDocumentSubmission
       requestBody:
         required: true
@@ -181,8 +178,12 @@ paths:
             examples:
               invoice_document_submission_success:
                 $ref: '#/components/examples/invoice_document_submission_success'
+              invoice_document_submission_with_field_mapping_success:
+                $ref: '#/components/examples/invoice_document_submission_with_field_mapping_success'
               credit_note_document_submission_success:
                 $ref: '#/components/examples/credit_note_document_submission_success'
+              credit_note_document_submission_with_field_mapping_success:
+                $ref: '#/components/examples/credit_note_document_submission_with_field_mapping_success'
       responses:
         '200':
           description: Document submitted successfully.
@@ -211,27 +212,35 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error500_response'
-  /webhooks/einvoicing/document_status:
+                $ref: '#/components/schemas/500_error_response'
+  /webhooks/einvoicing/{einvoicing_provider_id}/document_status:
     post:
       tags:
         - Webhooks
       summary: Receive document status updates from the e-invoicing provider
       description: |
-        This webhook endpoint is invoked by the e-invoicing adapter application once a document (invoice or credit note) has been processed, provided that Chargebee has whitelisted the adapter's IP address.
+        This endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
 
-        The payload includes the unique document identifier and the final status of the document submission, such as SUBMITTED, ACCEPTED, REJECTED, or FAILED.
+        The adapter receives the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
-        Chargebee will primarily rely on this webhook endpoint to update the internal document tracking state and trigger downstream workflows (e.g., customer notifications, audit logs).
+        Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
 
-        This endpoint is idempotent. Repeated submissions with the same document identifier and status will not result in duplicate processing.
+        This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
+
+        This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+      parameters:
+        - name: einvoicing_provider_id
+          in: path
+          required: true
+          schema:
+            type: string
       operationId: einvoicingDocumentStatusWebhook
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/document_status_webhook'
+              $ref: '#/components/schemas/webhook_document_status'
             examples:
               webhook_document_status_success:
                 $ref: '#/components/examples/webhook_document_status_success'
@@ -255,7 +264,8 @@ paths:
       tags:
         - Documents
       summary: Get Document Status
-      description: 'Retrieves the current processing status of a document previously
+      description: >
+        Retrieves the current processing status of a document previously
         submitted to the connected e-invoicing provider.
 
 
@@ -305,7 +315,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error500_response'
+                $ref: '#/components/schemas/500_error_response'
   /einvoicing/documents/{document_id}/download:
     get:
       tags:
@@ -359,7 +369,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error500_response'
+                $ref: '#/components/schemas/500_error_response'
   /health:
     $ref: ./paths/health.yml
 components:
@@ -718,6 +728,24 @@ components:
                     type: string
                     description: The category of tax applied (e.g., VAT).
 
+        field_mapping:
+          type: object
+          description: |
+            A key-value mapping that defines how fields in the Chargebee SPI document submission model should be translated
+            to the target schema expected by the e-invoicing provider (e.g., PEPPOL BIS, FatturaPA, CFDI, or any custom XML/JSON-based format).
+
+            - **Keys** represent field paths or attribute identifiers from the target schema (e.g., `Invoice.ID`, `Invoice.Supplier.EndpointID`, or `cbc:DocumentCurrencyCode`)
+            - **Values** are dot-path expressions that reference fields from the Chargebee SPI `document` model (e.g., `document.id`, `document.lines[].unit_price`)
+
+            The adapter uses this mapping to transform Chargebee’s SPI payload into the structure required by the configured provider
+            during submission.
+
+            This field enables dynamic, tenant-configured transformation without hardcoding provider-specific logic in the adapter.
+
+
+            This field is **mandatory** for providers that requires merchant to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
+          additionalProperties:
+            type: string
       required:
         - id
         - type
@@ -730,6 +758,7 @@ components:
         - accountingCustomerParty
         - accountingSupplierParty
         - taxTotal
+
     payment_means:
       type: object
       description: Defines the method and details for payment.
@@ -999,7 +1028,7 @@ components:
             the party as a legal entity or person.
       required:
         - registrationName
-    document_status_webhook:
+    webhook_document_status:
       type: object
       properties:
         document_id:
@@ -1023,9 +1052,6 @@ components:
           type: string
           format: date-time
           description: ISO 8601 timestamp indicating when the status was determined.
-        provider_id:
-          type: string
-          description: Identifier of the e-invoicing provider (useful in multi-provider environments).
         tenant_id:
           type: string
           description: Identifier of the tenant (merchant) for whom the document was processed.
@@ -1036,9 +1062,8 @@ components:
         - document_type
         - status
         - timestamp
-        - provider_id
         - tenant_id
-    error500_response:
+    500_error_response:
       description: An unexpected error occurred while processing your request.
       properties:
         message:
@@ -1107,6 +1132,89 @@ components:
               percentage: 14
               country: DE
               category: VAT
+    invoice_document_submission_with_field_mapping_success:
+      description: A sample invoice document submission request.
+      value:
+        id: INV-10001
+        type: INVOICE
+        issue_date: '2025-04-02'
+        tax_date: '2025-04-02'
+        currency_code: EUR
+        due_date: '2025-04-30'
+        amount: 114.0
+        note: Payment due in 28 days.
+        accounting_supplier_party:
+          name: Example Seller GmbH
+          address:
+            line_1: Hauptstr. 456
+            line_2: Suite 5
+            zip: '50667'
+            city: Cologne
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE987654321
+        accounting_customer_party:
+          name: Example Buyer GmbH
+          address:
+            line_1: Berliner Str. 123
+            line_2: 2nd Floor
+            zip: '10115'
+            city: Berlin
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE123456789
+        payment_means:
+          - code: ONLINE_PAYMENT_SERVICE
+            payment_id: PAY-2024-00987
+            card_account:
+              primary_account_number_id: 4111********1111
+              card_holder_name: Jane Smith
+              network_id: MASTERCARD
+        lines:
+          - id: '1'
+            description: Consulting Services - April
+            quantity: 1
+            unit_price: 100.0
+            amount: 100.0
+            item_code: CONS-APRIL
+            classified_tax_category:
+              percentage: 14
+              category: VAT
+              country: DE
+        tax_total:
+          tax_amount: 14.0
+          tax_sub_totals:
+            - taxable_amount: 100.0
+              tax_amount: 14.0
+              percentage: 14
+              country: DE
+              category: VAT
+        field_mapping:
+          Invoice/cbc:ID: document.id
+          Invoice/cbc:IssueDate: document.issue_date
+          Invoice/cbc:InvoiceTypeCode: 380
+          Invoice/cbc:DocumentCurrencyCode: document.currency_code
+          Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID: document.accounting_supplier_party.legal_entity.company_id
+          Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode: document.accounting_supplier_party.address.country
+          Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName: document.accounting_supplier_party.legal_entity.registration_name
+          Invoice/cac:AccountingCustomerParty/cac:Party/cbc:EndpointID: document.accounting_customer_party.legal_entity.company_id
+          Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode: document.accounting_customer_party.address.country
+          Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName: document.accounting_customer_party.legal_entity.registration_name
+
+          Invoice/cac:TaxTotal/cbc:TaxAmount: document.tax_total.tax_amount
+          Invoice/cac:TaxTotal/cbc:TaxAmount/@currencyID: document.currency_code
+          Invoice/cac:InvoiceLine/cbc:ID: document.lines[].id
+          Invoice/cac:InvoiceLine/cbc:InvoicedQuantity: document.lines[].quantity
+          Invoice/cac:InvoiceLine/cbc:InvoicedQuantity/@unitCode: document.lines[].unit_code
+          Invoice/cac:InvoiceLine/cbc:LineExtensionAmount: document.lines[].amount
+          Invoice/cac:InvoiceLine/cbc:LineExtensionAmount/@currencyID: document.currency_code
+          Invoice/cac:InvoiceLine/cac:Item/cbc:Name: document.lines[].description
+          Invoice/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cbc:ID: document.lines[].classified_tax_category[].category
+          Invoice/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme/cbc:ID: document.lines[].classified_tax_category[].category
+          Invoice/cac:InvoiceLine/cac:Price/cbc:PriceAmount: document.lines[].unit_price
+          Invoice/cac:InvoiceLine/cac:Price/cbc:PriceAmount/@currencyID: document.currency_code
     credit_note_document_submission_success:
       description: A sample credit note document submission request.
       value:
@@ -1168,6 +1276,91 @@ components:
               percentage: 14
               country: DE
               category: VAT
+    credit_note_document_submission_with_field_mapping_success:
+      description: A sample credit note document submission request.
+      value:
+        id: CN-20002
+        type: CREDIT_NOTE
+        issue_date: '2025-04-10'
+        tax_date: '2025-04-10'
+        currency_code: EUR
+        due_date: '2025-04-30'
+        amount: 50.0
+        note: Credit issued for April billing adjustment.
+        billing_reference:
+          - 'INV-10001'
+        accounting_supplier_party:
+          name: Example Seller GmbH
+          address:
+            line_1: Hauptstr. 456
+            line_2: Suite 5
+            zip: '50667'
+            city: Cologne
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE987654321
+        accounting_customer_party:
+          name: Example Buyer GmbH
+          address:
+            line_1: Berliner Str. 123
+            line_2: 2nd Floor
+            zip: '10115'
+            city: Berlin
+            country: DE
+          tax_scheme:
+            - scheme: VAT
+              id: DE123456789
+        payment_means:
+          - code: ONLINE_PAYMENT_SERVICE
+            payment_id: PAY-2024-01002
+            card_account:
+              primary_account_number_id: 4111********2222
+              card_holder_name: John Doe
+              network_id: VISA
+        lines:
+          - id: '1'
+            description: Refund for overcharge in April
+            quantity: 1
+            unit_price: 50.0
+            amount: 50.0
+            item_code: APRIL-REFUND
+            classified_tax_category:
+              percentage: 14
+              category: VAT
+              country: DE
+        tax_total:
+          tax_amount: 7.0
+          tax_sub_totals:
+            - taxable_amount: 50.0
+              tax_amount: 7.0
+              percentage: 14
+              country: DE
+              category: VAT
+        field_mapping:
+          Creditnote/cbc:ID: document.id
+          Creditnote/cbc:IssueDate: document.issue_date
+          Creditnote/cbc:InvoiceTypeCode: 381
+          Creditnote/cbc:DocumentCurrencyCode: document.currency_code
+          Creditnote/cac:BillingReference: document.billing_reference
+          Creditnote/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID: document.accounting_supplier_party.legal_entity.company_id
+          Creditnote/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode: document.accounting_supplier_party.address.country
+          Creditnote/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName: document.accounting_supplier_party.legal_entity.registration_name
+          Creditnote/cac:AccountingCustomerParty/cac:Party/cbc:EndpointID: document.accounting_customer_party.legal_entity.company_id
+          Creditnote/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode: document.accounting_customer_party.address.country
+          Creditnote/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName: document.accounting_customer_party.legal_entity.registration_name
+          Creditnote/cac:TaxTotal/cbc:TaxAmount: document.tax_total.tax_amount
+          Creditnote/cac:TaxTotal/cbc:TaxAmount/@currencyID: document.currency_code
+          Creditnote/cac:InvoiceLine/cbc:ID: document.lines[].id
+          Creditnote/cac:InvoiceLine/cbc:InvoicedQuantity: document.lines[].quantity
+          Creditnote/cac:InvoiceLine/cbc:InvoicedQuantity/@unitCode: document.lines[].unit_code
+          Creditnote/cac:InvoiceLine/cbc:LineExtensionAmount: document.lines[].amount
+          Creditnote/cac:InvoiceLine/cbc:LineExtensionAmount/@currencyID: document.currency_code
+          Creditnote/cac:InvoiceLine/cac:Item/cbc:Name: document.lines[].description
+          Creditnote/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cbc:ID: document.lines[].classified_tax_category[].category
+          Creditnote/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme/cbc:ID: document.lines[].classified_tax_category[].category
+          Creditnote/cac:InvoiceLine/cac:Price/cbc:PriceAmount: document.lines[].unit_price
+          Creditnote/cac:InvoiceLine/cac:Price/cbc:PriceAmount/@currencyID: document.currency_code
     einvoice_document_submission_pending:
       description: A sample response indicating the document is under processing.
       value:
@@ -1225,7 +1418,6 @@ components:
         document_type: INVOICE
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
-        provider_id: avalara
         tenant_id: einvoicing-test
     webhook_document_status_failed:
       description: A sample webhook notification indicating document submission failure.
@@ -1234,7 +1426,6 @@ components:
         document_type: INVOICE
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
-        provider_id: avalara
         tenant_id: einvoicing-test
         errors:
           errors:
