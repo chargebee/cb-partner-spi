@@ -79,16 +79,14 @@ def openApiTask() {
             version.set(project.version)
             configFile.set("$rootDir/spec/spi/config.yml")
 
-            doLast {
-                def generatedApiDir = "$rootDir/generated/$spec.name/api"
-                def targetApiDir = "$rootDir/spec/spi/generated/$spec.name"
-                copy {
-                    from generatedApiDir
-                    into targetApiDir
-                    include '**/*.yaml'
-                }
-            }
+        doLast {
+            def sourceYamlFile = file("$rootDir/generated/${spec.name}/api/openapi.yaml")
+            def targetYamlDir = file("$rootDir/spec/spi/generated/${spec.name}/api")
+            def targetFile = new File(targetYamlDir, "openapi.yaml")
+            targetYamlDir.mkdirs()
+            targetFile.text = sourceYamlFile.text
         }
+}
 
         validateSpec.dependsOn(validateTaskName)
         generateSpec.dependsOn(generateTaskName)

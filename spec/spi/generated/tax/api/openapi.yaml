@@ -49,8 +49,7 @@ servers:
 - description: Sandbox SPI server.
   url: https://sandbox.taxes.provider.com/api/v1
 security:
-- bearerAuth: []
-- apiKey: []
+- Authorization: []
 tags:
 - description: Endpoints to validate an address and check its taxability.
   name: Address
@@ -72,6 +71,19 @@ paths:
       description: This endpoint is used to fetch the health status of the Service
         Provider.
       operationId: fetchHealth
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           content:
@@ -132,8 +144,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HealthCheckResponse'
           description: Service is unhealthy.
-      security:
-      - {}
       summary: Fetch the health status of the Service Provider.
       tags:
       - Health
@@ -143,6 +153,19 @@ paths:
       description: This endpoint is used to validate the credentials used to call
         the Service Provider.
       operationId: validateCredentials
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           content:
@@ -202,8 +225,22 @@ paths:
   /tax-estimate:
     post:
       description: This endpoint is used to estimate taxes for a set of line items
-        being sold by the Merchant to a Customer.
+        being sold by the Merchant to a Customer and is mandatory to integrate for
+        the tax provider
       operationId: estimateTaxes
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -299,6 +336,19 @@ paths:
         Invoices created in Chargebee are statements of amounts owed by the Customer
         to the Merchant for a specific purchase.
       operationId: createInvoice
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -393,6 +443,18 @@ paths:
         schema:
           type: string
         style: simple
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           content:
@@ -460,6 +522,18 @@ paths:
         schema:
           type: string
         style: simple
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "204":
           description: Invoice committed successfully.
@@ -523,6 +597,26 @@ paths:
         schema:
           type: string
         style: simple
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              VoidInvoiceRequest:
+                $ref: '#/components/examples/VoidInvoiceRequest'
+            schema:
+              $ref: '#/components/schemas/VoidRequest'
       responses:
         "204":
           description: Invoice voided successfully.
@@ -570,6 +664,7 @@ paths:
       summary: Void Invoice
       tags:
       - Invoice
+      x-content-type: application/json
       x-accepts: application/json
   /credit-notes:
     post:
@@ -578,6 +673,19 @@ paths:
         \ the credit note is issued after payments have been made for the invoice,\
         \ refunds can be issued to the Customer."
       operationId: createCreditNote
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -679,6 +787,18 @@ paths:
         schema:
           type: string
         style: form
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           content:
@@ -755,6 +875,18 @@ paths:
         schema:
           type: string
         style: form
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "204":
           description: Credit note committed successfully.
@@ -828,6 +960,26 @@ paths:
         schema:
           type: string
         style: form
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              VoidInvoiceRequest:
+                $ref: '#/components/examples/VoidInvoiceRequest'
+            schema:
+              $ref: '#/components/schemas/VoidRequest'
       responses:
         "204":
           description: Credit note voided successfully.
@@ -875,12 +1027,27 @@ paths:
       summary: Void credit note
       tags:
       - CreditNote
+      x-content-type: application/json
       x-accepts: application/json
   /address/validate:
     post:
       description: Checks whether a given address is a valid delivery address for
-        shipping purposes.
+        shipping purposes. The tax provider can decide whether to mention the full
+        or valid address depending on their requirement.
       operationId: validateAddress
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -965,6 +1132,19 @@ paths:
         for the tax provider to return a tax rate. It does not consider the nexus
         status of the merchant and is mandatory to integrate for the tax provider.
       operationId: checkAddressTaxability
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -2146,6 +2326,10 @@ components:
       summary: Unexpected error.
       value:
         message: Unexpected error during processing the request.
+    VoidInvoiceRequest:
+      description: A request to void an invoice in the tax provider system.
+      value:
+        documentDateTime: 2022-11-01T10:42:08.131+05:30
     AddressValidationValidRequest:
       description: Valid address request
       summary: Valid address request for full address verification
@@ -2348,6 +2532,20 @@ components:
         maxLength: 50
         type: string
       style: simple
+    MerchantId:
+      description: Merchant's domain name will be sent by Chargebee
+      in: header
+      name: merchant_id
+      required: false
+      schema:
+        type: string
+    TraceId:
+      description: Unique id of the request will be sent by Chargebee
+      in: header
+      name: trace_id
+      required: false
+      schema:
+        type: string
   responses:
     Error400TaxEstimate:
       content:
@@ -2550,6 +2748,7 @@ components:
             line1: line1
           name: name
           customerCode: customerCode
+          company: company
           taxRegistrationNumber: taxRegistrationNumber
           hasNexus: true
           locationEvidence:
@@ -2635,7 +2834,8 @@ components:
         itemCode:
           description: "The unique identifier (in Chargebee) of the product corresponding\
             \ to the line item. If the line item corresponds to a one-off charge,\
-            \ then this identifier is not provided."
+            \ then this identifier is not provided. If entity_type is `adhoc`, the\
+            \ `itemCode` parameter will be set to `adhoc_charge`."
           maxLength: 50
           type: string
         description:
@@ -3083,6 +3283,7 @@ components:
             line1: line1
           name: name
           customerCode: customerCode
+          company: company
           taxRegistrationNumber: taxRegistrationNumber
           hasNexus: true
           locationEvidence:
@@ -3254,7 +3455,8 @@ components:
         itemCode:
           description: "The unique identifier (in Chargebee) of the product corresponding\
             \ to the line item. If the line item corresponds to a one-off charge,\
-            \ then this identifier is not present."
+            \ then this identifier is not present. If entity_type is `adhoc`, the\
+            \ `itemCode` parameter will be set to `adhoc_charge`."
           maxLength: 50
           type: string
         description:
@@ -3822,6 +4024,7 @@ components:
             line1: line1
           name: name
           customerCode: customerCode
+          company: company
           taxRegistrationNumber: taxRegistrationNumber
           hasNexus: true
           locationEvidence:
@@ -4331,6 +4534,7 @@ components:
             line1: line1
           name: name
           customerCode: customerCode
+          company: company
           taxRegistrationNumber: taxRegistrationNumber
           hasNexus: true
           locationEvidence:
@@ -4852,6 +5056,7 @@ components:
             line1: line1
           name: name
           customerCode: customerCode
+          company: company
           taxRegistrationNumber: taxRegistrationNumber
           hasNexus: true
           locationEvidence:
@@ -5378,6 +5583,7 @@ components:
             line1: line1
           name: name
           customerCode: customerCode
+          company: company
           taxRegistrationNumber: taxRegistrationNumber
           hasNexus: true
           locationEvidence:
@@ -5546,6 +5752,7 @@ components:
           line1: line1
         name: name
         customerCode: customerCode
+        company: company
         taxRegistrationNumber: taxRegistrationNumber
         hasNexus: true
         locationEvidence:
@@ -5570,6 +5777,10 @@ components:
           type: string
         customerCode:
           description: The unique identifier for the Customer in Chargebee.
+          maxLength: 50
+          type: string
+        company:
+          description: The company name of the customer
           maxLength: 50
           type: string
         address:
@@ -5784,6 +5995,23 @@ components:
           description: The country of the address following the ISO 3166-1 alpha-2
             standard.
           maxLength: 2
+          type: string
+      type: object
+    VoidRequest:
+      description: The request to void an invoice or credit note.
+      example:
+        documentDateTime: 2000-01-23T04:56:07.000+00:00
+      properties:
+        documentDateTime:
+          description: "The date and time at which the credit note was created in\
+            \ Chargebee. For example, if the value is 2022-10-28T15:36:28.129+05:30,\
+            \ then the timestamp represents October 28, 2022, at 15:36:28.129, with\
+            \ an offset of +05:30. This means that the time represented is 5 hours\
+            \ and 30 minutes ahead of UTC/GMT. In the case of a merchant site located\
+            \ in UTC, these data types would send a timestamp in the format 2022-11-11T15:40:44.65Z.\
+            \ This timestamp represents November 11, 2022, at 15:40:44.65, with the\
+            \ 'Z' indicating that the time is in UTC."
+          format: date-time
           type: string
       type: object
     CustomerLocationEvidence:
@@ -6009,12 +6237,10 @@ components:
       - message
       type: object
   securitySchemes:
-    bearerAuth:
-      scheme: bearer
-      type: http
-    apiKey:
-      description: Bearer token based authentication.
+    Authorization:
+      description: The json of all the parameters specified in authentication configuration
+        of tax app will be sent by Chargebee.
       in: header
-      name: bearer
+      name: Authorization
       type: apiKey
 

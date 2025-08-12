@@ -12,8 +12,10 @@ Chargebee partners can use the [Service Provider Interfaces (SPI)](https://spido
 1. **Understand the OpenAPI Specification**: Review the OpenAPI specification and integration details to design and build an app with seamless functionality.
 2. **Implement SPI-Defined Endpoints**: Develop endpoints as outlined in the SPI documentation to ensure compatibility with Chargebee’s ecosystem.
 3. **Adhere to Requirements**: Review the [General Requirements](#general-requisites) and [Technical Requirements](#technical-requisites) to ensure compliance with Chargebee’s guidelines.
-4. **Test the Integration**: Validate and test your integration using the provided [Postman collection](https://www.postman.com/chargebee/chargebee-partners/overview). 
-
+4. **Test the Integration**: Perform both **API Testing** and **End-to-End Testing** to ensure a seamless integration with Chargebee:
+    - **API Testing**: Validate and test your App using the provided [Postman collection](https://www.postman.com/chargebee/chargebee-partners/overview).
+    - **End-to-End Testing**: Test all required Chargebee use cases by integrating your app with Chargebee’s sandbox environment. To request sandbox access, [follow](#go-live-steps) -> Step 3.
+    
 ## Onboarding Process for Apps via SPI
 
 ### General Requisites
@@ -23,7 +25,7 @@ To list your app on **Chargebee's Marketplace** as a solution provider, complete
 1.  **Compliance with PII Standards**
     -   Ensure your app complies with **Personal Identifiable Information (PII)** standards.
     -   Handle merchant-specific confidential data securely and in accordance with PII guidelines.
-    -   Refer to Chargebee's [Security and Compliance Guidelines](https://www.chargebee.com/security-compliance/) to meet data privacy and security requirements.
+    -   Refer to Chargebee's [Security and Compliance Guidelines](https://www.chargebee.com/security/) to meet data privacy and security requirements.
     - Provide **Service Level Agreements (SLAs)** that address data deletion requirements.
 2.  **Traffic Management**
     -   Accept traffic **only from allow-listed servers** to maintain secure interactions within Chargebee's ecosystem.
@@ -78,26 +80,26 @@ By following these guidelines, you can ensure a seamless onboarding process and 
 
 ## Go Live Steps
 
-1. **Complete Development & Testing**
-  - Develop and test the app service based on the requirements mentioned here: [Developing an App to Integrate with Chargebee](#developing-an-app-to-integration-with-chargebee).
-
-2. **Fill Configuration & Capability**
+1. **Fill Configuration & Capability**
   - Fill the configuration and **capability** details of your app [here](https://tinyurl.com/cb-partner-app-registration) and generate the JSON.
   - Use the [JSON Schema](https://github.com/chargebee/cb-partner-spi/blob/main/spec/capabilities/tax-provider.schema.json) for reference.
 
-3. **Submit Details to Chargebee**
+2. **Submit Details to Chargebee**
   - Send the completed configurations, capabilities details, and test suite results to the Chargebee team at **taxation@chargebee.com**(Update Chargebee Partners EmailID).
 
-4. **Internal Review & Testing**
+3. **Internal Review & Testing**
+  - Reach out to the [Partnership Team](mailto:partnerships@chargebee.com) for access to the Chargebee production sandbox site.
+  - In parallel develop and test the app service based on the requirements mentioned here: [Developing an App to Integrate with Chargebee](#developing-an-app-to-integrate-with-chargebee).
   - Once submitted, Chargebee's internal review team will test your integration through a combination of **manual and automated testing**.
   - Your integration will also undergo **stress testing** to ensure it can handle Chargebee’s peak loads.
+  
 
-5. **Marketplace Listing Form**
+4. **Marketplace Listing Form**
   - After the review team approves your app, fill out the marketplace listing form which will be provided by Chargebee team. This form will include:
-    - Details to be published on your app’s landing page on the Chargebee marketplace.
-    - Product screenshots or videos as required.
+  - Details to be published on your app’s landing page on the Chargebee marketplace.
+  - Product screenshots or videos as required.
 
-6. **Accept the Marketplace Agreement**
+5. **Accept the Marketplace Agreement**
   - Review and accept the **marketplace agreement** with Chargebee.
 
 ---
