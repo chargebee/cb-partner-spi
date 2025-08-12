@@ -94,7 +94,6 @@ paths:
         Implementation of this endpoint is recommended only if the e-invoicing provider requires merchant to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
         
         Within Chargebee, this endpoint is invoked during the e-invoicing setup workflow, when a user maps fields between the provider’s schema and Chargebee’s internal data model for a specific combination of country, network, and transaction type. Once this configuration is complete, the resulting field mappings are included in the document submission request and passed to the adapter via the field_mapping parameter, enabling the adapter to transform the SPI-compliant payload into the provider’s required format.
-
       operationId: getDataInputFields
       parameters:
         - name: country_code

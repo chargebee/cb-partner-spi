@@ -150,7 +150,8 @@
             {
               "group": "Activations",
               "pages": [
-                "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations"
+                "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations",
+                "api-reference/einvoicing-spi/endpoints/v1/activations/retrieves-input-fields-for-e-invoicing-based-on-the-specified-countries-networks-and-transaction-types.mdx"
                ]
             },
             {
