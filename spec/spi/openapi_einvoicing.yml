@@ -5,16 +5,16 @@ info:
     ## E-invoicing Service Provider Interface (SPI) - Overview
       Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle.
     
-    - Retrieve E-invoicing Activations:
+    1) Retrieve E-invoicing Activations:
         - Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
         - Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
         - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
-    - Document Submission:
+    2) Document Submission:
         - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
-    - Status Tracking:
+    3) Status Tracking:
         - Supports asynchronous document lifecycle tracking through webhook notifications sent by the e-invoicing adapter. These updates reflect real-time status changes as documents move through validation, compliance, and regulatory delivery stages.
         - Allows on-demand status checks to retrieve the latest processing state of submitted documents, ensuring continued visibility even if webhook delivery is delayed or disrupted.
-    - Final Document Retrieval:
+    4) Final Document Retrieval:
         - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
 
     Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing servies are the  certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
@@ -87,9 +87,9 @@ paths:
     get:
       tags:
         - Activations
-      summary: Retrieves input fields for e-invoicing, based on the specified countries, networks, and transaction types.
+      summary: Retrieves data input fields
       description: |
-        This optional SPI endpoint is used to retrieve the required and optional input fields for various e-invoicing scenarios supported by the provider. Each scenario is defined by a unique combination of country, e-invoicing network, and transaction type (B2B, B2C, or B2G).
+        This optional SPI endpoint is used to retrieve the required and optional data input fields for various e-invoicing scenarios supported by the provider. Each scenario is defined by a unique combination of country, e-invoicing network, and transaction type (B2B, B2C, or B2G).
         
         Implementation of this endpoint is recommended only if the e-invoicing provider requires merchant to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
         
@@ -127,7 +127,7 @@ paths:
             example: "PEPPOL"
       responses:
         '200':
-          description: Successfully retrieved the input fields for the given scenario.
+          description: Successfully retrieved the data input fields for the given scenario.
           content:
             application/json:
               schema:
@@ -158,7 +158,7 @@ paths:
     post:
       tags:
         - Documents
-      summary: Submit a new document (invoice or credit note) to the e-invoicing service.
+      summary: Submit a document
       description: |
         Submits a new document, such as an invoice or credit note, to the connected e-invoicing provider for validation, compliance checks, and delivery to the appropriate tax authorities or business partners.
         
@@ -216,7 +216,10 @@ paths:
     post:
       tags:
         - Webhooks
-      summary: Receive document status updates from the e-invoicing provider
+      summary: Receive document status updates.
+      x-mint:
+        metadata:
+          title: Receive document status updates
       description: |
         This endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
 

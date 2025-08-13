@@ -151,13 +151,13 @@
               "group": "Activations",
               "pages": [
                 "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations",
-                "api-reference/einvoicing-spi/endpoints/v1/activations/retrieves-input-fields-for-e-invoicing-based-on-the-specified-countries-networks-and-transaction-types.mdx"
+                "api-reference/einvoicing-spi/endpoints/v1/activations/retrieves-data-input-fields"
                ]
             },
             {
               "group": "Documents",
               "pages": [
-                "api-reference/einvoicing-spi/endpoints/v1/documents/submit-a-new-document-invoice-or-credit-note-to-the-e-invoicing-service",
+                "api-reference/einvoicing-spi/endpoints/v1/documents/submit-a-document",
                 "api-reference/einvoicing-spi/endpoints/v1/documents/get-document-status",
                 "api-reference/einvoicing-spi/endpoints/v1/documents/download-document"
               ]
@@ -165,7 +165,7 @@
             {
               "group": "Webhooks",
               "pages": [
-                "api-reference/einvoicing-spi/webhooks/receive-document-status-updates-from-the-e-invoicing-provider"
+                "api-reference/einvoicing-spi/endpoints/v1/webhooks/receive-document-status-updates"
               ]
             },
             {
