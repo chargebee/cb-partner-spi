@@ -1,0 +1,149 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Chargebee Partner docs",
+  "api": {
+    "request": {
+      "example": {
+        "languages": ["curl"]
+      }
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/logo/favicon.png",
+  "colors": {
+    "primary": "#ff3300",
+    "light": "#ff3300",
+    "dark": "#01283a"
+  },
+  "background": {
+    "style": "gradient"
+  },
+  "topbarLinks": [
+    {
+      "label": "Support",
+      "href": "mailto:support@chargebee.com"
+    }
+  ],
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Partner SPI",
+            "pages": [
+              "api-reference/partner-spi/overview"
+            ]
+          },
+          {
+            "group": "Tax SPI",
+            "pages": [
+              "api-reference/tax-spi/docs/overview",
+              "api-reference/tax-spi/docs/authorization",
+              {
+                "group": "Address",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/address-validation",
+                  "api-reference/tax-spi/endpoints/v1/check-taxability"
+                ]
+              },
+              {
+                "group": "TaxEstimate",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/estimate-tax"
+                ]
+              },
+              {
+                "group": "Invoice",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/create-invoice",
+                  "api-reference/tax-spi/endpoints/v1/retrieve-invoice",
+                  "api-reference/tax-spi/endpoints/v1/commit-invoice",
+                  "api-reference/tax-spi/endpoints/v1/void-invoice"
+                ]
+              },
+              {
+                "group": "CreditNote",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/create-credit-note",
+                  "api-reference/tax-spi/endpoints/v1/retrieve-credit-note",
+                  "api-reference/tax-spi/endpoints/v1/commit-credit-note",
+                  "api-reference/tax-spi/endpoints/v1/void-credit-note"
+                ]
+              },
+              {
+                "group": "Authentication",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/validate-credentials"
+                ]
+              },
+              {
+                "group": "Health",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/fetch-the-health-status-of-the-service-provider"
+                ]
+              },
+              "api-reference/tax-spi/docs/testing-with-postman"
+            ]
+          },
+          {
+            "group": "Tax Registration Number Validation SPI",
+            "pages": [
+              "api-reference/tax-reg-number-validate/docs/overview",
+              {
+                "group": "Authentication",
+                "pages": [
+                  "api-reference/tax-reg-number-validate/endpoints/v1/validate-credentials"
+                ]
+              },
+              {
+                "group": "Health",
+                "pages": [
+                  "api-reference/tax-reg-number-validate/endpoints/v1/fetch-the-health-status-of-the-service-provider"
+                ]
+              },
+              {
+                "group": "Tax Registration Number Validation",
+                "pages": [
+                  "api-reference/tax-reg-number-validate/endpoints/v1/validate-the-tax-registration-numbers-in-batch",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/validate-the-tax-registration-number",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/get-the-response-of-tax-registration-number-validate-request",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/get-the-response-of-batch-of-tax-registration-numbers",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/delete-the-request-of-batch-of-tax-registration-numbers-validation"
+                ]
+              },
+              "api-reference/tax-reg-number-validate/docs/testing-with-postman"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "api-reference/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "App Onboarding",
+        "groups": [
+          {
+            "group": "App Onboarding",
+            "pages": [
+              "app-onboarding/guide"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "integrations": {
+    "ga4": {
+      "measurementId": "G‑EJ2MQ2ENV4"
+    }
+  }
+}
+
