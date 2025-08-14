@@ -221,7 +221,7 @@ paths:
         metadata:
           title: Receive document status updates
       description: |
-        This endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
+        This Chargebee webhook endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
 
         The adapter receives the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 

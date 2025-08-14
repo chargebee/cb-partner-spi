@@ -210,7 +210,7 @@ paths:
   /webhooks/einvoicing/document_status:
     post:
       description: |
-        This webhook endpoint is invoked by the e-invoicing adapter application once a document (invoice or credit note) has been processed, provided that Chargebee has whitelisted the adapter's IP address.
+        This Chargebee webhook endpoint is invoked by the e-invoicing adapter application once a document (invoice or credit note) has been processed, provided that Chargebee has whitelisted the adapter's IP address.
 
         The payload includes the unique document identifier and the final status of the document submission, such as SUBMITTED, ACCEPTED, REJECTED, or FAILED.
 

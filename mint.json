@@ -146,7 +146,7 @@
           "version": "v1",
           "pages": [
             "api-reference/einvoicing-spi/docs/overview",
-            "api-reference/common/authorization",
+            "api-reference/einvoicing-spi/docs/authorization",
             {
               "group": "Activations",
               "pages": [
