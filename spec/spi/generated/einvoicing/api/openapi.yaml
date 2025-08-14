@@ -347,12 +347,9 @@ paths:
             \ unknown document ID)."
         "500":
           description: Internal server error. Retry may be attempted by the sender.
-      summary: Receive document status updates.
+      summary: Receive document status updates
       tags:
       - Webhooks
-      x-mint:
-        metadata:
-          title: Receive document status updates
       x-content-type: application/json
       x-accepts: application/json
   /einvoicing/documents/{document_id}/status:
@@ -366,7 +363,9 @@ paths:
         '
       operationId: einvoicingDocumentStatus
       parameters:
-      - explode: false
+      - description: The unique identifier assigned to the submitted document by the
+          e‑invoicing provider.
+        explode: false
         in: path
         name: document_id
         required: true
@@ -1106,7 +1105,9 @@ components:
     document:
       properties:
         id:
-          description: A Unique identifier of the document.
+          description: A unique identifier for the document being submitted. This
+            typically represents the invoice number or credit note number generated
+            by Chargebee.
           type: string
         type:
           description: "Type of document, either an invoice or a credit note."
@@ -1140,7 +1141,9 @@ components:
           type: string
         billing_reference:
           description: A group of business terms providing information on one or more
-            preceding Invoices.
+            preceding invoices. This enhances traceability in workflows where a document
+            is linked to earlier billing records. For credit notes this is essential
+            as they must reference the original invoice they amend.
           items:
             $ref: '#/components/schemas/document_billing_reference_inner'
           required:
@@ -1249,7 +1252,8 @@ components:
         submission_date: 2025-04-02T07:39:31.815Z
       properties:
         document_id:
-          description: Unique identifier for the document submitted.
+          description: The unique identifier assigned to the document by the e-invoicing
+            provider.
           type: string
         status:
           description: The current status of the document submission.
@@ -1343,11 +1347,16 @@ components:
     tax_scheme:
       properties:
         scheme:
-          description: "Name or type of the tax scheme (e.g., Germany VAT Number)."
+          description: "A code identifying the tax regime under which this party is\
+            \ registered—such as VAT, GST, or a region-specific tax scheme. This enables\
+            \ the adapter or e‑invoicing provider to apply the correct tax logic or\
+            \ reporting rules."
           type: string
         id:
-          description: The identification scheme identifier of the party electronic
-            address.
+          description: "The tax identification number assigned to the party by the\
+            \ relevant authority (for example, VAT number or legal registration ID).\
+            \ It is used for official identification and compliance in the e‑invoicing\
+            \ process."
           type: string
       required:
       - id
@@ -1684,7 +1693,9 @@ components:
           $ref: '#/components/schemas/document_billing_reference_inner_invoice_document_reference'
       type: object
     document_accounting_supplier_party:
-      description: "Party responsible for issuing the document (i.e., the supplier)."
+      description: "Party responsible for issuing the document (that is, the supplier).\
+        \ This represents the legal entity or business that creates the invoice and\
+        \ bears responsibility for delivering goods or services."
       properties:
         name:
           description: Name of the supplier party.
