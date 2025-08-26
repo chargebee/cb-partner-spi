@@ -128,6 +128,10 @@
             "is_required":{
                "type":"boolean",
                "description":"Specifies if the Provider expects this parameter mandatorily."
+            },
+            "multi_entity_support": {
+               "type": "boolean",
+               "description": "Specifies if the parameter supports multiple values for different accounts of same merchant."
             }
          },
          "required":[
@@ -145,7 +149,7 @@
          "properties":{
             "supported_countries":{
                "type":"array",
-               "description":"Specifies the supported countries(ISO 3166 alpha-2 country code format) by the Provider for all the capabilities such as Tax calculation, syncing invoices/credit notes, TRN validation. If supported countries are different for each capabilities, it shall be specified under the respective capability.",
+               "description":"Specifies the supported countries(ISO 3166 alpha-2 country code format) by the Provider for all the capabilities such as Tax calculation, syncing invoices/credit notes, Tax Registration Number validation. If supported countries are different for each capabilities, it shall be specified under the respective capability.",
                "items":{
                   "type":"string"
                },
@@ -209,16 +213,15 @@
                "$ref":"#/definitions/SyncCapabilities",
                "description":"Specifies details on credit note sync capability."
             },
-            "trn_validation_capabilities":{
-               "$ref":"#/definitions/TrnValidationCapabilities",
-               "description":"Specifies details on TRN validation capability."
+            "tax_reg_number_validation_capabilities":{
+               "$ref":"#/definitions/TaxRegNumValidationCapabilities",
+               "description":"Specifies details on Tax Registration Number validation capability."
             }
          },
          "required":[
             "can_have_customer_identifiers",
             "can_have_product_identifiers",
             "can_support_currency_inclusive_of_taxes",
-            "can_support_standalone_credit_notes",
             "can_sync_credit_notes",
             "can_sync_invoices",
             "can_validate_shipping_address",
@@ -307,7 +310,7 @@
          ],
          "title":"SyncCapabilities"
       },
-      "TrnValidationCapabilities":{
+      "TaxRegNumValidationCapabilities":{
          "type":"object",
          "additionalProperties":false,
          "properties":{
@@ -315,9 +318,20 @@
                "type":"boolean",
                "description":"Specifies if the capability is supported."
             },
+            "async_configuration": {
+               "type": "object",
+               "properties": {
+                  "is_supported": {
+                     "type": "boolean"
+                  }
+               },
+               "required": [
+                  "is_supported"
+               ]
+            },
             "batch_configuration":{
                "type":"object",
-               "description": "Specifies batch TRN Validation related configurations.",
+               "description": "Specifies batch Tax Registration Number Validation related configurations.",
                "properties":{
                   "is_supported":{
                      "type":"boolean",
@@ -342,7 +356,7 @@
                      "properties":{
                         "reference_number":{
                            "type":"object",
-                           "description":"Specifies about reference number configuration. Reference number is the number that provider provides as a proof of the TRN Validation.",
+                           "description":"Specifies about reference number configuration. Reference number is the number that provider provides as a proof of the Tax Registration Number Validation.",
                            "properties":{
                               "is_supported":{
                                  "type":"boolean",
@@ -358,7 +372,7 @@
                               "display_name"
                            ]
                         },
-                        "customFields":{
+                        "custom_fields":{
                            "type":"array",
                            "description":"Specifies the custom fields that are required or supported for the country.",
                            "items":{
@@ -378,7 +392,7 @@
                         "is_supported": true,
                         "display_name": "Reference number"
                       },
-                      "customFields": [
+                      "custom_fields": [
                         {
                           "external_id": "email_address",
                           "display_name": "Email Address",
@@ -415,14 +429,14 @@
                "type":"boolean",
                "description":"Specifies if invalid tax registration numbers are accepted."
             },
-            "supportedNumberOfLineItems":{
+            "supported_number_of_line_items":{
                "type":"integer",
                "description":"Specifies the supported number of line items."
             }
          },
          "required":[
             "accept_invalid_tax_reg_numbers",
-            "supportedNumberOfLineItems"
+            "supported_number_of_line_items"
          ],
          "title":"TaxCalculationCapabilities"
       },
@@ -470,14 +484,14 @@
                "type":"string",
                "description":"Specifies the identifier of the Provider"
             },
-            "provider_type":{
+            "type":{
                "type":"array",
                "description":"Specifies the list of the features that the Provider supports. Provider may support Tax or Tax Registration Number(TRN) Validation capabilities or both.",
                "items":{
                   "type":"string",
                   "enum":[
                      "TAX",
-                     "TRN_VALIDATION"
+                     "TAX_REG_NUMBER_VALIDATION"
                   ]
                }
             },
