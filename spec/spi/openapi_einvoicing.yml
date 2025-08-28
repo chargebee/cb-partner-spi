@@ -737,6 +737,8 @@ components:
               - A `source` field path pointing to a value in the Chargebee `document` model, or
               - A `fixed_value` to be used as a constant value.
             
+            Both `source` and `target` use dot (`.`) notation to define field paths.
+            
             The adapter uses this mapping to transform Chargebee’s SPI payload into the structure required by the configured provider
             during submission.
 
@@ -1202,70 +1204,70 @@ components:
               country: DE
               category: VAT
         field_mapping:
-          - target: Invoice/cbc:ID
+          - target: Invoice.cbc:ID
             source: document.id
 
-          - target: Invoice/cbc:IssueDate
+          - target: Invoice.cbc:IssueDate
             source: document.issue_date
 
-          - target: Invoice/cbc:InvoiceTypeCode
+          - target: Invoice.cbc:InvoiceTypeCode
             fixed_value: 380
 
-          - target: Invoice/cbc:DocumentCurrencyCode
+          - target: Invoice.cbc:DocumentCurrencyCode
             source: document.currency_code
 
-          - target: Invoice/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID
+          - target: Invoice.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID
             source: document.accounting_supplier_party.legal_entity.company_id
 
-          - target: Invoice/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode
+          - target: Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
             source: document.accounting_supplier_party.address.country
 
-          - target: Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName
+          - target: Invoice.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
             source: document.accounting_supplier_party.legal_entity.registration_name
 
-          - target: Invoice/cac:AccountingCustomerParty/cac:Party/cbc:EndpointID
+          - target: Invoice.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID
             source: document.accounting_customer_party.legal_entity.company_id
 
-          - target: Invoice/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode
+          - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
             source: document.accounting_customer_party.address.country
 
-          - target: Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName
+          - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
             source: document.accounting_customer_party.legal_entity.registration_name
 
-          - target: Invoice/cac:TaxTotal/cbc:TaxAmount
+          - target: Invoice.cac:TaxTotal.cbc:TaxAmount
             source: document.tax_total.tax_amount
 
-          - target: Invoice/cac:TaxTotal/cbc:TaxAmount/@currencyID
+          - target: Invoice.cac:TaxTotal.cbc:TaxAmount.@currencyID
             source: document.currency_code
 
-          - target: Invoice/cac:InvoiceLine/cbc:ID
+          - target: Invoice.cac:InvoiceLine.cbc:ID
             source: document.lines[].id
 
-          - target: Invoice/cac:InvoiceLine/cbc:InvoicedQuantity
+          - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity
             source: document.lines[].quantity
 
-          - target: Invoice/cac:InvoiceLine/cbc:InvoicedQuantity/@unitCode
+          - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
             source: document.lines[].unit_code
 
-          - target: Invoice/cac:InvoiceLine/cbc:LineExtensionAmount
+          - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
             source: document.lines[].amount
 
-          - target: Invoice/cac:InvoiceLine/cbc:LineExtensionAmount/@currencyID
+          - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
             source: document.currency_code
 
-          - target: Invoice/cac:InvoiceLine/cac:Item/cbc:Name
+          - target: Invoice.cac:InvoiceLine.cac:Item.cbc:Name
             source: document.lines[].description
 
-          - target: Invoice/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cbc:ID
+          - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
             source: document.lines[].classified_tax_category[].category
 
-          - target: Invoice/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme/cbc:ID
+          - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
             source: document.lines[].classified_tax_category[].category
 
-          - target: Invoice/cac:InvoiceLine/cac:Price/cbc:PriceAmount
+          - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount
             source: document.lines[].unit_price
 
-          - target: Invoice/cac:InvoiceLine/cac:Price/cbc:PriceAmount/@currencyID
+          - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
             source: document.currency_code
 
     credit_note_document_submission_success:
@@ -1391,51 +1393,51 @@ components:
               country: DE
               category: VAT
         field_mapping:
-          - target: Creditnote/cbc:ID
+          - target: Creditnote.cbc:ID
             source: document.id
-          - target: Creditnote/cbc:IssueDate
+          - target: Creditnote.cbc:IssueDate
             source: document.issue_date
-          - target: Creditnote/cbc:CreditNoteTypeCode
+          - target: Creditnote.cbc:CreditNoteTypeCode
             fixed_value: 396
-          - target: Creditnote/cbc:DocumentCurrencyCode
+          - target: Creditnote.cbc:DocumentCurrencyCode
             source: document.currency_code
-          - target: Creditnote/cac:BillingReference
+          - target: Creditnote.cac:BillingReference
             source: document.billing_reference
-          - target: Creditnote/cac:AccountingSupplierParty/cac:Party/cbc:EndpointID
+          - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID
             source: document.accounting_supplier_party.legal_entity.company_id
-          - target: Creditnote/cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode
+          - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
             source: document.accounting_supplier_party.address.country
-          - target: Creditnote/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName
+          - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
             source: document.accounting_supplier_party.legal_entity.registration_name
-          - target: Creditnote/cac:AccountingCustomerParty/cac:Party/cbc:EndpointID
+          - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID
             source: document.accounting_customer_party.legal_entity.company_id
-          - target: Creditnote/cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country/cbc:IdentificationCode
+          - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
             source: document.accounting_customer_party.address.country
-          - target: Creditnote/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName
+          - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
             source: document.accounting_customer_party.legal_entity.registration_name
-          - target: Creditnote/cac:TaxTotal/cbc:TaxAmount
+          - target: Creditnote.cac:TaxTotal.cbc:TaxAmount
             source: document.tax_total.tax_amount
-          - target: Creditnote/cac:TaxTotal/cbc:TaxAmount/@currencyID
+          - target: Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID
             source: document.currency_code
-          - target: Creditnote/cac:InvoiceLine/cbc:ID
+          - target: Creditnote.cac:InvoiceLine.cbc:ID
             source: document.lines[].id
-          - target: Creditnote/cac:InvoiceLine/cbc:InvoicedQuantity
+          - target: Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity
             source: document.lines[].quantity
-          - target: Creditnote/cac:InvoiceLine/cbc:InvoicedQuantity/@unitCode
+          - target: Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
             source: document.lines[].unit_code
-          - target: Creditnote/cac:InvoiceLine/cbc:LineExtensionAmount
+          - target: Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount
             source: document.lines[].amount
-          - target: Creditnote/cac:InvoiceLine/cbc:LineExtensionAmount/@currencyID
+          - target: Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
             source: document.currency_code
-          - target: Creditnote/cac:InvoiceLine/cac:Item/cbc:Name
+          - target: Creditnote.cac:InvoiceLine.cac:Item.cbc:Name
             source: document.lines[].description
-          - target: Creditnote/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cbc:ID
+          - target: Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
             source: document.lines[].classified_tax_category[].category
-          - target: Creditnote/cac:InvoiceLine/cac:Item/cac:ClassifiedTaxCategory/cac:TaxScheme/cbc:ID
+          - target: Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
             source: document.lines[].classified_tax_category[].category
-          - target: Creditnote/cac:InvoiceLine/cac:Price/cbc:PriceAmount
+          - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount
             source: document.lines[].unit_price
-          - target: Creditnote/cac:InvoiceLine/cac:Price/cbc:PriceAmount/@currencyID
+          - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
             source: document.currency_code
     einvoice_document_submission_pending:
       description: A sample response indicating the document is under processing.
