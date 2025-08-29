@@ -8,18 +8,25 @@ Chargebee streamlines e-invoicing compliance across regions by supporting the fo
 - Each activation corresponds to a specific country and e-invoicing network offered by the provider.
 - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
 
+![Activation_workflow](./images/get_activations.png)
+
 ### 2) Document Submission
 
 - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
 
+![Document_submission_workflow](./images/submit_einvoicing_document.png)
 ### 3) Status Tracking
 
 - Supports asynchronous document lifecycle tracking through webhook notifications sent by the e-invoicing adapter. These updates reflect real-time status changes as documents move through validation, compliance, and regulatory delivery stages.
+  ![webhook_workflow](./images/get_document_status_via_webhook.png)
+
 - Allows on-demand status checks to retrieve the latest processing state of submitted documents, ensuring continued visibility even if webhook delivery is delayed or disrupted.
+  ![poll_document_workflow](./images/poll_document_status.png)
 
 ### 4) Final Document Retrieval
 
 - Retrieves finalized, regulator-approved documents for archiving, auditing, or customer use.
+![download_document_workflow](./images/download_document.png)
 
 Chargebee leverages external e-invoicing services to execute these operations effectively. These services are certified vendors offering APIs to manage e-invoicing compliance and document exchange with tax authorities.
 
@@ -47,8 +54,6 @@ Build a connector that bridges a third-party e-invoicing provider with Chargebee
 
 
 By implementing the E-invoicing SPI, you enable Chargebee to support **global regulatory compliance** through a **scalable and region-agnostic architecture**.
-
-![How Chargebee interacts with the einvoicing service via the adapter](./images/einvoicing_spi_workflow.png)
 
 ## JSON Schema for Einvoicing Provider
 
