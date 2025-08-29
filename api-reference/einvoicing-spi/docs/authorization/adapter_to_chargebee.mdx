@@ -29,15 +29,6 @@ Before implementing OAuth 2.0, ensure you have:
 - Understanding of your application's required scopes.
 - HTTPS-enabled application (required for production).
 
-### Getting Your Credentials
-
-To obtain your OAuth 2.0 credentials:
-
-1. Follow the [App onboarding process](../../../app-onboarding/guide)
-2. Our team will review your application and reach out to provide your client credentials
-
-> **Note:** The credential provisioning process typically takes **2–3 business days**. Please ensure your application details are accurate to help us process your request faster.
-
 ---
 
 ### Supported Grant Types
@@ -53,6 +44,8 @@ Chargebee OAuth 2.0 currently supports the following grant types:
 
 ### Step 1: App Registration by Chargebee
 - Once you have submitted your app following the [onboarding process](../../../app-onboarding/guide), Our team will review your application and the client credentials will be shared with you securely.
+
+> **Note:** The credential provisioning process typically takes **2–3 business days**. Please ensure your application details are accurate to help us process your request faster.
 
 ---
 
@@ -78,7 +71,7 @@ Once your adapter app receives the `code` parameter from Chargebee via the redir
 #### Token Request (cURL)
 
 ```bash
-curl -X POST 'https://qpp.chargebee.com/oauth/token' \
+curl -X POST 'https://app.chargebee.com/oauth/token' \
   -u "${CLIENT_ID}:${CLIENT_SECRET}" \
   -d 'grant_type=authorization_code' \
   -d 'code=AUTH_CODE_REDACTED' \
