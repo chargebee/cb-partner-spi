@@ -10,7 +10,7 @@ calls to partner adapter endpoints. This approach enables **secure, consistent, 
 
 ### How It Works
 - The **Authorization Key** for API calls is dynamically passed in the HTTP header, enabling secure and seamless integration.
-- This key is defined in the [JSON Schema](https://github.com/chargebee/cb-partner-spi/tree/einvoicing_spi_phase2/spec/capabilities), which must be completed and submitted by the partner during the app registration process in Chargebee’s Marketplace.
+- This key is defined in the [JSON Schema](https://github.com/chargebee/cb-partner-spi/blob/einvoicing_spi_phase2/spec/capabilities/einvoicing-provider.schema.json), which must be completed and submitted by the partner during the app registration process in Chargebee’s Marketplace.
 - During the application onboarding process in Chargebee, merchants provide the necessary authorization parameter values.
 - The Chargebee application uses these values to authenticate and make API calls to the Service Adapter.
 
