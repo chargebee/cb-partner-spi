@@ -146,7 +146,14 @@
           "version": "v1",
           "pages": [
             "api-reference/einvoicing-spi/docs/overview",
-            "api-reference/einvoicing-spi/docs/authorization",
+            {
+              "group": "Authorization",
+              "pages": [
+                "api-reference/einvoicing-spi/docs/authorization/overview",
+                "api-reference/einvoicing-spi/docs/authorization/chargebee_to_adapter",
+                "api-reference/einvoicing-spi/docs/authorization/adapter_to_chargebee"
+              ]
+            },
             {
               "group": "Activations",
               "pages": [

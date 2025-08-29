@@ -49,10 +49,14 @@ Chargebee uses [**HTTP header-based authorization**](https://datatracker.ietf.or
 Below is the structure of authorization header that will be passed from Chargebee app to Service Adapter. Some of the 
 parameters are sent by default by Chargebee as mentioned in the example below:
 
-```bash
-curl --request POST https://chargebee.partnerX.com/v1/endpoint \
-  --header "Authorization: xxx" \
-  --header "X-Merchant-Id: merchant_id_partnerX" \ //sent by Chargebee by default
-  --header "X-Company-Code: company_code_partnerX" \ //sent by Chargebee by default
-  --header "X-Trace-Id: 12345-abcde-67890" //sent by Chargebee by default
-````
+```json
+{
+--header 'Authorization: 
+{
+  "api_key": "api_keyX", 
+  "merchant_id": "merchant_id_partnerX", //sent by Chargebee by default
+  "company_code": "company_code_partnerX", //sent by Chargebee by default
+  "trace_id": "12345-abcde-67890" //sent by Chargebee by default
+}
+'
+}

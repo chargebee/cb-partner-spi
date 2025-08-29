@@ -1,0 +1,65 @@
+---
+title: Chargebee to Adapter (Header-Based Auth)
+---
+
+This applies when **Chargebee initiates calls to the adapter**, such as when submitting a document or requesting document status. 
+Your adapter must be able to **receive and validate HTTP requests authenticated via headers**.
+
+Chargebee uses [**HTTP header-based authorization**](https://datatracker.ietf.org/doc/html/rfc7235) for all outbound SPI 
+calls to partner adapter endpoints. This approach enables **secure, consistent, and dynamic management of credentials**.
+
+### How It Works
+- The **Authorization Key** for API calls is dynamically passed in the HTTP header, enabling secure and seamless integration.
+- This key is defined in the [JSON Schema](https://github.com/chargebee/cb-partner-spi/tree/einvoicing_spi_phase2/spec/capabilities), which must be completed and submitted by the partner during the app registration process in Chargebee’s Marketplace.
+- During the application onboarding process in Chargebee, merchants provide the necessary authorization parameter values.
+- The Chargebee application uses these values to authenticate and make API calls to the Service Adapter.
+
+
+### Structure of `credential_configuration`
+- The `credential_configuration` is an array of objects, where each object represents a credential parameter.
+- Each object includes the following attributes:
+    - **`id`**: A unique identifier for the credential. For example, `authorization_key` or `client_secret`.
+    - **`name`**: A descriptive label of the credential.
+    - **`type`**:The credential type. For example, `text`.
+    - **`is_sensitive`**: Indicates whether the credential is sensitive.
+    - **`multi_entity_support`**: (optional): Indicates whether the credential should be configured separately for each business entity in a multi-entity setup. When set to true, Chargebee will prompt the merchant to provide different values for this credential for each entity. Defaults to false if not specified.
+
+### JSON Configuration Example
+
+```json
+{
+  "api_configuration": {
+    "api_base_url": "https://chargebee.partnerX.com/v1",
+    "credential_configuration": [ 
+      {
+        "id": "api_key",
+        "name": "API Key", 
+        "type": "text",
+        "is_sensitive": true 
+      },
+      {
+        "id": "company_code",
+        "name": "Company code",
+        "type": "text",
+        "is_sensitive": false,
+        "multi_entity_support": true
+      }
+    ]
+  }
+}
+```
+
+### Authorization Header
+
+When the Chargebee app initiates a request to the Service Adapter, it includes the authentication credentials within the Authorization header as a JSON string. Additionally, 
+Chargebee injects below headers. like `merchant_id` and `trace_id` by default for tracking and tenant identification purposes.
+- `merchant_id` -  This is the domain name of merchant chargebee site.
+- `trace_id` - This id is sent by Chargebee by default. It can be used for tracing logs.
+
+Below is an example of how the headers appear in a request:
+```bash
+curl --request POST https://chargebee.partnerX.com/v1/endpoint \
+  --header 'Authorization: {"api_key":"service_provider_api_key","company_code":"EU_entity"}' \
+  --header "merchant_id: acme-gb" // This is sent by Chargebee by default \
+  --header "trace_id: test_trace_id" // This is sent by Chargebee by default. It can be used for tracing logs.
+````
