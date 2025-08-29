@@ -234,6 +234,8 @@ paths:
           schema:
             type: string
       operationId: einvoicingDocumentStatusWebhook
+      security:
+        - OAuth2: [ einvoicing.write ]
       requestBody:
         required: true
         content:
@@ -727,6 +729,27 @@ components:
                   category:
                     type: string
                     description: The category of tax applied (e.g., VAT).
+        custom_fields:
+          type: object
+          description: |
+            Merchant-defined custom fields associated with the document. These fields allow merchants
+            to include additional metadata beyond the standard schema. Each custom field is expected to follow
+            the `cf_*` naming convention (e.g., `cf_invoice_reference_code`, `cf_tax_exemption_reason`).
+
+            These fields can be referenced in `field_mapping` using dot paths like:
+            `document.custom_fields.cf_invoice_reference_code`.
+
+            Custom fields are optional and their usage depends on the provider's field mapping requirements.
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+              - type: boolean
+              - type: array
+              - type: object
+          example:
+            cf_invoice_reference_code: "INT-2025-0098"
+            cf_tax_exemption_reason: "Reverse Charge"
         field_mapping:
           type: array
           description: |
@@ -1269,6 +1292,8 @@ components:
 
           - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
             source: document.currency_code
+          - target: Invoice.cbc:Note
+            source: document.custom_fields.cf_invoice_reference_code
 
     credit_note_document_submission_success:
       description: A sample credit note document submission request.
@@ -1439,6 +1464,8 @@ components:
             source: document.lines[].unit_price
           - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
             source: document.currency_code
+          - target: Creditnote.cbc:Note
+            source: document.custom_fields.cf_invoice_reference_code
     einvoice_document_submission_pending:
       description: A sample response indicating the document is under processing.
       value:
@@ -1515,3 +1542,12 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://{chargebee-domain}.chargebee.com/oauth/authorize
+          tokenUrl: https://{chargebee-domain}.chargebee.com/oauth/token
+          scopes:
+            einvoicing.write: Submit document status updates to Chargebee
+          openIdConnectUrl: https://app.chargebee.com/.well-known/openid-configuration
