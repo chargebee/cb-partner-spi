@@ -740,13 +740,6 @@ components:
             `document.custom_fields.cf_invoice_reference_code`.
 
             Custom fields are optional and their usage depends on the provider's field mapping requirements.
-          additionalProperties:
-            oneOf:
-              - type: string
-              - type: number
-              - type: boolean
-              - type: array
-              - type: object
           example:
             cf_invoice_reference_code: "INT-2025-0098"
             cf_tax_exemption_reason: "Reverse Charge"
@@ -1550,4 +1543,3 @@ components:
           tokenUrl: https://{chargebee-domain}.chargebee.com/oauth/token
           scopes:
             einvoicing.write: Submit document status updates to Chargebee
-          openIdConnectUrl: https://app.chargebee.com/.well-known/openid-configuration

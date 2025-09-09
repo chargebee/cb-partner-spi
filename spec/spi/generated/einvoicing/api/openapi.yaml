@@ -347,6 +347,9 @@ paths:
             \ unknown document ID)."
         "500":
           description: Internal server error. Retry may be attempted by the sender.
+      security:
+      - OAuth2:
+        - einvoicing.write
       summary: Receive document status updates
       tags:
       - Webhooks
@@ -1214,7 +1217,6 @@ components:
         tax_total:
           $ref: '#/components/schemas/document_tax_total'
         custom_fields:
-          type: object
           description: |
             Merchant-defined custom fields associated with the document. These fields allow merchants
             to include additional metadata beyond the standard schema. Each custom field is expected to follow
@@ -1224,16 +1226,10 @@ components:
             `document.custom_fields.cf_invoice_reference_code`.
 
             Custom fields are optional and their usage depends on the provider's field mapping requirements.
-          additionalProperties:
-            oneOf:
-              - type: string
-              - type: number
-              - type: boolean
-              - type: array
-              - type: object
           example:
-            cf_invoice_reference_code: "INT-2025-0098"
-            cf_tax_exemption_reason: "Reverse Charge"
+            cf_invoice_reference_code: INT-2025-0098
+            cf_tax_exemption_reason: Reverse Charge
+          type: object
         field_mapping:
           description: |
             A list of field mapping definitions that describe how values from the Chargebee SPI document submission model should be translated
@@ -2025,4 +2021,12 @@ components:
       in: header
       name: X-API-Key
       type: apiKey
+    OAuth2:
+      flows:
+        authorizationCode:
+          authorizationUrl: "https://{chargebee-domain}.chargebee.com/oauth/authorize"
+          scopes:
+            einvoicing.write: Submit document status updates to Chargebee
+          tokenUrl: "https://{chargebee-domain}.chargebee.com/oauth/token"
+      type: oauth2
 
