@@ -299,21 +299,22 @@ paths:
       - Documents
       x-content-type: application/json
       x-accepts: application/json
-  /webhooks/einvoicing/{einvoicing_provider_id}/document_status:
+  /callbacks/einvoicing/{einvoicing_provider_id}/document_status:
     post:
       description: |
-        This Chargebee webhook endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
+        This Chargebee callback endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
 
-        The adapter receives the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
         Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
 
         This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
-      operationId: einvoicingDocumentStatusWebhook
+      operationId: einvoicingDocumentStatusCallback
       parameters:
-      - explode: false
+      - description: Identifier for the e‑invoicing adapter / partner integration
+        explode: false
         in: path
         name: einvoicing_provider_id
         required: true
@@ -322,21 +323,16 @@ paths:
         style: simple
       requestBody:
         content:
-          application/json:
-            examples:
-              webhook_document_status_success:
-                $ref: '#/components/examples/webhook_document_status_success'
-              webhook_document_status_failed:
-                $ref: '#/components/examples/webhook_document_status_failed'
+          application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/webhook_document_status'
+              $ref: '#/components/schemas/callback_document_status'
         required: true
       responses:
         "200":
-          description: Webhook payload received and validated successfully. No retry
+          description: Callback payload received and validated successfully. No retry
             required.
         "202":
-          description: Webhook accepted for asynchronous processing.
+          description: Callback request accepted for asynchronous processing.
         "400":
           description: Invalid payload or required fields missing.
         "401":
@@ -347,13 +343,10 @@ paths:
             \ unknown document ID)."
         "500":
           description: Internal server error. Retry may be attempted by the sender.
-      security:
-      - OAuth2:
-        - einvoicing.write
       summary: Receive document status updates
       tags:
-      - Webhooks
-      x-content-type: application/json
+      - Callbacks
+      x-content-type: application/x-www-form-urlencoded
       x-accepts: application/json
   /einvoicing/documents/{document_id}/status:
     get:
@@ -362,7 +355,7 @@ paths:
 
         The status provides insights into whether the document has been successfully processed, is still under validation, has failed, or has been rejected by tax authorities or intermediaries.
 
-        In Chargebee, this endpoint is periodically called to retrieve the latest processing status of the e-invoicing document. While Chargebee primarily relies on the webhook listener to receive status updates, this endpoint serves as a fallback mechanism to ensure status synchronization.
+        In Chargebee, this endpoint is periodically called to retrieve the latest processing status of the e-invoicing document. While Chargebee primarily relies on the callback listener to receive status updates, this endpoint serves as a fallback mechanism to ensure status synchronization.
         '
       operationId: einvoicingDocumentStatus
       parameters:
@@ -938,16 +931,16 @@ components:
           document_content: JVBERi0xLjQKJ...CiUlRU9GCg==
           expires_at: 2025-03-28T09:24:29Z
         network: peppol
-    webhook_document_status_success:
-      description: A sample webhook notification indicating successful document submission.
+    callback_document_status_success:
+      description: A sample callback notification indicating successful document submission.
       value:
         document_id: INV-10001
         document_type: INVOICE
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
         tenant_id: einvoicing-test
-    webhook_document_status_failed:
-      description: A sample webhook notification indicating document submission failure.
+    callback_document_status_failed:
+      description: A sample callback notification indicating document submission failure.
       value:
         document_id: INV-10001
         document_type: INVOICE
@@ -955,10 +948,9 @@ components:
         timestamp: 2025-05-23T13:22:50.519Z
         tenant_id: einvoicing-test
         errors:
-          errors:
-          - code: MISSING_REQUIRED_DATA
-            message: The request did not contain a required property 'taxAmount'
-            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+        - code: MISSING_REQUIRED_DATA
+          message: The request did not contain a required property 'taxAmount'
+          help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
     Error500Response:
       description: Unexpected error during processing the request.
       summary: Unexpected error.
@@ -1443,7 +1435,7 @@ components:
       required:
       - registrationName
       type: object
-    webhook_document_status:
+    callback_document_status:
       properties:
         document_id:
           description: Unique identifier of the submitted document.
@@ -1471,7 +1463,10 @@ components:
             processed.
           type: string
         errors:
-          $ref: '#/components/schemas/bad_request_error_response'
+          description: Optional errors list if status is FAILED or REJECTED
+          items:
+            $ref: '#/components/schemas/callback_document_status_errors_inner'
+          type: array
       required:
       - document_id
       - document_type
@@ -2016,17 +2011,18 @@ components:
       - code
       - message
       type: object
+    callback_document_status_errors_inner:
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        help_url:
+          type: string
+      type: object
   securitySchemes:
     ApiKeyAuth:
       in: header
       name: X-API-Key
       type: apiKey
-    OAuth2:
-      flows:
-        authorizationCode:
-          authorizationUrl: "https://{chargebee-domain}.chargebee.com/oauth/authorize"
-          scopes:
-            einvoicing.write: Submit document status updates to Chargebee
-          tokenUrl: "https://{chargebee-domain}.chargebee.com/oauth/token"
-      type: oauth2
 

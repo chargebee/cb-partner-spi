@@ -170,9 +170,9 @@
               ]
             },
             {
-              "group": "Webhooks",
+              "group": "Callbacks",
               "pages": [
-                "api-reference/einvoicing-spi/endpoints/v1/webhooks/receive-document-status-updates"
+                "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates"
               ]
             },
             {

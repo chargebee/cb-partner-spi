@@ -212,46 +212,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/500_error_response'
-  /webhooks/einvoicing/{einvoicing_provider_id}/document_status:
+  /callbacks/einvoicing/{einvoicing_provider_id}/document_status:
     post:
       tags:
-        - Webhooks
+        - Callbacks
       summary: Receive document status updates
       description: |
-        This Chargebee webhook endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
+        This Chargebee callback endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
 
-        The adapter receives the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
         Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
 
         This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+      operationId: einvoicingDocumentStatusCallback
       parameters:
         - name: einvoicing_provider_id
           in: path
           required: true
           schema:
             type: string
-      operationId: einvoicingDocumentStatusWebhook
-      security:
-        - OAuth2: [ einvoicing.write ]
+          description: Identifier for the e‑invoicing adapter / partner integration
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/webhook_document_status'
-            examples:
-              webhook_document_status_success:
-                $ref: '#/components/examples/webhook_document_status_success'
-              webhook_document_status_failed:
-                $ref: '#/components/examples/webhook_document_status_failed'
+              $ref: '#/components/schemas/callback_document_status'
+              examples:
+                callback_document_status_success:
+                  $ref: '#/components/examples/callback_document_status_success'
+                callback_document_status_failed:
+                  $ref: '#/components/examples/callback_document_status_failed'
       responses:
         '200':
-          description: Webhook payload received and validated successfully. No retry required.
+          description: Callback payload received and validated successfully. No retry required.
         '202':
-          description: Webhook accepted for asynchronous processing.
+          description: Callback request accepted for asynchronous processing.
         '400':
           description: Invalid payload or required fields missing.
         '401':
@@ -277,7 +276,7 @@ paths:
 
         In Chargebee, this endpoint is periodically called to retrieve the latest
         processing status of the e-invoicing document. While Chargebee primarily relies
-        on the webhook listener to receive status updates, this endpoint serves as
+        on the callback listener to receive status updates, this endpoint serves as
         a fallback mechanism to ensure status synchronization.
 
         '
@@ -1056,7 +1055,7 @@ components:
             the party as a legal entity or person.
       required:
         - registrationName
-    webhook_document_status:
+    callback_document_status:
       type: object
       properties:
         document_id:
@@ -1084,7 +1083,17 @@ components:
           type: string
           description: Identifier of the tenant (merchant) for whom the document was processed.
         errors:
-          $ref: '#/components/schemas/bad_request_error_response'
+          type: array
+          description: Optional errors list if status is FAILED or REJECTED
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              help_url:
+                type: string
       required:
         - document_id
         - document_type
@@ -1509,16 +1518,16 @@ components:
             document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
         network: peppol
-    webhook_document_status_success:
-      description: A sample webhook notification indicating successful document submission.
+    callback_document_status_success:
+      description: A sample callback notification indicating successful document submission.
       value:
         document_id: INV-10001
         document_type: INVOICE
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
         tenant_id: einvoicing-test
-    webhook_document_status_failed:
-      description: A sample webhook notification indicating document submission failure.
+    callback_document_status_failed:
+      description: A sample callback notification indicating document submission failure.
       value:
         document_id: INV-10001
         document_type: INVOICE
@@ -1526,10 +1535,10 @@ components:
         timestamp: 2025-05-23T13:22:50.519Z
         tenant_id: einvoicing-test
         errors:
-          errors:
-            - code: MISSING_REQUIRED_DATA
-              message: The request did not contain a required property 'taxAmount'
-              help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+          - code: MISSING_REQUIRED_DATA
+            message: The request did not contain a required property 'taxAmount'
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
