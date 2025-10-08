@@ -3,7 +3,6 @@
   "theme": "mint",
   "name": "Chargebee Partner docs",
   "api": {
-    "openapi": "openapi.yaml",
     "playground": {
       "display": "interactive"
     },
