@@ -189,16 +189,37 @@ paths:
           example: B2B
           type: string
         style: form
-      - description: |
-          The e-invoicing network or standard for which the data input fields need to be retrieved. This specifies the system or protocol used for invoice submission, such as PEPPOL, ZUGFeRD, Chorus Pro, or other country-specific standards.
+      - description: "Indicates the eInvoicing flow model that governs the document\
+          \ exchange and processing mechanism. \nDifferent countries adopt different\
+          \ models based on legal, technical, and administrative mandates.\nSupported\
+          \ values:\n- EINVOICE: Traditional eInvoicing model where invoices are digitally\
+          \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+          \ must be pre-approved by a tax authority before they are sent to the buyer.\n\
+          - REPORTING: Invoices are shared with tax authorities after issuance, usually\
+          \ for compliance and audit purposes.\n- ZUGFERD: A hybrid eInvoicing format\
+          \ used in Germany combining PDF and XML for human and machine readability.\n\
+          - CTC: Continuous Transaction Controls involve real-time or near-real-time\
+          \ invoice validation and transmission to tax authorities.\n- NEMHANDEL:\
+          \ Denmark’s national infrastructure for eInvoicing that supports secure\
+          \ delivery via specific formats like OIOUBL.\n- FACE: Spain’s centralized\
+          \ system (FACe/FACeB2B) for routing invoices to government or private recipients.\n\
+          - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices\
+          \ directly to the tax agency.\n"
         explode: true
         in: query
-        name: network
+        name: model
         required: true
         schema:
           enum:
           - PEPPOL
-          - ZUGFeRD
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
           example: PEPPOL
           type: string
         style: form
@@ -299,10 +320,10 @@ paths:
       - Documents
       x-content-type: application/json
       x-accepts: application/json
-  /callbacks/einvoicing/{einvoicing_provider_id}/document_status:
+  /api/v2/invoices/{document_id}/einvoice_status:
     post:
       description: |
-        This Chargebee callback endpoint is invoked by the e-invoicing adapter once a document such as an invoice or credit note has been processed by the e-invoicing provider.
+        This Chargebee callback endpoint is invoked by the e-invoicing adapter once an invoice document has been processed by the e-invoicing provider.
 
         The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
@@ -311,12 +332,12 @@ paths:
         This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
-      operationId: einvoicingDocumentStatusCallback
+      operationId: einvoicingDocumentStatusCallbackForInvoice
       parameters:
-      - description: Identifier for the e‑invoicing adapter / partner integration
+      - description: Unique identifier of the submitted document.
         explode: false
         in: path
-        name: einvoicing_provider_id
+        name: document_id
         required: true
         schema:
           type: string
@@ -343,7 +364,56 @@ paths:
             \ unknown document ID)."
         "500":
           description: Internal server error. Retry may be attempted by the sender.
-      summary: Receive document status updates
+      summary: Receive document status updates for Invoice
+      tags:
+      - Callbacks
+      x-content-type: application/x-www-form-urlencoded
+      x-accepts: application/json
+  /api/v2/credit_notes/{document_id}/einvoice_status:
+    post:
+      description: |
+        This Chargebee callback endpoint is invoked by the e-invoicing adapter once a credit note document has been processed by the e-invoicing provider.
+
+        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+
+        Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
+
+        This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
+
+        This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+      operationId: einvoicingDocumentStatusCallbackForCreditNote
+      parameters:
+      - description: Unique identifier of the submitted document.
+        explode: false
+        in: path
+        name: document_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/callback_document_status'
+        required: true
+      responses:
+        "200":
+          description: Callback payload received and validated successfully. No retry
+            required.
+        "202":
+          description: Callback request accepted for asynchronous processing.
+        "400":
+          description: Invalid payload or required fields missing.
+        "401":
+          description: Unauthorized request. Signature validation failed or sender
+            is not allowed.
+        "422":
+          description: "Payload was well-formed but could not be processed (e.g.,\
+            \ unknown document ID)."
+        "500":
+          description: Internal server error. Retry may be attempted by the sender.
+      summary: Receive document status updates for Credit note
       tags:
       - Callbacks
       x-content-type: application/x-www-form-urlencoded
@@ -931,25 +1001,37 @@ components:
           document_content: JVBERi0xLjQKJ...CiUlRU9GCg==
           expires_at: 2025-03-28T09:24:29Z
         network: peppol
-    callback_document_status_success:
+    callback_document_status_success_for_invoice:
       description: A sample callback notification indicating successful document submission.
       value:
-        document_id: INV-10001
-        document_type: INVOICE
+        document_id: INV20250716
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
-        tenant_id: einvoicing-test
-    callback_document_status_failed:
+    callback_document_status_success_for_credit_note:
+      description: A sample callback notification indicating successful document submission.
+      value:
+        document_id: CN20250205
+        status: ACCEPTED
+        timestamp: 2025-05-23T13:22:50.519Z
+    callback_document_status_failed_for_invoice:
       description: A sample callback notification indicating document submission failure.
       value:
-        document_id: INV-10001
-        document_type: INVOICE
+        document_id: INV20250514
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
-        tenant_id: einvoicing-test
         errors:
         - code: MISSING_REQUIRED_DATA
           message: The request did not contain a required property 'taxAmount'
+          help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    callback_document_status_failed_for_credit_note:
+      description: A sample callback notification indicating document submission failure.
+      value:
+        document_id: CN20250310
+        status: FAILED
+        timestamp: 2025-05-23T13:22:50.519Z
+        errors:
+        - code: MISSING_REQUIRED_DATA
+          message: An Invoice shall at least have one VAT breakdown group
           help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
     Error500Response:
       description: Unexpected error during processing the request.
@@ -1024,10 +1106,34 @@ components:
       type: object
     country_activation:
       properties:
-        network:
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n- EINVOICE: Traditional eInvoicing model where invoices are\
+            \ digitally exchanged between businesses and sometimes stored.\n- CLEARANCE:\
+            \ Invoices must be pre-approved by a tax authority before they are sent\
+            \ to the buyer.\n- REPORTING: Invoices are shared with tax authorities\
+            \ after issuance, usually for compliance and audit purposes.\n- ZUGFERD:\
+            \ A hybrid eInvoicing format used in Germany combining PDF and XML for\
+            \ human and machine readability.\n- CTC: Continuous Transaction Controls\
+            \ involve real-time or near-real-time invoice validation and transmission\
+            \ to tax authorities.\n- NEMHANDEL: Denmark’s national infrastructure\
+            \ for eInvoicing that supports secure delivery via specific formats like\
+            \ OIOUBL.\n- FACE: Spain’s centralized system (FACe/FACeB2B) for routing\
+            \ invoices to government or private recipients.\n- VERIFACTU: Spain’s\
+            \ mechanism for validating and reporting sales invoices directly to the\
+            \ tax agency.\n"
           enum:
           - PEPPOL
-          - ZUGFeRD
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
           example: PEPPOL
           type: string
         country_code:
@@ -1116,8 +1222,8 @@ components:
           description: The discount applied to the invoice.
           type: decimal
           field_name: DiscountAmount
+        model: PEPPOL
         transaction_type: B2B
-        network: PEPPOL
       properties:
         country_code:
           description: The ISO country code for the scenario.
@@ -1131,8 +1237,34 @@ components:
           - B2G
           example: B2B
           type: string
-        network:
-          description: The e-invoicing network used for the transaction.
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n- EINVOICE: Traditional eInvoicing model where invoices are\
+            \ digitally exchanged between businesses and sometimes stored.\n- CLEARANCE:\
+            \ Invoices must be pre-approved by a tax authority before they are sent\
+            \ to the buyer.\n- REPORTING: Invoices are shared with tax authorities\
+            \ after issuance, usually for compliance and audit purposes.\n- ZUGFERD:\
+            \ A hybrid eInvoicing format used in Germany combining PDF and XML for\
+            \ human and machine readability.\n- CTC: Continuous Transaction Controls\
+            \ involve real-time or near-real-time invoice validation and transmission\
+            \ to tax authorities.\n- NEMHANDEL: Denmark’s national infrastructure\
+            \ for eInvoicing that supports secure delivery via specific formats like\
+            \ OIOUBL.\n- FACE: Spain’s centralized system (FACe/FACeB2B) for routing\
+            \ invoices to government or private recipients.\n- VERIFACTU: Spain’s\
+            \ mechanism for validating and reporting sales invoices directly to the\
+            \ tax agency.\n"
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
           example: PEPPOL
           type: string
         required_fields:
@@ -1437,14 +1569,8 @@ components:
       type: object
     callback_document_status:
       properties:
-        document_id:
-          description: Unique identifier of the submitted document.
-          type: string
-        document_type:
-          description: Type of the document that was processed.
-          enum:
-          - INVOICE
-          - CREDIT_NOTE
+        einvoicing_provider_id:
+          description: Identifier of the e‑invoicing provider
           type: string
         status:
           description: Current status of the document after processing by the provider.
@@ -1458,10 +1584,6 @@ components:
           description: ISO 8601 timestamp indicating when the status was determined.
           format: date-time
           type: string
-        tenant_id:
-          description: Identifier of the tenant (merchant) for whom the document was
-            processed.
-          type: string
         errors:
           description: Optional errors list if status is FAILED or REJECTED
           items:
@@ -1471,7 +1593,6 @@ components:
       - document_id
       - document_type
       - status
-      - tenant_id
       - timestamp
       type: object
     "500_error_response":
@@ -2025,4 +2146,12 @@ components:
       in: header
       name: X-API-Key
       type: apiKey
+    OAuth2:
+      flows:
+        authorizationCode:
+          authorizationUrl: "https://{chargebee-domain}.chargebee.com/oauth/authorize"
+          scopes:
+            einvoicing.write: Submit document status updates to Chargebee
+          tokenUrl: "https://{chargebee-domain}.chargebee.com/oauth/token"
+      type: oauth2
 

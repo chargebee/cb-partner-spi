@@ -172,7 +172,8 @@
             {
               "group": "Callbacks",
               "pages": [
-                "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates"
+                "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-invoice",
+                "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-credit-note"
               ]
             },
             {
