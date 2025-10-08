@@ -1587,9 +1587,8 @@ components:
         status:
           description: Current status of the document after processing by the provider.
           enum:
-          - SUBMITTED
-          - ACCEPTED
-          - REJECTED
+          - SUCCESS
+          - IN_PROGRESS
           - FAILED
           type: string
         timestamp:
