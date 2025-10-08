@@ -2146,12 +2146,4 @@ components:
       in: header
       name: X-API-Key
       type: apiKey
-    OAuth2:
-      flows:
-        authorizationCode:
-          authorizationUrl: "https://{chargebee-domain}.chargebee.com/oauth/authorize"
-          scopes:
-            einvoicing.write: Submit document status updates to Chargebee
-          tokenUrl: "https://{chargebee-domain}.chargebee.com/oauth/token"
-      type: oauth2
 
