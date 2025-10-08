@@ -1,198 +1,196 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Chargebee Partner docs",
+  "api": {
+    "request": {
+      "example": {
+        "languages": ["curl"]
+      }
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/logo/favicon.png",
   "colors": {
     "primary": "#ff3300",
     "light": "#ff3300",
     "dark": "#01283a"
   },
-  "favicon": "/logo/favicon.png",
+  "background": {
+    "style": "gradient"
+  },
+  "topbarLinks": [
+    {
+      "label": "Support",
+      "href": "mailto:support@chargebee.com"
+    }
+  ],
   "navigation": {
-    "versions": [
+    "tabs": [
       {
-        "version": "v1",
-        "tabs": [
+        "tab": "API Reference",
+        "groups": [
           {
-            "tab": "API Reference",
-            "groups": [
+            "group": "Partner SPI",
+            "pages": [
+              "api-reference/partner-spi/overview"
+            ]
+          },
+          {
+            "group": "Tax SPI",
+            "pages": [
+              "api-reference/tax-spi/docs/overview",
+              "api-reference/tax-spi/docs/authorization",
               {
-                "group": "API Reference",
+                "group": "Address",
                 "pages": [
-                  {
-                    "group": "Partner SPI",
-                    "pages": [
-                      "api-reference/partner-spi/overview"
-                    ]
-                  },
-                  {
-                    "group": "Tax SPI",
-                    "pages": [
-                      "api-reference/tax-spi/docs/overview",
-                      "api-reference/tax-spi/docs/authorization",
-                      {
-                        "group": "Address",
-                        "pages": [
-                          "api-reference/tax-spi/endpoints/v1/address-validation",
-                          "api-reference/tax-spi/endpoints/v1/check-taxability"
-                        ]
-                      },
-                      {
-                        "group": "TaxEstimate",
-                        "pages": [
-                          "api-reference/tax-spi/endpoints/v1/estimate-tax"
-                        ]
-                      },
-                      {
-                        "group": "Invoice",
-                        "pages": [
-                          "api-reference/tax-spi/endpoints/v1/create-invoice",
-                          "api-reference/tax-spi/endpoints/v1/retrieve-invoice",
-                          "api-reference/tax-spi/endpoints/v1/commit-invoice",
-                          "api-reference/tax-spi/endpoints/v1/void-invoice"
-                        ]
-                      },
-                      {
-                        "group": "CreditNote",
-                        "pages": [
-                          "api-reference/tax-spi/endpoints/v1/create-credit-note",
-                          "api-reference/tax-spi/endpoints/v1/retrieve-credit-note",
-                          "api-reference/tax-spi/endpoints/v1/commit-credit-note",
-                          "api-reference/tax-spi/endpoints/v1/void-credit-note"
-                        ]
-                      },
-                      {
-                        "group": "Authentication",
-                        "pages": [
-                          "api-reference/tax-spi/endpoints/v1/validate-credentials"
-                        ]
-                      },
-                      {
-                        "group": "Health",
-                        "pages": [
-                          "api-reference/tax-spi/endpoints/v1/fetch-the-health-status-of-the-service-provider"
-                        ]
-                      },
-                      "api-reference/tax-spi/docs/testing-with-postman"
-                    ]
-                  },
-                  {
-                    "group": "Tax Registration Number Validation SPI",
-                    "pages": [
-                      "api-reference/tax-reg-number-validate/docs/overview",
-                      {
-                        "group": "Authentication",
-                        "pages": [
-                          "api-reference/tax-reg-number-validate/endpoints/v1/validate-credentials"
-                        ]
-                      },
-                      {
-                        "group": "Health",
-                        "pages": [
-                          "api-reference/tax-reg-number-validate/endpoints/v1/fetch-the-health-status-of-the-service-provider"
-                        ]
-                      },
-                      {
-                        "group": "Tax Registration Number Validation",
-                        "pages": [
-                          "api-reference/tax-reg-number-validate/endpoints/v1/validate-the-tax-registration-numbers-in-batch",
-                          "api-reference/tax-reg-number-validate/endpoints/v1/validate-the-tax-registration-number",
-                          "api-reference/tax-reg-number-validate/endpoints/v1/get-the-response-of-tax-registration-number-validate-request",
-                          "api-reference/tax-reg-number-validate/endpoints/v1/get-the-response-of-batch-of-tax-registration-numbers",
-                          "api-reference/tax-reg-number-validate/endpoints/v1/delete-the-request-of-batch-of-tax-registration-numbers-validation"
-                        ]
-                      },
-                      "api-reference/tax-reg-number-validate/docs/testing-with-postman"
-                    ]
-                  },
-                  {
-                    "group": "Einvoicing SPI",
-                    "pages": [
-                      "api-reference/einvoicing-spi/docs/overview",
-                      {
-                        "group": "Authorization",
-                        "pages": [
-                          "api-reference/einvoicing-spi/docs/authorization/overview",
-                          "api-reference/einvoicing-spi/docs/authorization/chargebee_to_adapter",
-                          "api-reference/einvoicing-spi/docs/authorization/adapter_to_chargebee"
-                        ]
-                      },
-                      {
-                        "group": "Activations",
-                        "pages": [
-                          "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations",
-                          "api-reference/einvoicing-spi/endpoints/v1/activations/retrieves-data-input-fields"
-                        ]
-                      },
-                      {
-                        "group": "Documents",
-                        "pages": [
-                          "api-reference/einvoicing-spi/endpoints/v1/documents/submit-a-document",
-                          "api-reference/einvoicing-spi/endpoints/v1/documents/get-document-status",
-                          "api-reference/einvoicing-spi/endpoints/v1/documents/download-document"
-                        ]
-                      },
-                      {
-                        "group": "Callbacks",
-                        "pages": [
-                          "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-invoice",
-                          "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-credit-note"
-                        ]
-                      },
-                      {
-                        "group": "Authentication",
-                        "pages": [
-                          "api-reference/common/validate-credentials"
-                        ]
-                      },
-                      {
-                        "group": "Health",
-                        "pages": [
-                          "api-reference/common/fetch-the-health-status-of-the-service-provider"
-                        ]
-                      }
-                    ]
-                  },
-                  "api-reference/troubleshooting"
+                  "api-reference/tax-spi/endpoints/v1/address-validation",
+                  "api-reference/tax-spi/endpoints/v1/check-taxability"
+                ]
+              },
+              {
+                "group": "TaxEstimate",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/estimate-tax"
+                ]
+              },
+              {
+                "group": "Invoice",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/create-invoice",
+                  "api-reference/tax-spi/endpoints/v1/retrieve-invoice",
+                  "api-reference/tax-spi/endpoints/v1/commit-invoice",
+                  "api-reference/tax-spi/endpoints/v1/void-invoice"
+                ]
+              },
+              {
+                "group": "CreditNote",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/create-credit-note",
+                  "api-reference/tax-spi/endpoints/v1/retrieve-credit-note",
+                  "api-reference/tax-spi/endpoints/v1/commit-credit-note",
+                  "api-reference/tax-spi/endpoints/v1/void-credit-note"
+                ]
+              },
+              {
+                "group": "Authentication",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/validate-credentials"
+                ]
+              },
+              {
+                "group": "Health",
+                "pages": [
+                  "api-reference/tax-spi/endpoints/v1/fetch-the-health-status-of-the-service-provider"
+                ]
+              },
+              "api-reference/tax-spi/docs/testing-with-postman"
+            ]
+          },
+          {
+            "group": "Tax Registration Number Validation SPI",
+            "pages": [
+              "api-reference/tax-reg-number-validate/docs/overview",
+              {
+                "group": "Authentication",
+                "pages": [
+                  "api-reference/tax-reg-number-validate/endpoints/v1/validate-credentials"
+                ]
+              },
+              {
+                "group": "Health",
+                "pages": [
+                  "api-reference/tax-reg-number-validate/endpoints/v1/fetch-the-health-status-of-the-service-provider"
+                ]
+              },
+              {
+                "group": "Tax Registration Number Validation",
+                "pages": [
+                  "api-reference/tax-reg-number-validate/endpoints/v1/validate-the-tax-registration-numbers-in-batch",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/validate-the-tax-registration-number",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/get-the-response-of-tax-registration-number-validate-request",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/get-the-response-of-batch-of-tax-registration-numbers",
+                  "api-reference/tax-reg-number-validate/endpoints/v1/delete-the-request-of-batch-of-tax-registration-numbers-validation"
+                ]
+              },
+              "api-reference/tax-reg-number-validate/docs/testing-with-postman"
+            ]
+          },
+          {
+            "group": "Einvoicing SPI",
+            "pages": [
+              "api-reference/einvoicing-spi/docs/overview",
+              {
+                "group": "Authorization",
+                "pages": [
+                  "api-reference/einvoicing-spi/docs/authorization/overview",
+                  "api-reference/einvoicing-spi/docs/authorization/chargebee_to_adapter",
+                  "api-reference/einvoicing-spi/docs/authorization/adapter_to_chargebee"
+                ]
+              },
+              {
+                "group": "Activations",
+                "pages": [
+                  "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations",
+                  "api-reference/einvoicing-spi/endpoints/v1/activations/retrieves-data-input-fields"
+                ]
+              },
+              {
+                "group": "Documents",
+                "pages": [
+                  "api-reference/einvoicing-spi/endpoints/v1/documents/submit-a-document",
+                  "api-reference/einvoicing-spi/endpoints/v1/documents/get-document-status",
+                  "api-reference/einvoicing-spi/endpoints/v1/documents/download-document"
+                ]
+              },
+              {
+                "group": "Callbacks",
+                "pages": [
+                  "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-invoice",
+                  "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-credit-note"
+                ]
+              },
+              {
+                "group": "Authentication",
+                "pages": [
+                  "api-reference/common/validate-credentials"
+                ]
+              },
+              {
+                "group": "Health",
+                "pages": [
+                  "api-reference/common/fetch-the-health-status-of-the-service-provider"
                 ]
               }
             ]
           },
           {
-            "tab": "App Onboarding",
-            "groups": [
-              {
-                "group": "App Onboarding",
-                "pages": [
-                  "app-onboarding/guide"
-                ]
-              }
+            "group": "Troubleshooting",
+            "pages": [
+              "api-reference/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "App Onboarding",
+        "groups": [
+          {
+            "group": "App Onboarding",
+            "pages": [
+              "app-onboarding/guide"
             ]
           }
         ]
       }
     ]
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "api": {
-    "examples": {
-      "languages": [
-        "curl"
-      ]
+  "integrations": {
+    "ga4": {
+      "measurementId": "G‑EJ2MQ2ENV4"
     }
-  },
-  "background": {
-    "decoration": "gradient"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:support@chargebee.com"
-      }
-    ]
   }
 }
