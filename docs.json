@@ -3,10 +3,14 @@
   "theme": "mint",
   "name": "Chargebee Partner docs",
   "api": {
-    "request": {
-      "example": {
-        "languages": ["curl"]
-      }
+    "openapi": "openapi.yaml",
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": ["curl"],
+      "defaults": "required",
+      "prefill": true
     }
   },
   "logo": {
