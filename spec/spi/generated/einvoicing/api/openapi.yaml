@@ -2147,11 +2147,18 @@ components:
     callback_document_status_errors_inner:
       properties:
         code:
+          description: Unique error code
           type: string
         message:
+          description: Human-readable error message
           type: string
         help_url:
+          description: Optional URL to documentation/help
+          format: uri
           type: string
+      required:
+      - code
+      - message
       type: object
   securitySchemes:
     ApiKeyAuth:
@@ -2162,9 +2169,8 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://speakeasy.bar/oauth2/authorize
-          tokenUrl: https://speakeasy.bar/oauth2/token
-          refreshUrl: https://speakeasy.bar/oauth2/refresh
+          authorizationUrl: https://app.chargebee.com/oauth2/authorize
+          tokenUrl: https://app.chargebee.com/oauth2/token
           scopes:
-            einvoicing.status: "Post e-invoicing document status to Chargebee"
+            write_access: "Post e-invoicing document status to Chargebee"
 
