@@ -22,12 +22,14 @@
   "background": {
     "style": "gradient"
   },
-  "topbarLinks": [
-    {
-      "label": "Support",
-      "href": "mailto:support@chargebee.com"
-    }
-  ],
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@chargebee.com"
+      }
+    ]
+  },
   "navigation": {
     "tabs": [
       {

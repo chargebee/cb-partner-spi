@@ -333,6 +333,12 @@ paths:
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForInvoice
+      security:
+        - authorizationCode:
+            - einvoicing.status
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for invoice document status
       parameters:
       - description: Unique identifier of the submitted document.
         explode: false
@@ -382,6 +388,12 @@ paths:
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForCreditNote
+      security:
+        - authorizationCode:
+            - einvoicing.status
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for invoice document status
       parameters:
       - description: Unique identifier of the submitted document.
         explode: false
@@ -2146,4 +2158,13 @@ components:
       in: header
       name: X-API-Key
       type: apiKey
+    authorizationCode:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://speakeasy.bar/oauth2/authorize
+          tokenUrl: https://speakeasy.bar/oauth2/token
+          refreshUrl: https://speakeasy.bar/oauth2/refresh
+          scopes:
+            einvoicing.status: "Post e-invoicing document status to Chargebee"
 
