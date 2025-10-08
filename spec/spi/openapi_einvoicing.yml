@@ -281,6 +281,32 @@ paths:
           description: Payload was well-formed but could not be processed (e.g., unknown document ID).
         '500':
           description: Internal server error. Retry may be attempted by the sender.
+      x-content-type: application/x-www-form-urlencoded
+      x-accepts: application/json
+      x-codeSamples:
+        - lang: cURL
+          label: Invoice document submission successful
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=ACCEPTED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+
+        - lang: cURL
+          label: Invoice document submission failed
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=FAILED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
+              --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"The request did not contain a required property 'taxAmount'","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
+
   /api/v2/credit_notes/{document_id}/einvoice_status :
     post:
       tags:
@@ -334,6 +360,32 @@ paths:
           description: Payload was well-formed but could not be processed (e.g., unknown document ID).
         '500':
           description: Internal server error. Retry may be attempted by the sender.
+      x-content-type: application/x-www-form-urlencoded
+      x-accepts: application/json
+      x-codeSamples:
+        - lang: cURL
+          label: Credit note document submission successful
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/credit_notes/CN20250205/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=ACCEPTED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+
+        - lang: cURL
+          label: Credit note document submission failed
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/credit_notes/CN20250205/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=FAILED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
+              --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"An Invoice shall at least have one VAT breakdown group","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
+
   /einvoicing/documents/{document_id}/status:
     get:
       tags:
