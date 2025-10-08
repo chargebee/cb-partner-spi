@@ -333,12 +333,6 @@ paths:
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForInvoice
-      security:
-        - authorizationCode:
-            - einvoicing.status
-      servers:
-        - url: https://{domain}.chargebee.com
-          description: Callback server for invoice document status
       parameters:
       - description: Unique identifier of the submitted document.
         explode: false
@@ -370,6 +364,12 @@ paths:
             \ unknown document ID)."
         "500":
           description: Internal server error. Retry may be attempted by the sender.
+      security:
+      - authorizationCode:
+        - einvoicing.status
+      servers:
+      - description: Callback server for invoice document status
+        url: "https://{domain}.chargebee.com"
       summary: Receive document status updates for Invoice
       tags:
       - Callbacks
@@ -388,12 +388,6 @@ paths:
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForCreditNote
-      security:
-        - authorizationCode:
-            - einvoicing.status
-      servers:
-        - url: https://{domain}.chargebee.com
-          description: Callback server for invoice document status
       parameters:
       - description: Unique identifier of the submitted document.
         explode: false
@@ -425,6 +419,12 @@ paths:
             \ unknown document ID)."
         "500":
           description: Internal server error. Retry may be attempted by the sender.
+      security:
+      - authorizationCode:
+        - write_access
+      servers:
+      - description: Callback server for invoice document status
+        url: "https://{domain}.chargebee.com"
       summary: Receive document status updates for Credit note
       tags:
       - Callbacks
@@ -478,6 +478,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/500_error_response'
           description: Unexpected error while processing request.
+      security:
+      - authorizationCode:
+        - write_access
+      servers:
+      - description: Callback server for credit note document status
+        url: "https://{domain}.chargebee.com"
       summary: Get Document Status
       tags:
       - Documents
@@ -1016,7 +1022,7 @@ components:
     callback_document_status_success_for_invoice:
       description: A sample callback notification indicating successful document submission.
       value:
-        document_id: INV20250716
+        einvoicing_provider_id: avalara
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
     callback_document_status_success_for_credit_note:
@@ -1028,7 +1034,7 @@ components:
     callback_document_status_failed_for_invoice:
       description: A sample callback notification indicating document submission failure.
       value:
-        document_id: INV20250514
+        einvoicing_provider_id: avalara
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
         errors:
@@ -1038,7 +1044,7 @@ components:
     callback_document_status_failed_for_credit_note:
       description: A sample callback notification indicating document submission failure.
       value:
-        document_id: CN20250310
+        einvoicing_provider_id: avalara
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
         errors:
@@ -1596,7 +1602,8 @@ components:
           format: date-time
           type: string
         errors:
-          description: Optional errors list if status is FAILED or REJECTED
+          description: List of errors (if any) returned by the provider if status
+            is FAILED
           items:
             $ref: '#/components/schemas/callback_document_status_errors_inner'
           type: array
@@ -2165,11 +2172,11 @@ components:
       name: X-API-Key
       type: apiKey
     authorizationCode:
-      type: oauth2
       flows:
         authorizationCode:
           authorizationUrl: https://app.chargebee.com/oauth2/authorize
-          tokenUrl: https://app.chargebee.com/oauth2/token
           scopes:
-            write_access: "Post e-invoicing document status to Chargebee"
+            write_access: Post e-invoicing document status to Chargebee
+          tokenUrl: https://app.chargebee.com/oauth2/token
+      type: oauth2
 

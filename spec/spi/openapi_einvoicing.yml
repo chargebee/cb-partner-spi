@@ -244,6 +244,12 @@ paths:
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForInvoice
+      security:
+        - authorizationCode:
+            - einvoicing.status
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for invoice document status
       parameters:
         - name: document_id
           in: path
@@ -291,6 +297,12 @@ paths:
 
         This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForCreditNote
+      security:
+        - authorizationCode:
+            - write_access
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for invoice document status
       parameters:
         - name: document_id
           in: path
@@ -344,6 +356,12 @@ paths:
 
         '
       operationId: einvoicingDocumentStatus
+      security:
+        - authorizationCode:
+            - write_access
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for credit note document status
       parameters:
         - name: document_id
           in: path
@@ -1167,9 +1185,8 @@ components:
         status:
           type: string
           enum:
-            - SUBMITTED
-            - ACCEPTED
-            - REJECTED
+            - SUCCESS
+            - IN_PROGRESS
             - FAILED
           description: Current status of the document after processing by the provider.
         timestamp:
@@ -1178,16 +1195,23 @@ components:
           description: ISO 8601 timestamp indicating when the status was determined.
         errors:
           type: array
-          description: Optional errors list if status is FAILED or REJECTED
+          description: List of errors (if any) returned by the provider if status is FAILED
           items:
             type: object
+            required:
+              - code
+              - message
             properties:
               code:
                 type: string
+                description: Unique error code
               message:
                 type: string
+                description: Human-readable error message
               help_url:
                 type: string
+                format: uri
+                description: Optional URL to documentation/help
       required:
         - document_id
         - document_type
@@ -1614,7 +1638,7 @@ components:
     callback_document_status_success_for_invoice:
       description: A sample callback notification indicating successful document submission.
       value:
-        document_id: INV20250716
+        einvoicing_provider_id: avalara
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
     callback_document_status_success_for_credit_note:
@@ -1626,7 +1650,7 @@ components:
     callback_document_status_failed_for_invoice:
       description: A sample callback notification indicating document submission failure.
       value:
-        document_id: INV20250514
+        einvoicing_provider_id: avalara
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
         errors:
@@ -1636,7 +1660,7 @@ components:
     callback_document_status_failed_for_credit_note:
       description: A sample callback notification indicating document submission failure.
       value:
-        document_id: CN20250310
+        einvoicing_provider_id: avalara
         status: FAILED
         timestamp: 2025-05-23T13:22:50.519Z
         errors:
@@ -1648,11 +1672,11 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-    OAuth2:
+    authorizationCode:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://{chargebee-domain}.chargebee.com/oauth/authorize
-          tokenUrl: https://{chargebee-domain}.chargebee.com/oauth/token
+          authorizationUrl: https://app.chargebee.com/oauth2/authorize
+          tokenUrl: https://app.chargebee.com/oauth2/token
           scopes:
-            einvoicing.write: Submit document status updates to Chargebee
+            write_access: "Post e-invoicing document status to Chargebee"
