@@ -131,28 +131,7 @@
                 "fields": {
                   "type": "array",
                   "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
-                      },
-                      "name": {
-                        "type": "string"
-                      },
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "password"
-                        ]
-                      },
-                      "is_required": {
-                        "type": "boolean"
-                      },
-                      "is_sensitive": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": ["id", "name", "type", "is_required", "is_sensitive"]
+                    "$ref": "#/definitions/CredentialConfiguration"
                   }
                 }
               },
