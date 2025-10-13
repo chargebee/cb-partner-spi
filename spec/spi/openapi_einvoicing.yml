@@ -120,6 +120,7 @@ paths:
             Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
             Different countries adopt different models based on legal, technical, and administrative mandates.
             Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
             - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
             - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
             - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
@@ -141,6 +142,15 @@ paths:
               - FACE
               - VERIFACTU
             example: "PEPPOL"
+        - name: document_type
+          in: query
+          required: true
+          description: Type of document, either an invoice or a credit note.
+          schema:
+            type: string
+            enum:
+              - INVOICE
+              - CREDIT_NOTE
       responses:
         '200':
           description: Successfully retrieved the data input fields for the given scenario.
@@ -182,7 +192,12 @@ paths:
         
         Within Chargebee, this endpoint is invoked asynchronously by an internal background job whenever a new invoice, credit note, or other supported billing document is generated and requires processing through the configured e-invoicing provider.
         
-        If the e-invoicing provider requires the merchant to configure field mappings manually, instead of relying on predefined mappings managed by the provider or Chargebee, Chargebee will allow the merchant to complete this configuration within the application. The resulting field mappings will then be sent to the adapter as part of the `field_mapping` parameter during document submission.
+        If the e-invoicing provider requires merchants to configure field mappings manually, instead of relying on predefined mappings managed by Chargebee, Chargebee will collect this mapping as entered by the Chargebee merchant through the Chargebee Admin Console.
+        
+        The collected field mapping and the corresponding input values will be passed to the adapter via the `overrides` parameter.
+
+        ⚠️ When the `overrides` parameter is present, the adapter must rely exclusively on the `field_mapping` and `values` defined within it. All other standard schema fields should be ignored for transformation purposes.
+
       operationId: einvoicingDocumentSubmission
       requestBody:
         required: true
@@ -232,17 +247,15 @@ paths:
     post:
       tags:
         - Callbacks
-      summary: Receive document status updates for Invoice
+      summary: Receive document status updates for an invoice
       description: |
-        This Chargebee callback endpoint is invoked by the e-invoicing adapter once an invoice document has been processed by the e-invoicing provider.
+        The adapter receives a webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
-        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+        Chargebee uses this callback to update internal document tracking states and trigger downstream workflows such as customer notifications or audit logs.
 
-        Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
+        This endpoint is **idempotent**, repeated submissions with the same `document_id` and `status` will not result in duplicate processing.
 
-        This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
-
-        This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+        Requires an OAuth 2.0 access token authorized via the merchant OAuth flow. The Chargebee merchant must authorize the e-invoicing app via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForInvoice
       security:
         - authorizationCode:
@@ -311,17 +324,15 @@ paths:
     post:
       tags:
         - Callbacks
-      summary: Receive document status updates for Credit note
+      summary: Receive document status updates for a credit note
       description: |
-        This Chargebee callback endpoint is invoked by the e-invoicing adapter once a credit note document has been processed by the e-invoicing provider.
+        The adapter receives a webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
-        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+        Chargebee uses this callback to update internal document tracking states and trigger downstream workflows such as customer notifications or audit logs.
 
-        Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
+        This endpoint is **idempotent**, repeated submissions with the same `document_id` and `status` will not result in duplicate processing.
 
-        This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
-
-        This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+        Requires an OAuth 2.0 access token authorized via the merchant OAuth flow. The Chargebee merchant must authorize the e-invoicing app via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForCreditNote
       security:
         - authorizationCode:
@@ -549,6 +560,7 @@ components:
             Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
             Different countries adopt different models based on legal, technical, and administrative mandates.
             Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
             - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
             - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
             - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
@@ -618,6 +630,7 @@ components:
             Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
             Different countries adopt different models based on legal, technical, and administrative mandates.
             Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
             - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
             - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
             - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
@@ -637,78 +650,132 @@ components:
             - FACE
             - VERIFACTU
           example: "PEPPOL"
-        required_fields:
+        document_type:
+          type: string
+          description: Type of document, either an invoice or a credit note.
+          enum:
+            - INVOICE
+            - CREDIT_NOTE
+        fields:
           type: array
-          description: The list of required fields for the e-invoicing mandate.
+          description: List of input fields with inclusion metadata.
           items:
             type: object
+            required:
+              - path
+              - data_type
+              - fieldName
+              - inclusion_type
             properties:
-              field_name:
+              path:
                 type: string
-                description: The name of the required field.
-                example: "InvoiceNumber"
+                description: Path of the field in the final XML/UBL or JSON structure (as per provider specification).
+                example: "Invoice.cbc:ID"
+              fieldName:
+                type: string
+                description: Canonical or local name of the field.
+                example: "cbc:ID"
               description:
                 type: string
-                description: A description of the field.
-                example: "The unique number for the invoice."
-              type:
+                description: Description of what the field represents.
+                example: "Unique identifier for the invoice."
+              data_type:
                 type: string
-                description: The data type of the field.
-                example: "string"
-              sub_fields:
+                description: Type of data expected.
+                enum:
+                  - string
+                  - number
+                  - date
+              documentation_link:
+                type: string
+                description: External documentation reference for the field (if available).
+                example: "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-ID"
+              accepted_values:
                 type: array
-                description: Sub-fields for nested fields.
                 items:
-                  type: object
-                  properties:
-                    field_name:
-                      type: string
-                      example: "AccountingSupplierParty.PostalAddress.StreetLine1"
-                    description:
-                      type: string
-                      example: "The first line of the street address."
-                    type:
-                      type: string
-                      example: "string"
-                    mandatory:
-                      type: boolean
-                      example: true
-        optional_fields:
-          type: array
-          description: The list of optional fields for the e-invoicing mandate.
-          items:
-            type: object
-            properties:
-              field_name:
+                  type: string
+                description: Enumerated or acceptable values for the field (if applicable).
+                example: []
+              default_value:
                 type: string
-                description: The name of the optional field.
-                example: "DiscountAmount"
-              description:
+                description: Default value to use if none is provided.
+                example: ""
+              example:
                 type: string
-                description: A description of the field.
-                example: "The discount applied to the invoice."
-              type:
+                description: Example value for the field.
+                example: "INV-1001"
+              inclusion_type:
                 type: string
-                description: The data type of the field.
-                example: "decimal"
-              sub_fields:
-                type: array
-                description: Sub-fields for nested optional fields.
-                items:
-                  type: object
-                  properties:
-                    field_name:
-                      type: string
-                      example: "AccountingSupplierParty.PostalAddress.StreetLine1"
-                    description:
-                      type: string
-                      example: "The first line of the street address."
-                    type:
-                      type: string
-                      example: "string"
-                    mandatory:
-                      type: boolean
-                      example: true
+                enum:
+                  - Mandatory
+                  - Optional
+                  - Conditional
+                description: |
+                  Denotes whether this field is required, optional, or conditional.
+                  - `Mandatory`: Must be provided
+                  - `Optional`: Can be skipped without affecting processing
+                  - `Conditional`: Required under specific conditions
+              condition:
+                type: object
+                description: Optional condition object for Conditional fields.
+                example:
+                  when: "InvoiceTypeCode = 380"
+                  then_required: true
+      example:
+        country_code: "DE"
+        transaction_type: "B2B"
+        model: "PEPPOL"
+        document_type: "INVOICE"
+        fields:
+          - path: "Invoice.cbc:ID"
+            fieldName: "cbc:ID"
+            description: "Unique identifier for the invoice"
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "INV-1001"
+            inclusion_type: "Mandatory"
+
+          - path: "Invoice.cbc:Note"
+            fieldName: "cbc:Note"
+            description: "Optional description or remarks"
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "B2B Transaction"
+            inclusion_type: "Optional"
+
+          - path: "Invoice/cbc:BuyerReference"
+            fieldName: "cbc:BuyerReference"
+            description: >
+              Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes.
+              An invoice must have buyer reference or purchase order reference.
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "abs1234"
+            inclusion_type: "Conditional"
+            condition:
+              when: "InvoiceTypeCode = 380"
+              then_required: true
+
+          - path: "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount"
+            fieldName: "cbc:LineExtensionAmount"
+            description: >
+              Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT),
+              and must be rounded to a maximum of 2 decimals.
+            data_type: "number"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: 2145
+            inclusion_type: "Conditional"
+            condition:
+              when: "document_type = INVOICE"
+              then_required: true
     document:
       type: object
       properties:
@@ -915,49 +982,75 @@ components:
           example:
             cf_invoice_reference_code: "INT-2025-0098"
             cf_tax_exemption_reason: "Reverse Charge"
-        field_mapping:
-          type: array
+        overrides:
+          type: object
           description: |
-            A list of field mapping definitions that describe how values from the Chargebee SPI document submission model should be translated
-            to the target schema expected by the e-invoicing provider.
+            Optional structure used to override the standard Chargebee SPI document model fields with a flexible field-value-based approach.
 
-            Each mapping item specifies a target field in the provider schema and either:
-              - A `source` field path pointing to a value in the Chargebee `document` model, or
-              - A `fixed_value` to be used as a constant value.
-            
-            Both `source` and `target` use dot (`.`) notation to define field paths.
-            
-            The adapter uses this mapping to transform Chargebee’s SPI payload into the structure required by the configured provider
-            during submission.
+            This is **typically used by adapters where field mapping is configured manually by the merchant** in the Chargebee UI, instead of relying on pre-defined mappings managed by the provider or Chargebee.
 
-            This structure supports both dynamic and static field resolution while keeping transformation logic separate from adapter implementation.
+            When present, the `overrides` object allows the adapter to **entirely ignore** the standard document payload and instead:
+            - Use `field_mapping` to determine where values go in the provider's schema
+            - Use `values` to retrieve the corresponding input data using dot-paths or array-style paths
 
-            This field is **mandatory** for providers that requires merchant to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
-          items:
-            type: object
-            properties:
-              target:
-                type: string
-                description: The field path in the target provider schema where the value should be mapped (e.g., `Invoice/cbc:ID`).
-              source:
-                type: string
-                description: A dot-path expression pointing to the value in the Chargebee `document` model (e.g., `document.id`). Optional if `fixed_value` is provided.
-              fixed_value:
-                description: A static value to be assigned to the target field if no source path is used (e.g., `380` or `"VAT"`). Optional if `source` is provided.
-            required:
-              - target
+            ---
+            - `field_mapping`:
+            A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema.
+
+            Each item must include:
+            - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
+            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+
+            - `values`:
+            A map of flattened key-value pairs (dot-paths or array-style paths) representing the actual data values. Arrays can be represented using expanded keys like:
+            ```json
+            {
+            "line_items": [
+              { "id": "1", "tax_category": "VAT" },
+              { "id": "2", "tax_category": "EU VAT" }
+              ]
+             }
+            ```
+
+            This model supports full flexibility for provider-specific structures without requiring tight coupling between Chargebee's schema and the adapter logic.
+
+          properties:
+            field_mapping:
+              type: array
+              items:
+                type: object
+                properties:
+                  target:
+                    type: string
+                    description: Path in the provider schema where the value should be mapped
+                    example: Invoice.cbc:ID
+                  source:
+                    type: string
+                    description: Dot-path pointing to a field in `values`
+                    example: invoice.id
+                  fixed_value:
+                    type: string
+                    description: Static value if applicable
+                    example: "380"
+                required:
+                  - target
+            values:
+              type: object
+              description: Flattened key-value representation of the data to be mapped using `field_mapping`.
+
       required:
         - id
         - type
-        - issueDate
-        - taxDate
-        - currencyCode
+        - issue_date
+        - tax_date
+        - currency_code
         - amount
-        - dueDate
+        - due_date
         - lines
-        - accountingCustomerParty
-        - accountingSupplierParty
-        - taxTotal
+        - accounting_customer_party
+        - accounting_supplier_party
+        - tax_total
 
     payment_means:
       type: object
@@ -1397,74 +1490,97 @@ components:
               percentage: 14
               country: DE
               category: VAT
-        field_mapping:
-          - target: Invoice.cbc:ID
-            source: document.id
+        overrides:
+          field_mapping:
+            - target: Invoice.cbc:ID
+              source: invoice.id
 
-          - target: Invoice.cbc:IssueDate
-            source: document.issue_date
+            - target: Invoice.cbc:IssueDate
+              source: invoice.issue_date
 
-          - target: Invoice.cbc:InvoiceTypeCode
-            fixed_value: 380
+            - target: Invoice.cbc:InvoiceTypeCode
+              fixed_value: 380
 
-          - target: Invoice.cbc:DocumentCurrencyCode
-            source: document.currency_code
+            - target: Invoice.cbc:DocumentCurrencyCode
+              source: invoice.currency_code
 
-          - target: Invoice.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID
-            source: document.accounting_supplier_party.legal_entity.company_id
+            - target: Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
+              source: business.address.country
 
-          - target: Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
-            source: document.accounting_supplier_party.address.country
+            - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
+              source: customer.billing_address.country
 
-          - target: Invoice.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
-            source: document.accounting_supplier_party.legal_entity.registration_name
+            - target: Invoice.cac:TaxTotal.cbc:TaxAmount
+              source: invoice.tax_total
 
-          - target: Invoice.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID
-            source: document.accounting_customer_party.legal_entity.company_id
+            - target: Invoice.cbc:Note
+              source: invoice.note
 
-          - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
-            source: document.accounting_customer_party.address.country
+            - target: Invoice.cac:InvoiceLine.cbc:ID
+              source: line_items[].id
 
-          - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
-            source: document.accounting_customer_party.legal_entity.registration_name
+            - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity
+              source: line_items[].quantity
 
-          - target: Invoice.cac:TaxTotal.cbc:TaxAmount
-            source: document.tax_total.tax_amount
+            - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
+              source: line_items[].unit_code
 
-          - target: Invoice.cac:TaxTotal.cbc:TaxAmount.@currencyID
-            source: document.currency_code
+            - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
+              source: line_items[].amount
 
-          - target: Invoice.cac:InvoiceLine.cbc:ID
-            source: document.lines[].id
+            - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
+              source: invoice.currency_code
 
-          - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity
-            source: document.lines[].quantity
+            - target: Invoice.cac:InvoiceLine.cac:Item.cbc:Name
+              source: line_items[].description
 
-          - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
-            source: document.lines[].unit_code
+            - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
+              source: line_items[].classified_tax_category[].category
 
-          - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
-            source: document.lines[].amount
+            - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
+              source: line_items[].classified_tax_category[].category
 
-          - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
-            source: document.currency_code
+            - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount
+              source: line_items[].unit_price
 
-          - target: Invoice.cac:InvoiceLine.cac:Item.cbc:Name
-            source: document.lines[].description
+            - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
+              source: invoice.currency_code
 
-          - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
-            source: document.lines[].classified_tax_category[].category
+            - target: Invoice.cbc:Note
+              source: invoice.note
 
-          - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
-            source: document.lines[].classified_tax_category[].category
-
-          - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount
-            source: document.lines[].unit_price
-
-          - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
-            source: document.currency_code
-          - target: Invoice.cbc:Note
-            source: document.custom_fields.cf_invoice_reference_code
+        values:
+          invoice.id: INV-10001
+          invoice.issue_date: '2025-04-02'
+          invoice.tax_date: '2025-04-02'
+          invoice.currency_code: EUR
+          invoice.due_date: '2025-04-30'
+          invoice.amount: 114.0
+          invoice.note: Payment due in 28 days.
+          business.address.country: DE
+          customer.billing_address.country: DE
+          invoice.tax_total: 14.0
+          line_items:
+            - id: '1'
+              description: Consulting Services - April
+              quantity: 1
+              unit_price: 100.0
+              amount: 100.0
+              item_code: CONS-APRIL
+              classified_tax_category:
+                percentage: 14
+                category: VAT
+                country: DE
+            - id: '2'
+              description: TEST Consulting Services - April
+              quantity: 130
+              unit_price: 1000.0
+              amount: 1005.0
+              item_code: CONS-APRIL
+              classified_tax_category:
+                percentage: 30
+                category: EU VAT
+                country: DE
 
     credit_note_document_submission_success:
       description: A sample credit note document submission request.
@@ -1588,55 +1704,120 @@ components:
               percentage: 14
               country: DE
               category: VAT
-        field_mapping:
-          - target: Creditnote.cbc:ID
-            source: document.id
-          - target: Creditnote.cbc:IssueDate
-            source: document.issue_date
-          - target: Creditnote.cbc:CreditNoteTypeCode
-            fixed_value: 396
-          - target: Creditnote.cbc:DocumentCurrencyCode
-            source: document.currency_code
-          - target: Creditnote.cac:BillingReference
-            source: document.billing_reference
-          - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID
-            source: document.accounting_supplier_party.legal_entity.company_id
-          - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
-            source: document.accounting_supplier_party.address.country
-          - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
-            source: document.accounting_supplier_party.legal_entity.registration_name
-          - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID
-            source: document.accounting_customer_party.legal_entity.company_id
-          - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
-            source: document.accounting_customer_party.address.country
-          - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
-            source: document.accounting_customer_party.legal_entity.registration_name
-          - target: Creditnote.cac:TaxTotal.cbc:TaxAmount
-            source: document.tax_total.tax_amount
-          - target: Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID
-            source: document.currency_code
-          - target: Creditnote.cac:InvoiceLine.cbc:ID
-            source: document.lines[].id
-          - target: Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity
-            source: document.lines[].quantity
-          - target: Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
-            source: document.lines[].unit_code
-          - target: Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount
-            source: document.lines[].amount
-          - target: Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
-            source: document.currency_code
-          - target: Creditnote.cac:InvoiceLine.cac:Item.cbc:Name
-            source: document.lines[].description
-          - target: Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
-            source: document.lines[].classified_tax_category[].category
-          - target: Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
-            source: document.lines[].classified_tax_category[].category
-          - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount
-            source: document.lines[].unit_price
-          - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
-            source: document.currency_code
-          - target: Creditnote.cbc:Note
-            source: document.custom_fields.cf_invoice_reference_code
+        overrides:
+          field_mapping:
+            - target: Creditnote.cbc:ID
+              source: credit_note.id
+
+            - target: Creditnote.cbc:IssueDate
+              source: credit_note.issue_date
+
+            - target: Creditnote.cbc:CreditNoteTypeCode
+              fixed_value: 396
+
+            - target: Creditnote.cbc:DocumentCurrencyCode
+              source: credit_note.currency_code
+
+            - target: Creditnote.cac:BillingReference
+              source: credit_note.billing_reference
+
+            - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID
+              source: business.legal_entity.company_id
+
+            - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
+              source: business.address.country
+
+            - target: Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
+              source: business.legal_entity.registration_name
+
+            - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID
+              source: customer.legal_entity.company_id
+
+            - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
+              source: customer.billing_address.country
+
+            - target: Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName
+              source: customer.legal_entity.registration_name
+
+            - target: Creditnote.cac:TaxTotal.cbc:TaxAmount
+              source: credit_note.tax_total
+
+            - target: Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID
+              source: credit_note.currency_code
+
+            - target: Creditnote.cac:InvoiceLine.cbc:ID
+              source: line_items[].id
+
+            - target: Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity
+              source: line_items[].quantity
+
+            - target: Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
+              source: line_items[].unit_code
+
+            - target: Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount
+              source: line_items[].amount
+
+            - target: Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
+              source: credit_note.currency_code
+
+            - target: Creditnote.cac:InvoiceLine.cac:Item.cbc:Name
+              source: line_items[].description
+
+            - target: Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
+              source: line_items[].classified_tax_category[].category
+
+            - target: Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
+              source: line_items[].classified_tax_category[].category
+
+            - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount
+              source: line_items[].unit_price
+
+            - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
+              source: credit_note.currency_code
+
+            - target: Creditnote.cbc:Note
+              source: credit_note.custom_fields.cf_credit_note_reason
+
+        values:
+          credit_note.id: CN-20001
+          credit_note.issue_date: '2025-04-05'
+          credit_note.tax_date: '2025-04-05'
+          credit_note.currency_code: EUR
+          credit_note.due_date: '2025-04-30'
+          credit_note.amount: 140.0
+          credit_note.billing_reference:
+            invoice_document_reference:
+              id: INV-10001
+              issue_date: '2025-04-02'
+          credit_note.note: Refund for April invoice
+          business.address.country: DE
+          business.legal_entity.company_id: "987654321"
+          business.legal_entity.registration_name: Example Seller GmbH
+          customer.billing_address.country: DE
+          customer.legal_entity.company_id: "123456789"
+          customer.legal_entity.registration_name: Example Buyer GmbH
+          credit_note.tax_total: 40.0
+          line_items:
+            - id: '1'
+              description: Reversal of April service
+              quantity: 1
+              unit_price: 100.0
+              amount: 100.0
+              unit_code: "EA"
+              classified_tax_category:
+                - percentage: 14
+                  category: VAT
+                  country: DE
+            - id: '2'
+              description: Reversal of consulting charge
+              quantity: 1
+              unit_price: 40.0
+              amount: 40.0
+              unit_code: "EA"
+              classified_tax_category:
+                - percentage: 30
+                  category: EU VAT
+                  country: DE
     einvoice_document_submission_pending:
       description: A sample response indicating the document is under processing.
       value:
