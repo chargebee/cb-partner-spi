@@ -78,7 +78,7 @@
         },
         "chargebee_oauth": {
           "type": "object",
-          "description": "OAuth2 authentication configuration for integrating Chargebee with the E-invoicing provider. Specifies the OAuth type and the redirect URI used for the authorization callback.",
+          "description": "OAuth authentication configuration for integrating Chargebee with the E-invoicing provider. Specifies the OAuth type and the redirect URI used for the authorization callback.",
           "properties": {
             "type": {
               "type": "string",
