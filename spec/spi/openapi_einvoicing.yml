@@ -120,6 +120,7 @@ paths:
             Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
             Different countries adopt different models based on legal, technical, and administrative mandates.
             Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
             - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
             - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
             - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
@@ -554,6 +555,7 @@ components:
             Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
             Different countries adopt different models based on legal, technical, and administrative mandates.
             Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
             - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
             - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
             - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
@@ -623,6 +625,7 @@ components:
             Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
             Different countries adopt different models based on legal, technical, and administrative mandates.
             Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
             - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
             - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
             - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
@@ -648,78 +651,126 @@ components:
           enum:
             - INVOICE
             - CREDIT_NOTE
-        required_fields:
+        fields:
           type: array
-          description: The list of required fields for the e-invoicing mandate.
+          description: List of input fields with inclusion metadata.
           items:
             type: object
+            required:
+              - path
+              - data_type
+              - fieldName
+              - inclusion_type
             properties:
-              field_name:
+              path:
                 type: string
-                description: The name of the required field.
-                example: "InvoiceNumber"
+                description: Path of the field in the final XML/UBL or JSON structure (as per provider specification).
+                example: "Invoice.cbc:ID"
+              fieldName:
+                type: string
+                description: Canonical or local name of the field.
+                example: "cbc:ID"
               description:
                 type: string
-                description: A description of the field.
-                example: "The unique number for the invoice."
-              type:
+                description: Description of what the field represents.
+                example: "Unique identifier for the invoice."
+              data_type:
                 type: string
-                description: The data type of the field.
-                example: "string"
-              sub_fields:
+                description: Type of data expected.
+                enum:
+                  - string
+                  - number
+                  - date
+              documentation_link:
+                type: string
+                description: External documentation reference for the field (if available).
+                example: "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-ID"
+              accepted_values:
                 type: array
-                description: Sub-fields for nested fields.
                 items:
-                  type: object
-                  properties:
-                    field_name:
-                      type: string
-                      example: "AccountingSupplierParty.PostalAddress.StreetLine1"
-                    description:
-                      type: string
-                      example: "The first line of the street address."
-                    type:
-                      type: string
-                      example: "string"
-                    mandatory:
-                      type: boolean
-                      example: true
-        optional_fields:
-          type: array
-          description: The list of optional fields for the e-invoicing mandate.
-          items:
-            type: object
-            properties:
-              field_name:
+                  type: string
+                description: Enumerated or acceptable values for the field (if applicable).
+                example: []
+              default_value:
                 type: string
-                description: The name of the optional field.
-                example: "DiscountAmount"
-              description:
+                description: Default value to use if none is provided.
+                example: ""
+              example:
                 type: string
-                description: A description of the field.
-                example: "The discount applied to the invoice."
-              type:
+                description: Example value for the field.
+                example: "INV-1001"
+              inclusion_type:
                 type: string
-                description: The data type of the field.
-                example: "decimal"
-              sub_fields:
-                type: array
-                description: Sub-fields for nested optional fields.
-                items:
-                  type: object
-                  properties:
-                    field_name:
-                      type: string
-                      example: "AccountingSupplierParty.PostalAddress.StreetLine1"
-                    description:
-                      type: string
-                      example: "The first line of the street address."
-                    type:
-                      type: string
-                      example: "string"
-                    mandatory:
-                      type: boolean
-                      example: true
+                enum:
+                  - Mandatory
+                  - Optional
+                  - Conditional
+                description: |
+                  Denotes whether this field is required, optional, or conditional.
+                  - `Mandatory`: Must be provided
+                  - `Optional`: Can be skipped without affecting processing
+                  - `Conditional`: Required under specific conditions
+              condition:
+                type: object
+                description: Optional condition object for Conditional fields.
+                example:
+                  when: "InvoiceTypeCode = 380"
+                  then_required: true
+      example:
+        country_code: "DE"
+        transaction_type: "B2B"
+        model: "PEPPOL"
+        document_type: "INVOICE"
+        fields:
+          - path: "Invoice.cbc:ID"
+            fieldName: "cbc:ID"
+            description: "Unique identifier for the invoice"
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "INV-1001"
+            inclusion_type: "Mandatory"
+
+          - path: "Invoice.cbc:Note"
+            fieldName: "cbc:Note"
+            description: "Optional description or remarks"
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "B2B Transaction"
+            inclusion_type: "Optional"
+
+          - path: "Invoice/cbc:BuyerReference"
+            fieldName: "cbc:BuyerReference"
+            description: >
+              Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes.
+              An invoice must have buyer reference or purchase order reference.
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "abs1234"
+            inclusion_type: "Conditional"
+            condition:
+              when: "InvoiceTypeCode = 380"
+              then_required: true
+
+          - path: "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount"
+            fieldName: "cbc:LineExtensionAmount"
+            description: >
+              Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT),
+              and must be rounded to a maximum of 2 decimals.
+            data_type: "number"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: 2145
+            inclusion_type: "Conditional"
+            condition:
+              when: "document_type = INVOICE"
+              then_required: true
     document:
       type: object
       properties:

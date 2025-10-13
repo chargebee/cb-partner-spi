@@ -192,10 +192,12 @@ paths:
       - description: "Indicates the eInvoicing flow model that governs the document\
           \ exchange and processing mechanism. \nDifferent countries adopt different\
           \ models based on legal, technical, and administrative mandates.\nSupported\
-          \ values:\n- EINVOICE: Traditional eInvoicing model where invoices are digitally\
-          \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
-          \ must be pre-approved by a tax authority before they are sent to the buyer.\n\
-          - REPORTING: Invoices are shared with tax authorities after issuance, usually\
+          \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+          \ cross-border electronic document exchange between businesses and governments.\n\
+          - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged\
+          \ between businesses and sometimes stored.\n- CLEARANCE: Invoices must be\
+          \ pre-approved by a tax authority before they are sent to the buyer.\n-\
+          \ REPORTING: Invoices are shared with tax authorities after issuance, usually\
           \ for compliance and audit purposes.\n- ZUGFERD: A hybrid eInvoicing format\
           \ used in Germany combining PDF and XML for human and machine readability.\n\
           - CTC: Continuous Transaction Controls involve real-time or near-real-time\
@@ -1179,20 +1181,21 @@ components:
           description: "Indicates the eInvoicing flow model that governs the document\
             \ exchange and processing mechanism. \nDifferent countries adopt different\
             \ models based on legal, technical, and administrative mandates.\nSupported\
-            \ values:\n- EINVOICE: Traditional eInvoicing model where invoices are\
-            \ digitally exchanged between businesses and sometimes stored.\n- CLEARANCE:\
-            \ Invoices must be pre-approved by a tax authority before they are sent\
-            \ to the buyer.\n- REPORTING: Invoices are shared with tax authorities\
-            \ after issuance, usually for compliance and audit purposes.\n- ZUGFERD:\
-            \ A hybrid eInvoicing format used in Germany combining PDF and XML for\
-            \ human and machine readability.\n- CTC: Continuous Transaction Controls\
-            \ involve real-time or near-real-time invoice validation and transmission\
-            \ to tax authorities.\n- NEMHANDEL: Denmark’s national infrastructure\
-            \ for eInvoicing that supports secure delivery via specific formats like\
-            \ OIOUBL.\n- FACE: Spain’s centralized system (FACe/FACeB2B) for routing\
-            \ invoices to government or private recipients.\n- VERIFACTU: Spain’s\
-            \ mechanism for validating and reporting sales invoices directly to the\
-            \ tax agency.\n"
+            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
+            \ eInvoicing format used in Germany combining PDF and XML for human and\
+            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
+            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
+            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
+            \ and reporting sales invoices directly to the tax agency.\n"
           enum:
           - PEPPOL
           - EINVOICE
@@ -1241,59 +1244,54 @@ components:
     data_input_fields_response:
       example:
         country_code: DE
-        required_fields:
-        - sub_fields:
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          description: The unique number for the invoice.
-          type: string
-          field_name: InvoiceNumber
-        - sub_fields:
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          description: The unique number for the invoice.
-          type: string
-          field_name: InvoiceNumber
-        optional_fields:
-        - sub_fields:
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          description: The discount applied to the invoice.
-          type: decimal
-          field_name: DiscountAmount
-        - sub_fields:
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          - description: The first line of the street address.
-            type: string
-            mandatory: true
-            field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-          description: The discount applied to the invoice.
-          type: decimal
-          field_name: DiscountAmount
-        model: PEPPOL
         transaction_type: B2B
+        model: PEPPOL
         document_type: INVOICE
+        fields:
+        - path: Invoice.cbc:ID
+          fieldName: cbc:ID
+          description: Unique identifier for the invoice
+          data_type: string
+          documentation_link: ""
+          accepted_values: []
+          default_value: ""
+          example: INV-1001
+          inclusion_type: Mandatory
+        - path: Invoice.cbc:Note
+          fieldName: cbc:Note
+          description: Optional description or remarks
+          data_type: string
+          documentation_link: ""
+          accepted_values: []
+          default_value: ""
+          example: B2B Transaction
+          inclusion_type: Optional
+        - path: Invoice/cbc:BuyerReference
+          fieldName: cbc:BuyerReference
+          description: |
+            Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes. An invoice must have buyer reference or purchase order reference.
+          data_type: string
+          documentation_link: ""
+          accepted_values: []
+          default_value: ""
+          example: abs1234
+          inclusion_type: Conditional
+          condition:
+            when: InvoiceTypeCode = 380
+            then_required: true
+        - path: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
+          fieldName: cbc:LineExtensionAmount
+          description: |
+            Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT), and must be rounded to a maximum of 2 decimals.
+          data_type: number
+          documentation_link: ""
+          accepted_values: []
+          default_value: ""
+          example: 2145
+          inclusion_type: Conditional
+          condition:
+            when: document_type = INVOICE
+            then_required: true
       properties:
         country_code:
           description: The ISO country code for the scenario.
@@ -1311,20 +1309,21 @@ components:
           description: "Indicates the eInvoicing flow model that governs the document\
             \ exchange and processing mechanism. \nDifferent countries adopt different\
             \ models based on legal, technical, and administrative mandates.\nSupported\
-            \ values:\n- EINVOICE: Traditional eInvoicing model where invoices are\
-            \ digitally exchanged between businesses and sometimes stored.\n- CLEARANCE:\
-            \ Invoices must be pre-approved by a tax authority before they are sent\
-            \ to the buyer.\n- REPORTING: Invoices are shared with tax authorities\
-            \ after issuance, usually for compliance and audit purposes.\n- ZUGFERD:\
-            \ A hybrid eInvoicing format used in Germany combining PDF and XML for\
-            \ human and machine readability.\n- CTC: Continuous Transaction Controls\
-            \ involve real-time or near-real-time invoice validation and transmission\
-            \ to tax authorities.\n- NEMHANDEL: Denmark’s national infrastructure\
-            \ for eInvoicing that supports secure delivery via specific formats like\
-            \ OIOUBL.\n- FACE: Spain’s centralized system (FACe/FACeB2B) for routing\
-            \ invoices to government or private recipients.\n- VERIFACTU: Spain’s\
-            \ mechanism for validating and reporting sales invoices directly to the\
-            \ tax agency.\n"
+            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
+            \ eInvoicing format used in Germany combining PDF and XML for human and\
+            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
+            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
+            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
+            \ and reporting sales invoices directly to the tax agency.\n"
           enum:
           - PEPPOL
           - EINVOICE
@@ -1343,15 +1342,10 @@ components:
           - INVOICE
           - CREDIT_NOTE
           type: string
-        required_fields:
-          description: The list of required fields for the e-invoicing mandate.
+        fields:
+          description: List of input fields with inclusion metadata.
           items:
-            $ref: '#/components/schemas/data_input_fields_response_required_fields_inner'
-          type: array
-        optional_fields:
-          description: The list of optional fields for the e-invoicing mandate.
-          items:
-            $ref: '#/components/schemas/data_input_fields_response_optional_fields_inner'
+            $ref: '#/components/schemas/data_input_fields_response_fields_inner'
           type: array
       type: object
     document:
@@ -1847,91 +1841,68 @@ components:
           description: The display name of the company
           type: string
       type: object
-    data_input_fields_response_required_fields_inner_sub_fields_inner:
-      example:
-        description: The first line of the street address.
-        type: string
-        mandatory: true
-        field_name: AccountingSupplierParty.PostalAddress.StreetLine1
+    data_input_fields_response_fields_inner:
       properties:
-        field_name:
-          example: AccountingSupplierParty.PostalAddress.StreetLine1
+        path:
+          description: Path of the field in the final XML/UBL or JSON structure (as
+            per provider specification).
+          example: Invoice.cbc:ID
+          type: string
+        fieldName:
+          description: Canonical or local name of the field.
+          example: cbc:ID
           type: string
         description:
-          example: The first line of the street address.
+          description: Description of what the field represents.
+          example: Unique identifier for the invoice.
           type: string
-        type:
-          example: string
+        data_type:
+          description: Type of data expected.
+          enum:
+          - string
+          - number
+          - date
           type: string
-        mandatory:
-          example: true
-          type: boolean
-      type: object
-    data_input_fields_response_required_fields_inner:
-      example:
-        sub_fields:
-        - description: The first line of the street address.
+        documentation_link:
+          description: External documentation reference for the field (if available).
+          example: https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-ID
           type: string
-          mandatory: true
-          field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-        - description: The first line of the street address.
-          type: string
-          mandatory: true
-          field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-        description: The unique number for the invoice.
-        type: string
-        field_name: InvoiceNumber
-      properties:
-        field_name:
-          description: The name of the required field.
-          example: InvoiceNumber
-          type: string
-        description:
-          description: A description of the field.
-          example: The unique number for the invoice.
-          type: string
-        type:
-          description: The data type of the field.
-          example: string
-          type: string
-        sub_fields:
-          description: Sub-fields for nested fields.
+        accepted_values:
+          description: Enumerated or acceptable values for the field (if applicable).
+          example: []
           items:
-            $ref: '#/components/schemas/data_input_fields_response_required_fields_inner_sub_fields_inner'
+            type: string
           type: array
-      type: object
-    data_input_fields_response_optional_fields_inner:
-      example:
-        sub_fields:
-        - description: The first line of the street address.
+        default_value:
+          description: Default value to use if none is provided.
+          example: ""
           type: string
-          mandatory: true
-          field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-        - description: The first line of the street address.
+        example:
+          description: Example value for the field.
+          example: INV-1001
           type: string
-          mandatory: true
-          field_name: AccountingSupplierParty.PostalAddress.StreetLine1
-        description: The discount applied to the invoice.
-        type: decimal
-        field_name: DiscountAmount
-      properties:
-        field_name:
-          description: The name of the optional field.
-          example: DiscountAmount
+        inclusion_type:
+          description: |
+            Denotes whether this field is required, optional, or conditional.
+            - `Mandatory`: Must be provided
+            - `Optional`: Can be skipped without affecting processing
+            - `Conditional`: Required under specific conditions
+          enum:
+          - Mandatory
+          - Optional
+          - Conditional
           type: string
-        description:
-          description: A description of the field.
-          example: The discount applied to the invoice.
-          type: string
-        type:
-          description: The data type of the field.
-          example: decimal
-          type: string
-        sub_fields:
-          description: Sub-fields for nested optional fields.
-          items:
-            $ref: '#/components/schemas/data_input_fields_response_required_fields_inner_sub_fields_inner'
-          type: array
+        condition:
+          description: Optional condition object for Conditional fields.
+          example:
+            when: InvoiceTypeCode = 380
+            then_required: true
+          type: object
+      required:
+      - data_type
+      - fieldName
+      - inclusion_type
+      - path
       type: object
     document_billing_reference_inner_invoice_document_reference:
       description: A group of business terms providing information on one or more
