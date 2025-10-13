@@ -223,6 +223,17 @@ paths:
           example: PEPPOL
           type: string
         style: form
+      - description: "Type of document, either an invoice or a credit note."
+        explode: true
+        in: query
+        name: document_type
+        required: true
+        schema:
+          enum:
+          - INVOICE
+          - CREDIT_NOTE
+          type: string
+        style: form
       responses:
         "200":
           content:
@@ -323,15 +334,13 @@ paths:
   /api/v2/invoices/{document_id}/einvoice_status:
     post:
       description: |
-        This Chargebee callback endpoint is invoked by the e-invoicing adapter once an invoice document has been processed by the e-invoicing provider.
+        The adapter receives a webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
-        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+        Chargebee uses this callback to update internal document tracking states and trigger downstream workflows such as customer notifications or audit logs.
 
-        Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
+        This endpoint is **idempotent**, repeated submissions with the same `document_id` and `status` will not result in duplicate processing.
 
-        This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
-
-        This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+        Requires an OAuth 2.0 access token authorized via the merchant OAuth flow. The Chargebee merchant must authorize the e-invoicing app via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForInvoice
       parameters:
       - description: Unique identifier of the submitted document.
@@ -370,7 +379,7 @@ paths:
       servers:
       - description: Callback server for invoice document status
         url: "https://{domain}.chargebee.com"
-      summary: Receive document status updates for Invoice
+      summary: Receive document status updates for an invoice
       tags:
       - Callbacks
       x-content-type: application/x-www-form-urlencoded
@@ -400,15 +409,13 @@ paths:
   /api/v2/credit_notes/{document_id}/einvoice_status:
     post:
       description: |
-        This Chargebee callback endpoint is invoked by the e-invoicing adapter once a credit note document has been processed by the e-invoicing provider.
+        The adapter receives a webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
 
-        The adapter shall receive the webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+        Chargebee uses this callback to update internal document tracking states and trigger downstream workflows such as customer notifications or audit logs.
 
-        Chargebee uses this information to update its internal document tracking state and trigger downstream workflows, such as customer notifications or audit logs.
+        This endpoint is **idempotent**, repeated submissions with the same `document_id` and `status` will not result in duplicate processing.
 
-        This endpoint is idempotent. Repeated submissions with the same document ID and status will not result in duplicate processing.
-
-        This endpoint requires an OAuth 2.0 access token. The Chargebee merchant must authorize the e-invoicing adapter via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+        Requires an OAuth 2.0 access token authorized via the merchant OAuth flow. The Chargebee merchant must authorize the e-invoicing app via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
       operationId: einvoicingDocumentStatusCallbackForCreditNote
       parameters:
       - description: Unique identifier of the submitted document.
@@ -447,7 +454,7 @@ paths:
       servers:
       - description: Callback server for invoice document status
         url: "https://{domain}.chargebee.com"
-      summary: Receive document status updates for Credit note
+      summary: Receive document status updates for a credit note
       tags:
       - Callbacks
       x-content-type: application/x-www-form-urlencoded
@@ -1286,6 +1293,7 @@ components:
           field_name: DiscountAmount
         model: PEPPOL
         transaction_type: B2B
+        document_type: INVOICE
       properties:
         country_code:
           description: The ISO country code for the scenario.
@@ -1328,6 +1336,12 @@ components:
           - FACE
           - VERIFACTU
           example: PEPPOL
+          type: string
+        document_type:
+          description: "Type of document, either an invoice or a credit note."
+          enum:
+          - INVOICE
+          - CREDIT_NOTE
           type: string
         required_fields:
           description: The list of required fields for the e-invoicing mandate.
