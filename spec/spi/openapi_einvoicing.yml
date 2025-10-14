@@ -207,198 +207,11 @@ paths:
               $ref: '#/components/schemas/document'
             examples:
               invoice_document_submission_success:
-                summary: A sample invoice document submission request
-                value:
-                  id: INV-10001
-                  type: INVOICE
-                  issue_date: '2025-04-02'
-                  tax_date: '2025-04-02'
-                  currency_code: EUR
-                  due_date: '2025-04-30'
-                  amount: 114.0
-                  note: Payment due in 28 days.
-                  accounting_supplier_party:
-                    name: Example Seller GmbH
-                    address:
-                      line_1: Hauptstr. 456
-                      line_2: Suite 5
-                      zip: '50667'
-                      city: Cologne
-                      country: DE
-                    tax_scheme:
-                      - scheme: VAT
-                        id: DE987654321
-                  accounting_customer_party:
-                    name: Example Buyer GmbH
-                    address:
-                      line_1: Berliner Str. 123
-                      line_2: 2nd Floor
-                      zip: '10115'
-                      city: Berlin
-                      country: DE
-                    tax_scheme:
-                      - scheme: VAT
-                        id: DE123456789
-                  payment_means:
-                    - code: ONLINE_PAYMENT_SERVICE
-                      payment_id: PAY-2024-00987
-                      card_account:
-                        primary_account_number_id: 4111********1111
-                        card_holder_name: Jane Smith
-                        network_id: MASTERCARD
-                  lines:
-                    - id: '1'
-                      description: Consulting Services - April
-                      quantity: 1
-                      unit_price: 100.0
-                      amount: 100.0
-                      item_code: CONS-APRIL
-                      classified_tax_category:
-                        percentage: 14
-                        category: VAT
-                        country: DE
-                  tax_total:
-                    tax_amount: 14.0
-                    tax_sub_totals:
-                      - taxable_amount: 100.0
-                        tax_amount: 14.0
-                        percentage: 14
-                        country: DE
-                        category: VAT
-
+                $ref: '#/components/examples/invoice_document_submission_success'
               invoice_document_submission_with_overrides_success:
-                summary: Invoice submission with overrides
-                value:
-                  id: INV-10001
-                  type: INVOICE
-                  issue_date: '2025-04-02'
-                  tax_date: '2025-04-02'
-                  currency_code: EUR
-                  due_date: '2025-04-30'
-                  amount: 114.0
-                  note: Payment due in 28 days.
-                  accounting_supplier_party:
-                    name: Example Seller GmbH
-                    address:
-                      line_1: Hauptstr. 456
-                      line_2: Suite 5
-                      zip: '50667'
-                      city: Cologne
-                      country: DE
-                    tax_scheme:
-                      - scheme: VAT
-                        id: DE987654321
-                  accounting_customer_party:
-                    name: Example Buyer GmbH
-                    address:
-                      line_1: Berliner Str. 123
-                      line_2: 2nd Floor
-                      zip: '10115'
-                      city: Berlin
-                      country: DE
-                    tax_scheme:
-                      - scheme: VAT
-                        id: DE123456789
-                  payment_means:
-                    - code: ONLINE_PAYMENT_SERVICE
-                      payment_id: PAY-2024-00987
-                      card_account:
-                        primary_account_number_id: 4111********1111
-                        card_holder_name: Jane Smith
-                        network_id: MASTERCARD
-                  lines:
-                    - id: '1'
-                      description: Consulting Services - April
-                      quantity: 1
-                      unit_price: 100.0
-                      amount: 100.0
-                      item_code: CONS-APRIL
-                      classified_tax_category:
-                        percentage: 14
-                        category: VAT
-                        country: DE
-                  tax_total:
-                    tax_amount: 14.0
-                    tax_sub_totals:
-                      - taxable_amount: 100.0
-                        tax_amount: 14.0
-                        percentage: 14
-                        country: DE
-                        category: VAT
-                  overrides:
-                    field_mapping:
-                      - target: Invoice.cbc:ID
-                        source: invoice.id
-                      - target: Invoice.cbc:IssueDate
-                        source: invoice.issue_date
-                      - target: Invoice.cbc:InvoiceTypeCode
-                        fixed_value: 380
-                      - target: Invoice.cbc:DocumentCurrencyCode
-                        source: invoice.currency_code
-                      - target: Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
-                        source: business.address.country
-                      - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode
-                        source: customer.billing_address.country
-                      - target: Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID
-                        source: customer.cf_einvoice_scheme_id
-                      - target: Invoice.cac:TaxTotal.cbc:TaxAmount
-                        source: invoice.tax_total
-                      - target: Invoice.cbc:Note
-                        source: invoice.note
-                      - target: Invoice.cac:InvoiceLine.cbc:ID
-                        source: line_items[].id
-                      - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity
-                        source: line_items[].quantity
-                      - target: Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode
-                        source: line_items[].unit_code
-                      - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
-                        source: line_items[].amount
-                      - target: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID
-                        source: invoice.currency_code
-                      - target: Invoice.cac:InvoiceLine.cac:Item.cbc:Name
-                        source: line_items[].description
-                      - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
-                        source: line_items[].classified_tax_category[].category
-                      - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
-                        source: line_items[].classified_tax_category[].category
-                      - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount
-                        source: line_items[].unit_price
-                      - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
-                        source: invoice.currency_code
-                      - target: Invoice.cbc:Note
-                        source: invoice.note
-                    values:
-                      invoice.id: INV-10001
-                      invoice.issue_date: '2025-04-02'
-                      invoice.tax_date: '2025-04-02'
-                      invoice.currency_code: EUR
-                      invoice.due_date: '2025-04-30'
-                      invoice.amount: 114.0
-                      invoice.note: Payment due in 28 days.
-                      business.address.country: DE
-                      customer.billing_address.country: DE
-                      invoice.tax_total: 14.0
-                      line_items:
-                        - id: '1'
-                          description: Consulting Services - April
-                          quantity: 1
-                          unit_price: 100.0
-                          amount: 100.0
-                          item_code: CONS-APRIL
-                          classified_tax_category:
-                            percentage: 14
-                            category: VAT
-                            country: DE
-                        - id: '2'
-                          description: TEST Consulting Services - April
-                          quantity: 130
-                          unit_price: 1000.0
-                          amount: 1005.0
-                          item_code: CONS-APRIL
-                          classified_tax_category:
-                            percentage: 30
-                            category: EU VAT
-                            country: DE
+                $ref: '#/components/examples/invoice_document_submission_with_overrides_success'
+              credit_note_document_submission_success:
+                $ref: '#/components/examples/credit_note_document_submission_success'
       responses:
         '200':
           description: Document submitted successfully.
@@ -1214,14 +1027,14 @@ components:
         - id
         - type
         - issue_date
-        - taxDate
-        - currencyCode
+        - tax_date
+        - currency_code
         - amount
         - dueDate
         - lines
-        - accountingCustomerParty
-        - accountingSupplierParty
-        - taxTotal
+        - accounting_customer_party
+        - accounting_supplier_party
+        - tax_toal
 
     payment_means:
       type: object
@@ -1724,37 +1537,37 @@ components:
               source: invoice.note
 
         values:
-          invoice.id: INV-10001
-          invoice.issue_date: '2025-04-02'
-          invoice.tax_date: '2025-04-02'
-          invoice.currency_code: EUR
-          invoice.due_date: '2025-04-30'
-          invoice.amount: 114.0
-          invoice.note: Payment due in 28 days.
-          business.address.country: DE
-          customer.billing_address.country: DE
-          invoice.tax_total: 14.0
-          line_items:
-            - id: '1'
-              description: Consulting Services - April
-              quantity: 1
-              unit_price: 100.0
-              amount: 100.0
-              item_code: CONS-APRIL
-              classified_tax_category:
-                percentage: 14
-                category: VAT
-                country: DE
-            - id: '2'
-              description: TEST Consulting Services - April
-              quantity: 130
-              unit_price: 1000.0
-              amount: 1005.0
-              item_code: CONS-APRIL
-              classified_tax_category:
-                percentage: 30
-                category: EU VAT
-                country: DE
+          invoice.id': INV-10001
+          'invoice.issue_date': '2025-04-02'
+          'invoice.tax_date': '2025-04-02'
+          'invoice.currency_code': EUR
+          'invoice.due_date': '2025-04-30'
+          'invoice.amount': 114.0
+          'invoice.note': Payment due in 28 days.
+          'business.address.country': DE
+          'customer.billing_address.country': DE
+          'invoice.tax_total': 14.0
+          'line_items':
+            - 'id': '1'
+              'description': Consulting Services - April
+              'quantity': 1
+              'unit_price': 100.0
+              'amount': 100.0
+              'item_code': CONS-APRIL
+              'classified_tax_category':
+                'percentage': 14
+                'category': VAT
+                'country': DE
+            - 'id': '2'
+              'description': TEST Consulting Services - April
+              'quantity': 130
+              'unit_price': 1000.0
+              'amount': 1005.0
+              'item_code': CONS-APRIL
+              'classified_tax_category':
+                'percentage': 30
+                'category': EU VAT
+                'country': DE
 
     credit_note_document_submission_success:
       description: A sample credit note document submission request.
