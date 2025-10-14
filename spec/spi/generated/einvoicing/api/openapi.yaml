@@ -338,9 +338,9 @@ paths:
         label: Invoice document submission
         source: |
           curl --request POST \
-            --url https://{domain}/einvoicing/documents \
+            --url https://partner.app.com/einvoicing/documents \
             --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
+            --header 'Authorization: {"api_key" : ... }' \
             --data '{
               "id": "INV-10001",
               "type": "INVOICE",
@@ -427,9 +427,9 @@ paths:
         label: Invoice document submission with overrides
         source: |
           curl --request POST \
-            --url https://{domain}/einvoicing/documents \
+            --url https://partner.app.com/einvoicing/documents \
             --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
+            --header 'Authorization: {"api_key" : ... }' \
             --data '{
               "id": "INV-20221607",
               "type": "INVOICE",
@@ -640,9 +640,9 @@ paths:
         label: Credit note document submission
         source: |
           curl --request POST \
-            --url https://{domain}/einvoicing/documents \
+            --url https://partner.app.com/einvoicing/documents \
             --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
+            --header 'Authorization: {"api_key" : ... }' \
             --data '{
               "id": "CN-20002",
               "type": "CREDIT_NOTE",
@@ -732,9 +732,9 @@ paths:
         label: Credit note document submission with overrides
         source: |
           curl --request POST \
-            --url https://{domain}/einvoicing/documents \
+            --url https://partner.app.com/einvoicing/documents \
             --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
+            --header 'Authorization: {"api_key" : ... }' \
             --data '{
               "id": "CN-20002",
               "type": "CREDIT_NOTE",
@@ -1174,9 +1174,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/500_error_response'
           description: Unexpected error while processing request.
-      security:
-      - authorizationCode:
-        - write_access
       servers:
       - description: Callback server for credit note document status
         url: "https://{domain}.chargebee.com"
@@ -1989,9 +1986,7 @@ components:
           default_value: ""
           example: abs1234
           inclusion_type: Conditional
-          condition:
-            when: InvoiceTypeCode = 380
-            then_required: true
+          condition: null
         - path: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
           fieldName: cbc:LineExtensionAmount
           description: |
@@ -2002,9 +1997,7 @@ components:
           default_value: ""
           example: 2145
           inclusion_type: Conditional
-          condition:
-            when: document_type = INVOICE
-            then_required: true
+          condition: null
       properties:
         country_code:
           description: The ISO country code for the scenario.
@@ -2575,9 +2568,6 @@ components:
           type: string
         condition:
           description: Optional condition object for Conditional fields.
-          example:
-            when: InvoiceTypeCode = 380
-            then_required: true
           type: object
       required:
       - data_type
@@ -2920,7 +2910,7 @@ components:
   securitySchemes:
     ApiKeyAuth:
       in: header
-      name: X-API-Key
+      name: Authorization
       type: apiKey
     authorizationCode:
       flows:
