@@ -1622,23 +1622,34 @@ components:
             - `field_mapping`:
             A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema. Includes custom fields too which are defined by merchant in chargebee.
 
-            Each item must include:
-            - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
-            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
-            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+              Each item must include:
+              - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
+              - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+              - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
 
             - `values`:
-            A map of flattened key-value pairs (dot-paths or array-style paths) representing the actual data values. Arrays can be represented using expanded keys like:
-            ```json
-            {
-            "line_items": [
-              { "id": "1", "tax_category": "VAT" },
-              { "id": "2", "tax_category": "EU VAT" }
-              ]
-             }
-            ```
+            Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
 
-            This model supports full flexibility for provider-specific structures without requiring tight coupling between Chargebee's schema and the adapter logic.
+                - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+                  ```json
+                  {
+                    "invoice.id": "INV-10001",
+                    "invoice.issue_date": "2025-04-02",
+                    "invoice.currency_code": "EUR"
+                  }
+                  ```
+
+                - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+                  ```json
+                  {
+                    "line_items": [
+                      { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                      { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                    ]
+                  }
+                  ```
+
+            This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
 
           properties:
             country:
@@ -1697,7 +1708,29 @@ components:
                   - target
             values:
               type: object
-              description: Flattened key-value representation of the data to be mapped using `field_mapping`.
+              description: | 
+                Flattened key-value representation of the data to be mapped using `field_mapping`. 
+                
+                Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
+
+                - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+                ```json
+                {
+                  "invoice.id": "INV-10001",
+                  "invoice.issue_date": "2025-04-02",
+                  "invoice.currency_code": "EUR"
+                }
+                ```
+
+                - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+                ```json
+                {
+                  "line_items": [
+                    { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                    { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                  ]
+                }
+                ```
 
       required:
         - id
