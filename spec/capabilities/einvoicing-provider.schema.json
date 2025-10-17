@@ -75,11 +75,90 @@
           "items": {
             "$ref": "#/definitions/CredentialConfiguration"
           }
+        },
+        "chargebee_oauth": {
+          "type": "object",
+          "description": "OAuth authentication configuration for integrating Chargebee with the E-invoicing provider. Specifies the OAuth type and the redirect URI used for the authorization callback.",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "OAUTH2"
+              ],
+              "description": "The OAuth type."
+            },
+            "redirect_uri": {
+              "type": "string",
+              "format": "uri",
+              "description": "The redirect URI to which the E-invoicing provider will send the authorization code after successful authentication."
+            }
+          },
+          "required": ["type", "redirect_uri"]
+        },
+        "webhook_configuration": {
+          "type": "object",
+          "description": "Defines how the E-invoicing provider sends webhook notifications to Chargebee, including endpoint URL and authentication details.",
+          "properties": {
+            "endpoint_url": {
+              "type": "string",
+              "format": "uri",
+              "description": "The endpoint URL where Chargebee will receive webhook notifications from the E-invoicing provider."
+            },
+            "webhook_authentication": {
+              "type": "object",
+              "description": "Specifies the authentication mechanism for validating webhook requests. Supports HMAC or Basic Auth with details about where the authentication fields appear and the algorithms used.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "HMAC",
+                    "BASIC_AUTH"
+                  ],
+                  "description": "The type of webhook authentication."
+                },
+                "location": {
+                  "type": "string",
+                  "enum": [
+                    "body",
+                    "header"
+                  ],
+                  "description": "Where the webhook authentication field appears (request body or header)."
+                },
+                "field_path": {
+                  "type": "string",
+                  "description": "The JSON path or key path to the HMAC or authentication value in the webhook body."
+                },
+                "algorithm_path": {
+                  "type": "string",
+                  "description": "The JSON path or key path to the algorithm specification in the webhook body, if applicable."
+                },
+                "header_name": {
+                  "type": "string",
+                  "description": "The header name where the authentication value is sent if using header-based authentication."
+                },
+                "algorithm": {
+                  "type": "string",
+                  "description": "The HMAC or signature algorithm used (e.g., SHA-256)."
+                },
+                "fields": {
+                  "type": "array",
+                  "description": "Array of fields required to configure the webhook authentication, e.g., secret keys.",
+                  "items": {
+                    "$ref": "#/definitions/CredentialConfiguration"
+                  }
+                }
+              },
+              "required": ["type", "location", "fields"]
+            }
+          },
+          "required": ["endpoint_url", "webhook_authentication"]
         }
       },
       "required": [
         "api_base_url",
-        "credential_configuration"
+        "credential_configuration",
+        "chargebee_oauth",
+        "webhook_configuration"
       ],
       "examples": [
         {
@@ -92,7 +171,29 @@
               "name": "Avalara API Key",
               "type": "text"
             }
-          ]
+          ],
+          "chargebee_oauth": {
+            "type": "OAUTH2",
+            "redirect_uri": "https://app.chargebee.com/oauth/callback"
+          },
+          "webhook_configuration": {
+            "endpoint_url": "https://app.chargebee.com/einvoicing/webhooks/<einvoicing_provider_id>",
+            "webhook_authentication": {
+              "type": "HMAC",
+              "location": "body",
+              "field_path": "items[0].signature.value",
+              "algorithm_path": "items[0].signature.algorithm",
+              "fields": [
+                {
+                  "id": "webhook_secret_key",
+                  "name": "Avalara Webhook Secret",
+                  "type": "password",
+                  "is_required": true,
+                  "is_sensitive": true
+                }
+              ]
+            }
+          }
         }
       ],
       "title": "APIConfiguration"
