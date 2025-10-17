@@ -59,7 +59,7 @@ Chargebee injects below headers. like `merchant_id` and `trace_id` by default fo
 Below is an example of how the headers appear in a request:
 ```bash
 curl --request POST https://chargebee.partnerX.com/v1/endpoint \
-  --header 'Authorization: {"api_key":"service_provider_api_key","company_code":"EU_entity"}' \
+  --header 'Authorization: {"api_key":"service_provider_api_key"}' \
   --header "merchant_id: acme-gb" // This is sent by Chargebee by default \
   --header "trace_id: test_trace_id" // This is sent by Chargebee by default. It can be used for tracing logs.
 ````

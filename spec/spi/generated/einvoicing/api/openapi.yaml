@@ -169,7 +169,7 @@ paths:
           The ISO 3166-1 alpha-2 country code representing the country for which the e-invoicing data input fields need to be retrieved. Different countries may have varying e-invoicing requirements.
         explode: true
         in: query
-        name: country_code
+        name: country
         required: true
         schema:
           example: DE
@@ -338,9 +338,9 @@ paths:
         label: Invoice document submission
         source: |
           curl --request POST \
-            --url https://{domain}/einvoicing/documents \
+            --url https://partner.app.com/einvoicing/documents \
             --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
+            --header 'Authorization: {"api_key" : ... }' \
             --data '{
               "id": "INV-10001",
               "type": "INVOICE",
@@ -425,224 +425,103 @@ paths:
             }'
       - lang: cURL
         label: Invoice document submission with overrides
-        source: |
-          curl --request POST \
-            --url https://{domain}/einvoicing/documents \
-            --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
-            --data '{
-              "id": "INV-20221607",
-              "type": "INVOICE",
-              "issue_date": "2025-04-02",
-              "tax_date": "2025-04-02",
-              "currency_code": "EUR",
-              "due_date": "2025-04-30",
-              "amount": 114.0,
-              "note": "Payment due in 28 days.",
-              "accounting_supplier_party": {
-                "name": "Example Seller GmbH",
-                "address": {
-                  "line_1": "Hauptstr. 456",
-                  "line_2": "Suite 5",
-                  "zip": "50667",
-                  "city": "Cologne",
-                  "country": "DE"
-                },
-                "tax_scheme": [
-                  {
-                    "scheme": "VAT",
-                    "id": "DE987654321"
-                  }
-                ]
-              },
-              "accounting_customer_party": {
-                "name": "Example Buyer GmbH",
-                "address": {
-                  "line_1": "Berliner Str. 123",
-                  "line_2": "2nd Floor",
-                  "zip": "10115",
-                  "city": "Berlin",
-                  "country": "DE"
-                },
-                "tax_scheme": [
-                  {
-                    "scheme": "VAT",
-                    "id": "DE123456789"
-                  }
-                ]
-              },
-              "payment_means": [
-                {
-                  "code": "ONLINE_PAYMENT_SERVICE",
-                  "payment_id": "PAY-2024-00987",
-                  "card_account": {
-                    "primary_account_number_id": "4111********1111",
-                    "card_holder_name": "Jane Smith",
-                    "network_id": "MASTERCARD"
-                  }
-                }
-              ],
-              "lines": [
-                {
-                  "id": "1",
-                  "description": "Consulting Services - April",
-                  "quantity": 1,
-                  "unit_price": 100.0,
-                  "amount": 100.0,
-                  "item_code": "CONS-APRIL",
-                  "classified_tax_category": [
-                    {
-                      "percentage": 14,
-                      "category": "VAT",
-                      "country": "DE"
-                    }
-                  ]
-                }
-              ],
-              "tax_total": {
-                "tax_amount": 14.0,
-                "tax_sub_totals": [
-                  {
-                    "taxable_amount": 100.0,
-                    "tax_amount": 14.0,
-                    "percentage": 14,
-                    "country": "DE",
-                    "category": "VAT"
-                  }
-                ]
-              },
-              "overrides": {
-                "field_mapping": [
-                  {
-                    "target": "Invoice.cbc:ID",
-                    "source": "invoice.id"
-                  },
-                  {
-                    "target": "Invoice.cbc:IssueDate",
-                    "source": "invoice.issue_date"
-                  },
-                  {
-                    "target": "Invoice.cbc:InvoiceTypeCode",
-                    "fixed_value": "380"
-                  },
-                  {
-                    "target": "Invoice.cbc:DocumentCurrencyCode",
-                    "source": "invoice.currency_code"
-                  },
-                  {
-                    "target": "Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
-                    "source": "business.address.country"
-                  },
-                  {
-                    "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
-                    "source": "customer.billing_address.country"
-                  },
-                  {
-                    "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\"",
-                    "source": "customer.cf_einvoice_scheme_id"
-                  },
-                  {
-                    "target": "Invoice.cac:TaxTotal.cbc:TaxAmount",
-                    "source": "invoice.tax_total"
-                  },
-                  {
-                    "target": "Invoice.cbc:Note",
-                    "source": "invoice.note"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cbc:ID",
-                    "source": "line_items[].id"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cbc:InvoicedQuantity",
-                    "source": "line_items[].quantity"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode",
-                    "source": "line_items[].unit_code"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount",
-                    "source": "line_items[].amount"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID",
-                    "source": "invoice.currency_code"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cac:Item.cbc:Name",
-                    "source": "line_items[].description"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID",
-                    "source": "line_items[].classified_tax_category[].category"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID",
-                    "source": "line_items[].classified_tax_category[].category"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount",
-                    "source": "line_items[].unit_price"
-                  },
-                  {
-                    "target": "Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID",
-                    "source": "invoice.currency_code"
-                  },
-                  {
-                    "target": "Invoice.cbc:Note",
-                    "source": "invoice.note"
-                  }
-                ],
-                "values": {
-                  "invoice.id": "INV-10001",
-                  "invoice.issue_date": "2025-04-02",
-                  "invoice.tax_date": "2025-04-02",
-                  "invoice.currency_code": "EUR",
-                  "invoice.due_date": "2025-04-30",
-                  "invoice.amount": 114.0,
-                  "invoice.note": "Payment due in 28 days.",
-                  "business.address.country": "DE",
-                  "customer.billing_address.country": "DE",
-                  "invoice.tax_total": 14.0,
-                  "line_items": [
-                    {
-                      "id": "1",
-                      "description": "Consulting Services - April",
-                      "quantity": 1,
-                      "unit_price": 100.0,
-                      "amount": 100.0,
-                      "item_code": "CONS-APRIL",
-                      "classified_tax_category": {
-                        "percentage": 14,
-                        "category": "VAT",
-                        "country": "DE"
-                      }
-                    },
-                    {
-                      "id": "2",
-                      "description": "TEST Consulting Services - April",
-                      "quantity": 130,
-                      "unit_price": 1000.0,
-                      "amount": 1005.0,
-                      "item_code": "CONS-APRIL",
-                      "classified_tax_category": {
-                        "percentage": 30,
-                        "category": "EU VAT",
-                        "country": "DE"
-                      }
-                    }
-                  ]
-                }
-              }
-            }'
+        source: "curl --request POST \\\n  --url https://partner.app.com/einvoicing/documents\
+          \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization:\
+          \ {\"api_key\" : ... }' \\\n  --data '{\n    \"id\": \"INV-20221607\",\n\
+          \    \"type\": \"INVOICE\",\n    \"issue_date\": \"2025-04-02\",\n    \"\
+          tax_date\": \"2025-04-02\",\n    \"currency_code\": \"EUR\",\n    \"due_date\"\
+          : \"2025-04-30\",\n    \"amount\": 114.0,\n    \"note\": \"Payment due in\
+          \ 28 days.\",\n    \"accounting_supplier_party\": {\n      \"name\": \"\
+          Example Seller GmbH\",\n      \"address\": {\n        \"line_1\": \"Hauptstr.\
+          \ 456\",\n        \"line_2\": \"Suite 5\",\n        \"zip\": \"50667\",\n\
+          \        \"city\": \"Cologne\",\n        \"country\": \"DE\"\n      },\n\
+          \      \"tax_scheme\": [\n        {\n          \"scheme\": \"VAT\",\n  \
+          \        \"id\": \"DE987654321\"\n        }\n      ]\n    },\n    \"accounting_customer_party\"\
+          : {\n      \"name\": \"Example Buyer GmbH\",\n      \"address\": {\n   \
+          \     \"line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\"\
+          ,\n        \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"\
+          country\": \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n      \
+          \    \"scheme\": \"VAT\",\n          \"id\": \"DE123456789\"\n        }\n\
+          \      ]\n    },\n    \"payment_means\": [\n      {\n        \"code\": \"\
+          ONLINE_PAYMENT_SERVICE\",\n        \"payment_id\": \"PAY-2024-00987\",\n\
+          \        \"card_account\": {\n          \"primary_account_number_id\": \"\
+          4111********1111\",\n          \"card_holder_name\": \"Jane Smith\",\n \
+          \         \"network_id\": \"MASTERCARD\"\n        }\n      }\n    ],\n \
+          \   \"lines\": [\n      {\n        \"id\": \"1\",\n        \"description\"\
+          : \"Consulting Services - April\",\n        \"quantity\": 1,\n        \"\
+          unit_price\": 100.0,\n        \"amount\": 100.0,\n        \"item_code\"\
+          : \"CONS-APRIL\",\n        \"classified_tax_category\": [\n          {\n\
+          \            \"percentage\": 14,\n            \"category\": \"VAT\",\n \
+          \           \"country\": \"DE\"\n          }\n        ]\n      }\n    ],\n\
+          \    \"tax_total\": {\n      \"tax_amount\": 14.0,\n      \"tax_sub_totals\"\
+          : [\n        {\n          \"taxable_amount\": 100.0,\n          \"tax_amount\"\
+          : 14.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
+          \          \"category\": \"VAT\"\n        }\n      ]\n    },\n    \"overrides\"\
+          : {\n      \"country\": \"DE\", \n      \"transaction_type\": \"B2B\",\n\
+          \      \"model\": \"PEPPOL\",\n      \"field_mapping\": [\n        {\n \
+          \         \"target\": \"Invoice.cbc:ID\",\n          \"source\": \"invoice.id\"\
+          \n        },\n        {\n          \"target\": \"Invoice.cbc:IssueDate\"\
+          ,\n          \"source\": \"invoice.issue_date\"\n        },\n        {\n\
+          \          \"target\": \"Invoice.cbc:InvoiceTypeCode\",\n          \"fixed_value\"\
+          : \"380\"\n        },\n        {\n          \"target\": \"Invoice.cbc:DocumentCurrencyCode\"\
+          ,\n          \"source\": \"invoice.currency_code\"\n        },\n       \
+          \ {\n          \"target\": \"Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          ,\n          \"source\": \"business.address.country\"\n        },\n    \
+          \    {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          ,\n          \"source\": \"customer.billing_address.country\"\n        },\n\
+          \        {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\\\
+          \"\",\n          \"source\": \"customer.cf_einvoice_scheme_id\"\n      \
+          \  },\n        {\n          \"target\": \"Invoice.cac:TaxTotal.cbc:TaxAmount\"\
+          ,\n          \"source\": \"invoice.tax_total\"\n        },\n        {\n\
+          \          \"target\": \"Invoice.cbc:Note\",\n          \"source\": \"invoice.note\"\
+          \n        },\n        {\n          \"target\": \"Invoice.cac:InvoiceLine.cbc:ID\"\
+          ,\n          \"source\": \"line_items[].id\"\n        },\n        {\n  \
+          \        \"target\": \"Invoice.cac:InvoiceLine.cbc:InvoicedQuantity\",\n\
+          \          \"source\": \"line_items[].quantity\"\n        },\n        {\n\
+          \          \"target\": \"Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode\"\
+          ,\n          \"source\": \"line_items[].unit_code\"\n        },\n      \
+          \  {\n          \"target\": \"Invoice.cac:InvoiceLine.cbc:LineExtensionAmount\"\
+          ,\n          \"source\": \"line_items[].amount\"\n        },\n        {\n\
+          \          \"target\": \"Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID\"\
+          ,\n          \"source\": \"invoice.currency_code\"\n        },\n       \
+          \ {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Item.cbc:Name\"\
+          ,\n          \"source\": \"line_items[].description\"\n        },\n    \
+          \    {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID\"\
+          ,\n          \"source\": \"line_items[].classified_tax_category[].category\"\
+          \n        },\n        {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID\"\
+          ,\n          \"source\": \"line_items[].classified_tax_category[].category\"\
+          \n        },\n        {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount\"\
+          ,\n          \"source\": \"line_items[].unit_price\"\n        },\n     \
+          \   {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID\"\
+          ,\n          \"source\": \"invoice.currency_code\"\n        },\n       \
+          \ {\n          \"target\": \"Invoice.cbc:Note\",\n          \"source\":\
+          \ \"invoice.note\"\n        }\n      ],\n      \"values\": {\n        \"\
+          invoice.id\": \"INV-10001\",\n        \"invoice.issue_date\": \"2025-04-02\"\
+          ,\n        \"invoice.tax_date\": \"2025-04-02\",\n        \"invoice.currency_code\"\
+          : \"EUR\",\n        \"invoice.due_date\": \"2025-04-30\",\n        \"invoice.amount\"\
+          : 114.0,\n        \"invoice.note\": \"Payment due in 28 days.\",\n     \
+          \   \"business.address.country\": \"DE\",\n        \"customer.billing_address.country\"\
+          : \"DE\",\n        \"invoice.tax_total\": 14.0,\n        \"line_items\"\
+          : [\n          {\n            \"id\": \"1\",\n            \"description\"\
+          : \"Consulting Services - April\",\n            \"quantity\": 1,\n     \
+          \       \"unit_price\": 100.0,\n            \"amount\": 100.0,\n       \
+          \     \"item_code\": \"CONS-APRIL\",\n            \"classified_tax_category\"\
+          : {\n              \"percentage\": 14,\n              \"category\": \"VAT\"\
+          ,\n              \"country\": \"DE\"\n            }\n          },\n    \
+          \      {\n            \"id\": \"2\",\n            \"description\": \"TEST\
+          \ Consulting Services - April\",\n            \"quantity\": 130,\n     \
+          \       \"unit_price\": 1000.0,\n            \"amount\": 1005.0,\n     \
+          \       \"item_code\": \"CONS-APRIL\",\n            \"classified_tax_category\"\
+          : {\n              \"percentage\": 30,\n              \"category\": \"EU\
+          \ VAT\",\n              \"country\": \"DE\"\n            }\n          }\n\
+          \        ]\n      }\n    }\n  }'\n"
       - lang: cURL
         label: Credit note document submission
         source: |
           curl --request POST \
-            --url https://{domain}/einvoicing/documents \
+            --url https://partner.app.com/einvoicing/documents \
             --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
+            --header 'Authorization: {"api_key" : ... }' \
             --data '{
               "id": "CN-20002",
               "type": "CREDIT_NOTE",
@@ -730,250 +609,115 @@ paths:
             }'
       - lang: cURL
         label: Credit note document submission with overrides
-        source: |
-          curl --request POST \
-            --url https://{domain}/einvoicing/documents \
-            --header 'Content-Type: application/json' \
-            --header 'Authorization: Bearer <token>' \
-            --data '{
-              "id": "CN-20002",
-              "type": "CREDIT_NOTE",
-              "issue_date": "2025-04-10",
-              "tax_date": "2025-04-10",
-              "currency_code": "EUR",
-              "due_date": "2025-04-30",
-              "amount": 50.0,
-              "note": "Credit issued for April billing adjustment.",
-              "billing_reference": [
-                "INV-10001"
-              ],
-              "accounting_supplier_party": {
-                "name": "Example Seller GmbH",
-                "address": {
-                  "line_1": "Hauptstr. 456",
-                  "line_2": "Suite 5",
-                  "zip": "50667",
-                  "city": "Cologne",
-                  "country": "DE"
-                },
-                "tax_scheme": [
-                  {
-                    "scheme": "VAT",
-                    "id": "DE987654321"
-                  }
-                ]
-              },
-              "accounting_customer_party": {
-                "name": "Example Buyer GmbH",
-                "address": {
-                  "line_1": "Berliner Str. 123",
-                  "line_2": "2nd Floor",
-                  "zip": "10115",
-                  "city": "Berlin",
-                  "country": "DE"
-                },
-                "tax_scheme": [
-                  {
-                    "scheme": "VAT",
-                    "id": "DE123456789"
-                  }
-                ]
-              },
-              "payment_means": [
-                {
-                  "code": "ONLINE_PAYMENT_SERVICE",
-                  "payment_id": "PAY-2024-01002",
-                  "card_account": {
-                    "primary_account_number_id": "4111********2222",
-                    "card_holder_name": "John Doe",
-                    "network_id": "VISA"
-                  }
-                }
-              ],
-              "lines": [
-                {
-                  "id": "1",
-                  "description": "Refund for overcharge in April",
-                  "quantity": 1,
-                  "unit_price": 50.0,
-                  "amount": 50.0,
-                  "item_code": "APRIL-REFUND",
-                  "classified_tax_category": [
-                    {
-                      "percentage": 14,
-                      "category": "VAT",
-                      "country": "DE"
-                    }
-                  ]
-                }
-              ],
-              "tax_total": {
-                "tax_amount": 7.0,
-                "tax_sub_totals": [
-                  {
-                    "taxable_amount": 50.0,
-                    "tax_amount": 7.0,
-                    "percentage": 14,
-                    "country": "DE",
-                    "category": "VAT"
-                  }
-                ]
-              },
-              "overrides": {
-                "field_mapping": [
-                  {
-                    "target": "Creditnote.cbc:ID",
-                    "source": "credit_note.id"
-                  },
-                  {
-                    "target": "Creditnote.cbc:IssueDate",
-                    "source": "credit_note.issue_date"
-                  },
-                  {
-                    "target": "Creditnote.cbc:CreditNoteTypeCode",
-                    "fixed_value": "396"
-                  },
-                  {
-                    "target": "Creditnote.cbc:DocumentCurrencyCode",
-                    "source": "credit_note.currency_code"
-                  },
-                  {
-                    "target": "Creditnote.cac:BillingReference",
-                    "source": "credit_note.billing_reference"
-                  },
-                  {
-                    "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID",
-                    "source": "business.legal_entity.company_id"
-                  },
-                  {
-                    "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
-                    "source": "business.address.country"
-                  },
-                  {
-                    "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName",
-                    "source": "business.legal_entity.registration_name"
-                  },
-                  {
-                    "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID",
-                    "source": "customer.legal_entity.company_id"
-                  },
-                  {
-                    "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
-                    "source": "customer.billing_address.country"
-                  },
-                  {
-                    "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName",
-                    "source": "customer.legal_entity.registration_name"
-                  },
-                  {
-                    "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\"",
-                    "source": "customer.cf_einvoice_scheme_id"
-                  },
-                  {
-                    "target": "Creditnote.cac:TaxTotal.cbc:TaxAmount",
-                    "source": "credit_note.tax_total"
-                  },
-                  {
-                    "target": "Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID",
-                    "source": "credit_note.currency_code"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cbc:ID",
-                    "source": "line_items[].id"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity",
-                    "source": "line_items[].quantity"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode",
-                    "source": "line_items[].unit_code"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount",
-                    "source": "line_items[].amount"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID",
-                    "source": "credit_note.currency_code"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cac:Item.cbc:Name",
-                    "source": "line_items[].description"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID",
-                    "source": "line_items[].classified_tax_category[].category"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID",
-                    "source": "line_items[].classified_tax_category[].category"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount",
-                    "source": "line_items[].unit_price"
-                  },
-                  {
-                    "target": "Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID",
-                    "source": "credit_note.currency_code"
-                  },
-                  {
-                    "target": "Creditnote.cbc:Note",
-                    "source": "credit_note.custom_fields.cf_credit_note_reason"
-                  }
-                ],
-                "values": {
-                  "credit_note.id": "CN-20001",
-                  "credit_note.issue_date": "2025-04-05",
-                  "credit_note.tax_date": "2025-04-05",
-                  "credit_note.currency_code": "EUR",
-                  "credit_note.due_date": "2025-04-30",
-                  "credit_note.amount": 140.0,
-                  "credit_note.billing_reference": {
-                    "invoice_document_reference": {
-                      "id": "INV-10001",
-                      "issue_date": "2025-04-02"
-                    }
-                  },
-                  "credit_note.note": "Refund for April invoice",
-                  "business.address.country": "DE",
-                  "business.legal_entity.company_id": "987654321",
-                  "business.legal_entity.registration_name": "Example Seller GmbH",
-                  "customer.billing_address.country": "DE",
-                  "customer.legal_entity.company_id": "123456789",
-                  "customer.legal_entity.registration_name": "Example Buyer GmbH",
-                  "credit_note.tax_total": 40.0,
-                  "line_items": [
-                    {
-                      "id": "1",
-                      "description": "Reversal of April service",
-                      "quantity": 1,
-                      "unit_price": 100.0,
-                      "amount": 100.0,
-                      "unit_code": "EA",
-                      "classified_tax_category": {
-                        "percentage": 14,
-                        "category": "VAT",
-                        "country": "DE"
-                      }
-                    },
-                    {
-                      "id": "2",
-                      "description": "Reversal of consulting charge",
-                      "quantity": 1,
-                      "unit_price": 40.0,
-                      "amount": 40.0,
-                      "unit_code": "EA",
-                      "classified_tax_category": {
-                        "percentage": 30,
-                        "category": "EU VAT",
-                        "country": "DE"
-                      }
-                    }
-                  ]
-                }
-              }
-            }'
+        source: "curl --request POST \\\n  --url https://partner.app.com/einvoicing/documents\
+          \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization:\
+          \ {\"api_key\" : ... }' \\\n  --data '{\n    \"id\": \"CN-20002\",\n   \
+          \ \"type\": \"CREDIT_NOTE\",\n    \"issue_date\": \"2025-04-10\",\n    \"\
+          tax_date\": \"2025-04-10\",\n    \"currency_code\": \"EUR\",\n    \"due_date\"\
+          : \"2025-04-30\",\n    \"amount\": 50.0,\n    \"note\": \"Credit issued\
+          \ for April billing adjustment.\",\n    \"billing_reference\": [\n     \
+          \ \"INV-10001\"\n    ],\n    \"accounting_supplier_party\": {\n      \"\
+          name\": \"Example Seller GmbH\",\n      \"address\": {\n        \"line_1\"\
+          : \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n        \"zip\"\
+          : \"50667\",\n        \"city\": \"Cologne\",\n        \"country\": \"DE\"\
+          \n      },\n      \"tax_scheme\": [\n        {\n          \"scheme\": \"\
+          VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
+          \    \"accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\"\
+          ,\n      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n  \
+          \      \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n       \
+          \ \"city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n      \"\
+          tax_scheme\": [\n        {\n          \"scheme\": \"VAT\",\n          \"\
+          id\": \"DE123456789\"\n        }\n      ]\n    },\n    \"payment_means\"\
+          : [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"\
+          payment_id\": \"PAY-2024-01002\",\n        \"card_account\": {\n       \
+          \   \"primary_account_number_id\": \"4111********2222\",\n          \"card_holder_name\"\
+          : \"John Doe\",\n          \"network_id\": \"VISA\"\n        }\n      }\n\
+          \    ],\n    \"lines\": [\n      {\n        \"id\": \"1\",\n        \"description\"\
+          : \"Refund for overcharge in April\",\n        \"quantity\": 1,\n      \
+          \  \"unit_price\": 50.0,\n        \"amount\": 50.0,\n        \"item_code\"\
+          : \"APRIL-REFUND\",\n        \"classified_tax_category\": [\n          {\n\
+          \            \"percentage\": 14,\n            \"category\": \"VAT\",\n \
+          \           \"country\": \"DE\"\n          }\n        ]\n      }\n    ],\n\
+          \    \"tax_total\": {\n      \"tax_amount\": 7.0,\n      \"tax_sub_totals\"\
+          : [\n        {\n          \"taxable_amount\": 50.0,\n          \"tax_amount\"\
+          : 7.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
+          \          \"category\": \"VAT\"\n        }\n      ]\n    },\n    \"overrides\"\
+          : {\n      \"country\": \"DE\", \n      \"transaction_type\": \"B2B\",\n\
+          \      \"model\": \"PEPPOL\",\n      \"field_mapping\": [\n        {\n \
+          \         \"target\": \"Creditnote.cbc:ID\",\n          \"source\": \"credit_note.id\"\
+          \n        },\n        {\n          \"target\": \"Creditnote.cbc:IssueDate\"\
+          ,\n          \"source\": \"credit_note.issue_date\"\n        },\n      \
+          \  {\n          \"target\": \"Creditnote.cbc:CreditNoteTypeCode\",\n   \
+          \       \"fixed_value\": \"396\"\n        },\n        {\n          \"target\"\
+          : \"Creditnote.cbc:DocumentCurrencyCode\",\n          \"source\": \"credit_note.currency_code\"\
+          \n        },\n        {\n          \"target\": \"Creditnote.cac:BillingReference\"\
+          ,\n          \"source\": \"credit_note.billing_reference\"\n        },\n\
+          \        {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID\"\
+          ,\n          \"source\": \"business.legal_entity.company_id\"\n        },\n\
+          \        {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          ,\n          \"source\": \"business.address.country\"\n        },\n    \
+          \    {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName\"\
+          ,\n          \"source\": \"business.legal_entity.registration_name\"\n \
+          \       },\n        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID\"\
+          ,\n          \"source\": \"customer.legal_entity.company_id\"\n        },\n\
+          \        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          ,\n          \"source\": \"customer.billing_address.country\"\n        },\n\
+          \        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName\"\
+          ,\n          \"source\": \"customer.legal_entity.registration_name\"\n \
+          \       },\n        {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\\\
+          \"\",\n          \"source\": \"customer.cf_einvoice_scheme_id\"\n      \
+          \  },\n        {\n          \"target\": \"Creditnote.cac:TaxTotal.cbc:TaxAmount\"\
+          ,\n          \"source\": \"credit_note.tax_total\"\n        },\n       \
+          \ {\n          \"target\": \"Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID\"\
+          ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
+          \     {\n          \"target\": \"Creditnote.cac:InvoiceLine.cbc:ID\",\n\
+          \          \"source\": \"line_items[].id\"\n        },\n        {\n    \
+          \      \"target\": \"Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity\",\n\
+          \          \"source\": \"line_items[].quantity\"\n        },\n        {\n\
+          \          \"target\": \"Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode\"\
+          ,\n          \"source\": \"line_items[].unit_code\"\n        },\n      \
+          \  {\n          \"target\": \"Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount\"\
+          ,\n          \"source\": \"line_items[].amount\"\n        },\n        {\n\
+          \          \"target\": \"Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID\"\
+          ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
+          \     {\n          \"target\": \"Creditnote.cac:InvoiceLine.cac:Item.cbc:Name\"\
+          ,\n          \"source\": \"line_items[].description\"\n        },\n    \
+          \    {\n          \"target\": \"Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID\"\
+          ,\n          \"source\": \"line_items[].classified_tax_category[].category\"\
+          \n        },\n        {\n          \"target\": \"Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID\"\
+          ,\n          \"source\": \"line_items[].classified_tax_category[].category\"\
+          \n        },\n        {\n          \"target\": \"Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount\"\
+          ,\n          \"source\": \"line_items[].unit_price\"\n        },\n     \
+          \   {\n          \"target\": \"Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID\"\
+          ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
+          \     {\n          \"target\": \"Creditnote.cbc:Note\",\n          \"source\"\
+          : \"credit_note.custom_fields.cf_credit_note_reason\"\n        }\n     \
+          \ ],\n      \"values\": {\n        \"credit_note.id\": \"CN-20001\",\n \
+          \       \"credit_note.issue_date\": \"2025-04-05\",\n        \"credit_note.tax_date\"\
+          : \"2025-04-05\",\n        \"credit_note.currency_code\": \"EUR\",\n   \
+          \     \"credit_note.due_date\": \"2025-04-30\",\n        \"credit_note.amount\"\
+          : 140.0,\n        \"credit_note.billing_reference\": {\n          \"invoice_document_reference\"\
+          : {\n            \"id\": \"INV-10001\",\n            \"issue_date\": \"\
+          2025-04-02\"\n          }\n        },\n        \"credit_note.note\": \"\
+          Refund for April invoice\",\n        \"business.address.country\": \"DE\"\
+          ,\n        \"business.legal_entity.company_id\": \"987654321\",\n      \
+          \  \"business.legal_entity.registration_name\": \"Example Seller GmbH\"\
+          ,\n        \"customer.billing_address.country\": \"DE\",\n        \"customer.legal_entity.company_id\"\
+          : \"123456789\",\n        \"customer.legal_entity.registration_name\": \"\
+          Example Buyer GmbH\",\n        \"credit_note.tax_total\": 40.0,\n      \
+          \  \"line_items\": [\n          {\n            \"id\": \"1\",\n        \
+          \    \"description\": \"Reversal of April service\",\n            \"quantity\"\
+          : 1,\n            \"unit_price\": 100.0,\n            \"amount\": 100.0,\n\
+          \            \"unit_code\": \"EA\",\n            \"classified_tax_category\"\
+          : {\n              \"percentage\": 14,\n              \"category\": \"VAT\"\
+          ,\n              \"country\": \"DE\"\n            }\n          },\n    \
+          \      {\n            \"id\": \"2\",\n            \"description\": \"Reversal\
+          \ of consulting charge\",\n            \"quantity\": 1,\n            \"\
+          unit_price\": 40.0,\n            \"amount\": 40.0,\n            \"unit_code\"\
+          : \"EA\",\n            \"classified_tax_category\": {\n              \"\
+          percentage\": 30,\n              \"category\": \"EU VAT\",\n           \
+          \   \"country\": \"DE\"\n            }\n          }\n        ]\n      }\n\
+          \    }\n  }'\n"
       x-content-type: application/json
       x-accepts: application/json
   /api/v2/invoices/{document_id}/einvoice_status:
@@ -1174,9 +918,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/500_error_response'
           description: Unexpected error while processing request.
-      security:
-      - authorizationCode:
-        - write_access
       servers:
       - description: Callback server for credit note document status
         url: "https://{domain}.chargebee.com"
@@ -1242,6 +983,72 @@ paths:
       summary: Download Document
       tags:
       - Documents
+      x-accepts: application/json
+  /einvoicing/webhooks/documents/status:
+    post:
+      description: |
+        This endpoint is intended **only for Chargebee-internal hosted adapters**.
+
+        When the e-invoicing provider (e.g., Avalara) sends a webhook to Chargebee, the Chargebee app forwards the payload *as-is* to this endpoint on the hosted adapter.
+
+        The adapter is expected to parse and transform the incoming schema according to the provider’s contract and then POST the transformed document status to the callback endpoint
+
+        Chargebee includes the authorization token in the `X-CB-Authorization` header for the adapter to use while calling back.
+
+        This keeps the adapter logic stateless and focused on schema transformation.
+      operationId: documentStatusWebhookForwarded
+      requestBody:
+        content:
+          application/json:
+            example:
+              id: 8dd0013d-ac06-4793-94fc-945249f1547c
+              invocationTimestamp: 2025-09-04T08:17:25.504429841
+              items:
+              - tenantId: 67379e869f31e4e90dfdda27
+                systemCode: DES
+                eventName: statusChange
+                message:
+                  id: f12386ed-77ee-4b57-ac2e-a2905b1d22f4
+                  companyId: bfc169c9-4793-4962-9a3e-24e9b4625168
+                  processDateTime: 2025-09-04T08:17:23.380Z
+                  status: Pending
+                  documentNumber: PEPPOL-EU-690
+                  documentType: ubl-invoice
+                  documentVersion: "2.1"
+                  documentDate: 2025-07-01T00:00:00
+                  flow: out
+                  countryCode: DE
+                  countryMandate: DE-B2B-PEPPOL
+                  supplierName: Chargebee Germany
+                  customerName: Avalara Europe Ltd.
+                  interfaceName: ""
+                signature:
+                  value: 4CPe+MK4rf2VIOBSPicH1T0/NeGAyOBURe3gNETVql8=
+                  algorithm: SHA-256
+            schema:
+              additionalProperties: true
+              description: |
+                Arbitrary payload forwarded by Chargebee as received from the e-invoicing provider.
+                Each provider may have its own structure. The adapter must handle the schema transformation.
+              type: object
+        description: Raw webhook payload received from the e-invoicing provider.
+        required: true
+      responses:
+        "200":
+          description: Webhook successfully accepted and forwarded.
+        "400":
+          description: Invalid payload format or missing required properties.
+        "401":
+          description: Unauthorized.
+        "500":
+          description: Adapter failed to process the webhook internally.
+      security:
+      - ApiKeyAuth: []
+      - CBAuth: []
+      summary: Receive document status webhook from e-invoicing provider
+      tags:
+      - Webhooks
+      x-content-type: application/json
       x-accepts: application/json
   /health:
     get:
@@ -1446,6 +1253,9 @@ components:
             country: DE
             category: VAT
         overrides:
+          country: DE
+          transaction_type: B2B
+          model: PEPPOL
           field_mapping:
           - target: Invoice.cbc:ID
             source: invoice.id
@@ -1642,6 +1452,9 @@ components:
             country: DE
             category: VAT
         overrides:
+          country: DE
+          transaction_type: B2B
+          model: PEPPOL
           field_mapping:
           - target: Creditnote.cbc:ID
             source: credit_note.id
@@ -1921,7 +1734,7 @@ components:
           - VERIFACTU
           example: PEPPOL
           type: string
-        country_code:
+        country:
           description: ISO 3166-1 alpha-2 country code where the e-invoicing activation
             is applicable.
           type: string
@@ -1946,7 +1759,7 @@ components:
             display_name: Acme GmbH
           country_activations:
           - network: PEPPOL
-            country_code: DE
+            country: DE
             einvoicing_type: B2B
       properties:
         activations:
@@ -1956,7 +1769,7 @@ components:
       type: object
     data_input_fields_response:
       example:
-        country_code: DE
+        country: DE
         transaction_type: B2B
         model: PEPPOL
         document_type: INVOICE
@@ -1989,9 +1802,7 @@ components:
           default_value: ""
           example: abs1234
           inclusion_type: Conditional
-          condition:
-            when: InvoiceTypeCode = 380
-            then_required: true
+          condition: null
         - path: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
           fieldName: cbc:LineExtensionAmount
           description: |
@@ -2002,11 +1813,9 @@ components:
           default_value: ""
           example: 2145
           inclusion_type: Conditional
-          condition:
-            when: document_type = INVOICE
-            then_required: true
+          condition: null
       properties:
-        country_code:
+        country:
           description: The ISO country code for the scenario.
           example: DE
           type: string
@@ -2575,9 +2384,6 @@ components:
           type: string
         condition:
           description: Optional condition object for Conditional fields.
-          example:
-            when: InvoiceTypeCode = 380
-            then_required: true
           type: object
       required:
       - data_type
@@ -2763,31 +2569,94 @@ components:
         - `field_mapping`:
         A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema. Includes custom fields too which are defined by merchant in chargebee.
 
-        Each item must include:
-        - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
-        - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
-        - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+          Each item must include:
+          - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
+          - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+          - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
 
         - `values`:
-        A map of flattened key-value pairs (dot-paths or array-style paths) representing the actual data values. Arrays can be represented using expanded keys like:
-        ```json
-        {
-        "line_items": [
-          { "id": "1", "tax_category": "VAT" },
-          { "id": "2", "tax_category": "EU VAT" }
-          ]
-         }
-        ```
+        Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
 
-        This model supports full flexibility for provider-specific structures without requiring tight coupling between Chargebee's schema and the adapter logic.
+            - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+              ```json
+              {
+                "invoice.id": "INV-10001",
+                "invoice.issue_date": "2025-04-02",
+                "invoice.currency_code": "EUR"
+              }
+              ```
+
+            - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+              ```json
+              {
+                "line_items": [
+                  { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                  { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                ]
+              }
+              ```
+
+        This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
       properties:
+        country:
+          description: The ISO country code for the scenario.
+          example: DE
+          type: string
+        transaction_type:
+          description: "The type of transaction (B2B, B2C, B2G)."
+          enum:
+          - B2B
+          - B2C
+          - B2G
+          example: B2B
+          type: string
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
+            \ eInvoicing format used in Germany combining PDF and XML for human and\
+            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
+            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
+            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
+            \ and reporting sales invoices directly to the tax agency.\n"
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
         field_mapping:
           items:
             $ref: '#/components/schemas/document_overrides_field_mapping_inner'
           type: array
         values:
-          description: Flattened key-value representation of the data to be mapped
-            using `field_mapping`.
+          description: "Flattened key-value representation of the data to be mapped\
+            \ using `field_mapping`. \n\nEach key in this object uses dot-notation\
+            \ to reference the source path, including arrays and nested arrays — for\
+            \ example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.\n\
+            \n- **Scalar values** (e.g., strings, numbers, dates) should be represented\
+            \ as flat keys:\n```json\n{\n  \"invoice.id\": \"INV-10001\",\n  \"invoice.issue_date\"\
+            : \"2025-04-02\",\n  \"invoice.currency_code\": \"EUR\"\n}\n```\n\n- **Complex\
+            \ types like arrays** (e.g., `line_items`) should be represented as nested\
+            \ JSON:\n```json\n{\n  \"line_items\": [\n    { \"id\": \"1\", \"line_item_tax\"\
+            : [ {\"name\" : \"VAT\" }] },\n    { \"id\": \"2\", \"line_item_tax\"\
+            : [ {\"name\" : \"Local Tax\"}] }\n  ]\n}\n```\n"
           type: object
       type: object
     payment_means_payee_financial_account:
@@ -2920,7 +2789,11 @@ components:
   securitySchemes:
     ApiKeyAuth:
       in: header
-      name: X-API-Key
+      name: Authorization
+      type: apiKey
+    CBAuth:
+      in: header
+      name: X-CB-Authorization
       type: apiKey
     authorizationCode:
       flows:

@@ -96,7 +96,7 @@ paths:
         Within Chargebee, this endpoint is invoked during the e-invoicing setup workflow, when a user maps fields between the provider’s schema and Chargebee’s internal data model for a specific combination of country, network, and transaction type. Once this configuration is complete, the resulting field mappings are included in the document submission request and passed to the adapter via the field_mapping parameter, enabling the adapter to transform the SPI-compliant payload into the provider’s required format.
       operationId: getDataInputFields
       parameters:
-        - name: country_code
+        - name: country
           in: query
           required: true
           description: |
@@ -217,9 +217,9 @@ paths:
           label: Invoice document submission
           source: |
             curl --request POST \
-              --url https://{domain}/einvoicing/documents \
+              --url https://partner.app.com/einvoicing/documents \
               --header 'Content-Type: application/json' \
-              --header 'Authorization: Bearer <token>' \
+              --header 'Authorization: {"api_key" : ... }' \
               --data '{
                 "id": "INV-10001",
                 "type": "INVOICE",
@@ -307,9 +307,9 @@ paths:
           label: Invoice document submission with overrides
           source: |
             curl --request POST \
-              --url https://{domain}/einvoicing/documents \
+              --url https://partner.app.com/einvoicing/documents \
               --header 'Content-Type: application/json' \
-              --header 'Authorization: Bearer <token>' \
+              --header 'Authorization: {"api_key" : ... }' \
               --data '{
                 "id": "INV-20221607",
                 "type": "INVOICE",
@@ -392,6 +392,9 @@ paths:
                   ]
                 },
                 "overrides": {
+                  "country": "DE", 
+                  "transaction_type": "B2B",
+                  "model": "PEPPOL",
                   "field_mapping": [
                     {
                       "target": "Invoice.cbc:ID",
@@ -521,9 +524,9 @@ paths:
           label: Credit note document submission
           source: |
             curl --request POST \
-              --url https://{domain}/einvoicing/documents \
+              --url https://partner.app.com/einvoicing/documents \
               --header 'Content-Type: application/json' \
-              --header 'Authorization: Bearer <token>' \
+              --header 'Authorization: {"api_key" : ... }' \
               --data '{
                 "id": "CN-20002",
                 "type": "CREDIT_NOTE",
@@ -614,9 +617,9 @@ paths:
           label: Credit note document submission with overrides
           source: |
             curl --request POST \
-              --url https://{domain}/einvoicing/documents \
+              --url https://partner.app.com/einvoicing/documents \
               --header 'Content-Type: application/json' \
-              --header 'Authorization: Bearer <token>' \
+              --header 'Authorization: {"api_key" : ... }' \
               --data '{
                 "id": "CN-20002",
                 "type": "CREDIT_NOTE",
@@ -702,6 +705,9 @@ paths:
                   ]
                 },
                 "overrides": {
+                  "country": "DE", 
+                  "transaction_type": "B2B",
+                  "model": "PEPPOL",
                   "field_mapping": [
                     {
                       "target": "Creditnote.cbc:ID",
@@ -1062,9 +1068,6 @@ paths:
 
         '
       operationId: einvoicingDocumentStatus
-      security:
-        - authorizationCode:
-            - write_access
       servers:
         - url: https://{domain}.chargebee.com
           description: Callback server for credit note document status
@@ -1158,6 +1161,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/500_error_response'
+  /einvoicing/webhooks/documents/status:
+    post:
+      tags:
+        - Webhooks
+      summary: Receive document status webhook from e-invoicing provider
+      description: |
+        This endpoint is intended **only for Chargebee-internal hosted adapters**.
+
+        When the e-invoicing provider (e.g., Avalara) sends a webhook to Chargebee, the Chargebee app forwards the payload *as-is* to this endpoint on the hosted adapter.
+
+        The adapter is expected to parse and transform the incoming schema according to the provider’s contract and then POST the transformed document status to the callback endpoint
+
+        Chargebee includes the authorization token in the `X-CB-Authorization` header for the adapter to use while calling back.
+
+        This keeps the adapter logic stateless and focused on schema transformation.
+
+      operationId: documentStatusWebhookForwarded
+      security:
+        - ApiKeyAuth: []
+        - CBAuth: []
+      requestBody:
+        description: Raw webhook payload received from the e-invoicing provider.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: |
+                Arbitrary payload forwarded by Chargebee as received from the e-invoicing provider.
+                Each provider may have its own structure. The adapter must handle the schema transformation.
+              additionalProperties: true
+            example:
+              id: "8dd0013d-ac06-4793-94fc-945249f1547c"
+              invocationTimestamp: "2025-09-04T08:17:25.504429841"
+              items:
+                - tenantId: "67379e869f31e4e90dfdda27"
+                  systemCode: "DES"
+                  eventName: "statusChange"
+                  message:
+                    id: "f12386ed-77ee-4b57-ac2e-a2905b1d22f4"
+                    companyId: "bfc169c9-4793-4962-9a3e-24e9b4625168"
+                    processDateTime: "2025-09-04T08:17:23.380Z"
+                    status: "Pending"
+                    documentNumber: "PEPPOL-EU-690"
+                    documentType: "ubl-invoice"
+                    documentVersion: "2.1"
+                    documentDate: "2025-07-01T00:00:00"
+                    flow: "out"
+                    countryCode: "DE"
+                    countryMandate: "DE-B2B-PEPPOL"
+                    supplierName: "Chargebee Germany"
+                    customerName: "Avalara Europe Ltd."
+                    interfaceName: ""
+                  signature:
+                    value: "4CPe+MK4rf2VIOBSPicH1T0/NeGAyOBURe3gNETVql8="
+                    algorithm: "SHA-256"
+
+      responses:
+        '200':
+          description: Webhook successfully accepted and forwarded.
+        '400':
+          description: Invalid payload format or missing required properties.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Adapter failed to process the webhook internally.
   /health:
     $ref: ./paths/health.yml
 components:
@@ -1223,7 +1292,7 @@ components:
             - FACE
             - VERIFACTU
           example: "PEPPOL"
-        country_code:
+        country:
           type: string
           description: ISO 3166-1 alpha-2 country code where the e-invoicing activation
             is applicable.
@@ -1253,12 +1322,12 @@ components:
               display_name: Acme GmbH
             country_activations:
               - network: PEPPOL
-                country_code: DE
+                country: DE
                 einvoicing_type: B2B
     data_input_fields_response:
       type: object
       properties:
-        country_code:
+        country:
           type: string
           description: The ISO country code for the scenario.
           example: "DE"
@@ -1361,11 +1430,8 @@ components:
               condition:
                 type: object
                 description: Optional condition object for Conditional fields.
-                example:
-                  when: "InvoiceTypeCode = 380"
-                  then_required: true
       example:
-        country_code: "DE"
+        country: "DE"
         transaction_type: "B2B"
         model: "PEPPOL"
         document_type: "INVOICE"
@@ -1402,8 +1468,6 @@ components:
             example: "abs1234"
             inclusion_type: "Conditional"
             condition:
-              when: "InvoiceTypeCode = 380"
-              then_required: true
 
           - path: "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount"
             fieldName: "cbc:LineExtensionAmount"
@@ -1417,8 +1481,6 @@ components:
             example: 2145
             inclusion_type: "Conditional"
             condition:
-              when: "document_type = INVOICE"
-              then_required: true
     document:
       type: object
       properties:
@@ -1626,25 +1688,71 @@ components:
             - `field_mapping`:
             A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema. Includes custom fields too which are defined by merchant in chargebee.
 
-            Each item must include:
-            - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
-            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
-            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+              Each item must include:
+              - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
+              - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+              - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
 
             - `values`:
-            A map of flattened key-value pairs (dot-paths or array-style paths) representing the actual data values. Arrays can be represented using expanded keys like:
-            ```json
-            {
-            "line_items": [
-              { "id": "1", "tax_category": "VAT" },
-              { "id": "2", "tax_category": "EU VAT" }
-              ]
-             }
-            ```
+            Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
 
-            This model supports full flexibility for provider-specific structures without requiring tight coupling between Chargebee's schema and the adapter logic.
+                - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+                  ```json
+                  {
+                    "invoice.id": "INV-10001",
+                    "invoice.issue_date": "2025-04-02",
+                    "invoice.currency_code": "EUR"
+                  }
+                  ```
+
+                - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+                  ```json
+                  {
+                    "line_items": [
+                      { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                      { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                    ]
+                  }
+                  ```
+
+            This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
 
           properties:
+            country:
+              type: string
+              description: The ISO country code for the scenario.
+              example: "DE"
+            transaction_type:
+              type: string
+              description: The type of transaction (B2B, B2C, B2G).
+              enum: [ B2B, B2C, B2G ]
+              example: "B2B"
+            model:
+              type: string
+              description: |
+                Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+                Different countries adopt different models based on legal, technical, and administrative mandates.
+                Supported values:
+                - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+                - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+                - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+                - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+                - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+                - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+                - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+                - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+                - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+              enum:
+                - PEPPOL
+                - EINVOICE
+                - CLEARANCE
+                - REPORTING
+                - ZUGFERD
+                - CTC
+                - NEMHANDEL
+                - FACE
+                - VERIFACTU
+              example: "PEPPOL"
             field_mapping:
               type: array
               items:
@@ -1666,7 +1774,29 @@ components:
                   - target
             values:
               type: object
-              description: Flattened key-value representation of the data to be mapped using `field_mapping`.
+              description: |
+                Flattened key-value representation of the data to be mapped using `field_mapping`. 
+                
+                Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
+
+                - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+                ```json
+                {
+                  "invoice.id": "INV-10001",
+                  "invoice.issue_date": "2025-04-02",
+                  "invoice.currency_code": "EUR"
+                }
+                ```
+
+                - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+                ```json
+                {
+                  "line_items": [
+                    { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                    { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                  ]
+                }
+                ```
 
       required:
         - id
@@ -2120,6 +2250,9 @@ components:
               country: DE
               category: VAT
         overrides:
+          country: DE
+          transaction_type: B2B
+          model: PEPPOL
           field_mapping:
             - target: Invoice.cbc:ID
               source: invoice.id
@@ -2337,6 +2470,9 @@ components:
               country: DE
               category: VAT
         overrides:
+          country: DE
+          transaction_type: B2B
+          model: PEPPOL
           field_mapping:
             - target: Creditnote.cbc:ID
               source: credit_note.id
@@ -2538,7 +2674,11 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: X-API-Key
+      name: Authorization
+    CBAuth:
+      type: apiKey
+      in: header
+      name: X-CB-Authorization
     authorizationCode:
       type: oauth2
       flows:
