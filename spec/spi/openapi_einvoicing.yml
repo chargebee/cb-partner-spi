@@ -1161,6 +1161,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/500_error_response'
+  /einvoicing/webhooks/documents/status:
+    post:
+      tags:
+        - Webhooks
+      summary: Receive document status webhook from e-invoicing provider
+      description: |
+        This endpoint is intended **only for Chargebee-internal hosted adapters**.
+
+        When the e-invoicing provider (e.g., Avalara) sends a webhook to Chargebee, the Chargebee app forwards the payload *as-is* to this endpoint on the hosted adapter.
+
+        The adapter is expected to parse and transform the incoming schema according to the provider’s contract and then POST the transformed document status to the callback endpoint
+
+        Chargebee includes the authorization token in the `X-CB-Authorization` header for the adapter to use while calling back.
+
+        This keeps the adapter logic stateless and focused on schema transformation.
+
+      operationId: documentStatusWebhookForwarded
+      security:
+        - ApiKeyAuth: []
+        - CBAuth: []
+      requestBody:
+        description: Raw webhook payload received from the e-invoicing provider.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: |
+                Arbitrary payload forwarded by Chargebee as received from the e-invoicing provider.
+                Each provider may have its own structure. The adapter must handle the schema transformation.
+              additionalProperties: true
+            example:
+              id: "8dd0013d-ac06-4793-94fc-945249f1547c"
+              invocationTimestamp: "2025-09-04T08:17:25.504429841"
+              items:
+                - tenantId: "67379e869f31e4e90dfdda27"
+                  systemCode: "DES"
+                  eventName: "statusChange"
+                  message:
+                    id: "f12386ed-77ee-4b57-ac2e-a2905b1d22f4"
+                    companyId: "bfc169c9-4793-4962-9a3e-24e9b4625168"
+                    processDateTime: "2025-09-04T08:17:23.380Z"
+                    status: "Pending"
+                    documentNumber: "PEPPOL-EU-690"
+                    documentType: "ubl-invoice"
+                    documentVersion: "2.1"
+                    documentDate: "2025-07-01T00:00:00"
+                    flow: "out"
+                    countryCode: "DE"
+                    countryMandate: "DE-B2B-PEPPOL"
+                    supplierName: "Chargebee Germany"
+                    customerName: "Avalara Europe Ltd."
+                    interfaceName: ""
+                  signature:
+                    value: "4CPe+MK4rf2VIOBSPicH1T0/NeGAyOBURe3gNETVql8="
+                    algorithm: "SHA-256"
+
+      responses:
+        '200':
+          description: Webhook successfully accepted and forwarded.
+        '400':
+          description: Invalid payload format or missing required properties.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Adapter failed to process the webhook internally.
   /health:
     $ref: ./paths/health.yml
 components:
@@ -1708,7 +1774,7 @@ components:
                   - target
             values:
               type: object
-              description: | 
+              description: |
                 Flattened key-value representation of the data to be mapped using `field_mapping`. 
                 
                 Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
@@ -2609,6 +2675,10 @@ components:
       type: apiKey
       in: header
       name: Authorization
+    CBAuth:
+      type: apiKey
+      in: header
+      name: X-CB-Authorization
     authorizationCode:
       type: oauth2
       flows:
