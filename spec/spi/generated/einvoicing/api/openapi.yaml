@@ -1584,7 +1584,7 @@ components:
         - mime_type: application/xml
           document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
           expires_at: 2025-03-28T09:24:29Z
-        network: peppol
+        model: peppol
     einvoice_document_download_stream_response:
       description: A sample response with Base64-encoded XML and PDF document content.
       value:
@@ -1597,7 +1597,7 @@ components:
         - mime_type: application/pdf
           document_content: JVBERi0xLjQKJ...CiUlRU9GCg==
           expires_at: 2025-03-28T09:24:29Z
-        network: peppol
+        model: peppol
     callback_document_status_success_for_invoice:
       description: A sample callback notification indicating successful document submission.
       value:
@@ -1758,7 +1758,7 @@ components:
             identifier: DE123456789
             display_name: Acme GmbH
           country_activations:
-          - network: PEPPOL
+          - model: PEPPOL
             country: DE
             einvoicing_type: B2B
       properties:
@@ -2031,7 +2031,7 @@ components:
         - mime_type: application/xml
           document_url: https://provider.com/downloads/invoice-20250402.xml
           expires_at: 2025-03-28T09:24:29Z
-        network: peppol
+        model: peppol
       properties:
         document_id:
           type: string
@@ -2041,11 +2041,34 @@ components:
           items:
             $ref: '#/components/schemas/download_document_response_documents_inner'
           type: array
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n  - PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            \  - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n  - CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n  - REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n  - ZUGFERD: A\
+            \ hybrid eInvoicing format used in Germany combining PDF and XML for human\
+            \ and machine readability.\n  - CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n  - NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n  -\
+            \ FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices\
+            \ to government or private recipients.\n  - VERIFACTU: Spain’s mechanism\
+            \ for validating and reporting sales invoices directly to the tax agency.\n\
+            \  schema:\n    type: string\n    enum:\n      - PEPPOL\n      - EINVOICE\n\
+            \      - CLEARANCE\n      - REPORTING\n      - ZUGFERD\n      - CTC\n\
+            \      - NEMHANDEL\n      - FACE\n      - VERIFACTU\n    example: \"PEPPOL\"\
+            \n"
       required:
       - document_id
       - documents
       - evidence
-      - network
+      - model
       - request_id
       type: object
     bad_request_error_response:
@@ -2696,7 +2719,6 @@ components:
           type: string
       type: object
     download_document_response_documents_inner:
-      example: PEPPOL
       properties:
         mime_type:
           description: The MIME type of the document.
@@ -2717,11 +2739,6 @@ components:
           description: The time until which the document URL is valid.
           example: 2025-03-28T09:24:29Z
           format: date-time
-          type: string
-        network:
-          enum:
-          - PEPPOL
-          - ZUGFeRD
           type: string
       required:
       - mime_type
