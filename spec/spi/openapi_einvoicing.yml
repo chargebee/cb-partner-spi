@@ -1376,14 +1376,14 @@ components:
             required:
               - path
               - data_type
-              - fieldName
+              - field_name
               - inclusion_type
             properties:
               path:
                 type: string
                 description: Path of the field in the final XML/UBL or JSON structure (as per provider specification).
                 example: "Invoice.cbc:ID"
-              fieldName:
+              field_name:
                 type: string
                 description: Canonical or local name of the field.
                 example: "cbc:ID"
@@ -1398,6 +1398,7 @@ components:
                   - string
                   - number
                   - date
+                  - boolean
               documentation_link:
                 type: string
                 description: External documentation reference for the field (if available).
@@ -1437,7 +1438,7 @@ components:
         document_type: "INVOICE"
         fields:
           - path: "Invoice.cbc:ID"
-            fieldName: "cbc:ID"
+            field_name: "cbc:ID"
             description: "Unique identifier for the invoice"
             data_type: "string"
             documentation_link: ""
@@ -1447,7 +1448,7 @@ components:
             inclusion_type: "Mandatory"
 
           - path: "Invoice.cbc:Note"
-            fieldName: "cbc:Note"
+            field_name: "cbc:Note"
             description: "Optional description or remarks"
             data_type: "string"
             documentation_link: ""
@@ -1457,7 +1458,7 @@ components:
             inclusion_type: "Optional"
 
           - path: "Invoice/cbc:BuyerReference"
-            fieldName: "cbc:BuyerReference"
+            field_name: "cbc:BuyerReference"
             description: >
               Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes.
               An invoice must have buyer reference or purchase order reference.
@@ -1470,7 +1471,7 @@ components:
             condition:
 
           - path: "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount"
-            fieldName: "cbc:LineExtensionAmount"
+            field_name: "cbc:LineExtensionAmount"
             description: >
               Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT),
               and must be rounded to a maximum of 2 decimals.

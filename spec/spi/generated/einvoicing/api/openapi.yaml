@@ -1775,7 +1775,7 @@ components:
         document_type: INVOICE
         fields:
         - path: Invoice.cbc:ID
-          fieldName: cbc:ID
+          field_name: cbc:ID
           description: Unique identifier for the invoice
           data_type: string
           documentation_link: ""
@@ -1784,7 +1784,7 @@ components:
           example: INV-1001
           inclusion_type: Mandatory
         - path: Invoice.cbc:Note
-          fieldName: cbc:Note
+          field_name: cbc:Note
           description: Optional description or remarks
           data_type: string
           documentation_link: ""
@@ -1793,7 +1793,7 @@ components:
           example: B2B Transaction
           inclusion_type: Optional
         - path: Invoice/cbc:BuyerReference
-          fieldName: cbc:BuyerReference
+          field_name: cbc:BuyerReference
           description: |
             Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes. An invoice must have buyer reference or purchase order reference.
           data_type: string
@@ -1804,7 +1804,7 @@ components:
           inclusion_type: Conditional
           condition: null
         - path: Invoice.cac:InvoiceLine.cbc:LineExtensionAmount
-          fieldName: cbc:LineExtensionAmount
+          field_name: cbc:LineExtensionAmount
           description: |
             Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT), and must be rounded to a maximum of 2 decimals.
           data_type: number
@@ -2361,7 +2361,7 @@ components:
             per provider specification).
           example: Invoice.cbc:ID
           type: string
-        fieldName:
+        field_name:
           description: Canonical or local name of the field.
           example: cbc:ID
           type: string
@@ -2375,6 +2375,7 @@ components:
           - string
           - number
           - date
+          - boolean
           type: string
         documentation_link:
           description: External documentation reference for the field (if available).
@@ -2410,7 +2411,7 @@ components:
           type: object
       required:
       - data_type
-      - fieldName
+      - field_name
       - inclusion_type
       - path
       type: object
