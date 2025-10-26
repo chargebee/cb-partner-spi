@@ -1919,10 +1919,8 @@ components:
       type: object
       required:
         - document_id
-        - request_id
         - documents
         - evidence
-        - model
       properties:
         document_id:
           type: string

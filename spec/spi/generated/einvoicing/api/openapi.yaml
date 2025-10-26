@@ -2068,8 +2068,6 @@ components:
       - document_id
       - documents
       - evidence
-      - model
-      - request_id
       type: object
     bad_request_error_response:
       example:
