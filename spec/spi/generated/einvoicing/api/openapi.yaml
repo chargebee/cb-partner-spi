@@ -1973,6 +1973,12 @@ components:
       type: object
     document_submission_response:
       example:
+        provider_interaction:
+          request:
+            body: "{}"
+          response:
+            status_code: 0
+            body: "{}"
         document_id: document_id
         request_id: request_id
         status: ACCEPTED
@@ -1993,6 +1999,8 @@ components:
           description: A unique identifier assigned to the request for tracking and
             correlation purposes across systems and logs.
           type: string
+        provider_interaction:
+          $ref: '#/components/schemas/document_submission_response_provider_interaction'
       required:
       - document_id
       - status
@@ -2716,6 +2724,52 @@ components:
         network_id:
           description: "The identifier of the card network. (e.g., VISA, MasterCard)."
           type: string
+      type: object
+    document_submission_response_provider_interaction_request:
+      description: Details of the HTTP request sent by the adapter to the external
+        provider.
+      example:
+        body: "{}"
+      properties:
+        body:
+          description: |
+            The request payload sent to the provider API, typically serialized as JSON.
+            This should exclude any sensitive or personally identifiable information.
+          type: object
+      type: object
+    document_submission_response_provider_interaction_response:
+      description: Details of the HTTP response received from the external provider.
+      example:
+        status_code: 0
+        body: "{}"
+      properties:
+        status_code:
+          description: The HTTP status code returned by the provider.
+          type: integer
+        body:
+          description: |
+            The response body returned by the provider.
+          type: object
+      type: object
+    document_submission_response_provider_interaction:
+      description: |
+        Captures the interaction between the adapter and the external e-invoicing provider.
+        Includes both the outbound request details and the inbound response received from the provider.
+        Intended for internally hosted adapters for audit and traceability of SPI transactions.
+      example:
+        request:
+          body: "{}"
+        response:
+          status_code: 0
+          body: "{}"
+      properties:
+        request:
+          $ref: '#/components/schemas/document_submission_response_provider_interaction_request'
+        response:
+          $ref: '#/components/schemas/document_submission_response_provider_interaction_response'
+      required:
+      - request
+      - response
       type: object
     download_document_response_documents_inner:
       properties:
