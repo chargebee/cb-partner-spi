@@ -2047,6 +2047,36 @@ components:
             required:
               - code
               - message
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
       example:
         errors:
           - code: MISSING_REQUIRED_DATA
@@ -2178,6 +2208,36 @@ components:
           type: string
           description: A human-readable description of the unexpected error encountered.
           example: An unexpected error occurred while processing your request.
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
       required:
         - message
   examples:

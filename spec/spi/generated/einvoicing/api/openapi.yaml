@@ -2088,6 +2088,8 @@ components:
           items:
             $ref: '#/components/schemas/bad_request_error_response_errors_inner'
           type: array
+        provider_interaction:
+          $ref: '#/components/schemas/document_submission_response_provider_interaction'
       type: object
     not_found_error_response:
       example:
@@ -2191,6 +2193,8 @@ components:
           description: A human-readable description of the unexpected error encountered.
           example: An unexpected error occurred while processing your request.
           type: string
+        provider_interaction:
+          $ref: '#/components/schemas/document_submission_response_provider_interaction'
       required:
       - message
     CredentialValidationResponse:
