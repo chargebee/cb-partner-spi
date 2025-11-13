@@ -121,28 +121,23 @@ paths:
       x-accepts: application/json
   /einvoicing/activations:
     get:
-      description: |
-        Retrieves either:
-          A list of country-level e-invoicing activations (registrations) configured at the connected e-invoicing provider, or
-          A list of companies configured at the provider, depending on the query parameters used.
-
-        Each activation represents the provider's capability to support e-invoicing in a specific country and model. Implementation of this endpoint is recommended only if the e-invoicing provider exposes an API to retrieve activations for companies and countries.
-
-        Modes of Operation:
-        When called without parameters, returns all activations across companies (if supported by the provider).
-        When called with company_id, returns activations for that specific company.
-        When called with mode=companies, returns a list of companies that are active in the e-invoicing provider.
-
-        Implementation of this endpoint is recommended only if the e-invoicing provider exposes an API to retrieve activations for companies and countries.
-
-        This endpoint enables Chargebee to:
-        - Identify e-invoicing capabilities available for activation.
-        - Fetch company lists for provider configuration workflows.
-        - Retrieve activation details filtered by a specific company during country setup.
-
-        Example use cases:
-          During integration setup: GET /einvoicing/activations?mode=companies
-          During country configuration: GET /einvoicing/activations?company_id=<avalara_company_id>
+      description: "Retrieves either:\n  - A list of country-level e-invoicing activations\
+        \ (registrations) configured at the connected e-invoicing provider, or  \n\
+        \  - A list of companies configured at the provider, depending on the query\
+        \ parameters used.\n\nEach activation represents the provider’s capability\
+        \ to support e-invoicing in a specific country and model. Implementation of\
+        \ this endpoint is recommended **only** if the e-invoicing provider exposes\
+        \ an API to retrieve activations for companies and countries.\n\n**Modes of\
+        \ Operation:**\n- When called *without parameters*, returns all activations\
+        \ across companies (if supported by the provider).\n- When called with `company_id`,\
+        \ returns activations for that specific company.\n- When called with `mode=companies`,\
+        \ returns a list of companies that are active in the e-invoicing provider.\n\
+        \nThis endpoint enables Chargebee to:\n- Identify e-invoicing capabilities\
+        \ available for activation.\n- Fetch company lists for provider configuration\
+        \ workflows.\n- Retrieve activation details filtered by a specific company\
+        \ during country setup.\n\n**Example use cases:**\n- During integration setup:\
+        \ `GET /einvoicing/activations?mode=companies`\n- During country configuration:\
+        \ `GET /einvoicing/activations?company_id=<avalara_company_id>`\n"
       operationId: listActivations
       parameters:
       - description: "Filters activations for a specific company.  \nIf provided,\
@@ -173,6 +168,30 @@ paths:
         "200":
           content:
             application/json:
+              examples:
+                Companies response:
+                  summary: Response when listing companies
+                  value:
+                    companies:
+                    - id: 595e13fd-68b0-40c2-ade3-9780ce339d97
+                      display_name: Acme BE
+                    - id: a3f7b451-29f0-42e0-8e4d-927c0ff19de7
+                      display_name: Beta GmbH
+                Activations response:
+                  summary: Response when listing activations for a company
+                  value:
+                    activations:
+                    - id: 02083517-408f-4174-8c4d-42b029162f9c
+                      company:
+                        identifier: 595e13fd-68b0-40c2-ade3-9780ce339d97
+                        display_name: Acme BE
+                      status:
+                        code: COMPLETED
+                        message: Activation completed successfully.
+                      country_activations:
+                      - model: PEPPOL
+                        country: DE
+                        einvoicing_type: B2B
               schema:
                 $ref: '#/components/schemas/listActivations_200_response'
           description: A list of activations
@@ -1800,19 +1819,6 @@ components:
           type: string
       type: object
     activations_response:
-      example:
-        activations:
-        - id: 02083517-408f-4174-8c4d-42b029162f9c
-          status:
-            code: Completed
-            message: Activation completed successfully.
-          company:
-            identifier: 595e13fd-68b0-40c2-ade3-9780ce339d97
-            display_name: Acme GmbH
-          country_activations:
-          - model: PEPPOL
-            country: DE
-            einvoicing_type: B2B
       properties:
         activations:
           items:
@@ -1820,12 +1826,6 @@ components:
           type: array
       type: object
     companies_response:
-      example:
-        companies:
-        - id: 595e13fd-68b0-40c2-ade3-9780ce339d97
-          display_name: Acme BE
-        - id: a3f7b451-29f0-42e0-8e4d-927c0ff19de7
-          display_name: Beta GmbH
       properties:
         companies:
           description: List of companies retrieved from the e-invoicing provider.
