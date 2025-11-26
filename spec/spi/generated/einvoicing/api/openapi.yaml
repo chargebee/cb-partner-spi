@@ -121,7 +121,8 @@ paths:
       x-accepts: application/json
   /einvoicing/activations:
     get:
-      description: |
+      description: |2
+
         Retrieves either:
 
         - A list of country-level e-invoicing activations configured at the connected e-invoicing provider, or
@@ -208,7 +209,7 @@ paths:
                   value:
                     activations:
                     - id: 02083517-408f-4174-8c4d-42b029162f9c
-                      business_entity_id:
+                      business_entity:
                         identifier: 595e13fd-68b0-40c2-ade3-9780ce339d97
                         display_name: Acme Germany
                       status:
@@ -1864,10 +1865,10 @@ components:
       type: object
     business_entities_response:
       properties:
-        companies:
-          description: List of companies retrieved from the e-invoicing provider.
+        business_entities:
+          description: List of business_entities retrieved from the e-invoicing provider.
           items:
-            $ref: '#/components/schemas/business_entities_response_companies_inner'
+            $ref: '#/components/schemas/business_entities_response_business_entities_inner'
           type: array
       type: object
     data_input_fields_response:
@@ -2472,7 +2473,7 @@ components:
           description: A detailed message describing the activation status.
           type: string
       type: object
-    business_entities_response_companies_inner:
+    business_entities_response_business_entities_inner:
       properties:
         id:
           description: The unique identifier of the business entity.
