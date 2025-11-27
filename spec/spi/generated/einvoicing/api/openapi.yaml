@@ -350,6 +350,7 @@ paths:
           enum:
           - INVOICE
           - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         style: form
       responses:
@@ -1046,6 +1047,10 @@ paths:
       description: |
         Retrieves the document content associated with the provided documentId from the connected e-invoicing provider.
 
+        A document_id by itself is not always sufficient for the provider to determine which document formats or variants to return. Chargebee includes additional query parameters — such as country, transaction_type, and model — so the adapter can accurately identify and fetch the correct document representations.
+
+        If the mime_type query parameter is not provided, the adapter MUST retrieve all available document representations for the specified document_id. When a specific mime_type is supplied, the adapter MUST return only the matching representation(s).
+
         The document may be returned either as a pre-signed URL or as a direct binary stream (such as a PDF or XML file), depending on the provider’s capabilities and the SPI implementation.
 
         In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
@@ -1060,12 +1065,97 @@ paths:
         schema:
           type: string
         style: simple
-      - explode: true
+      - description: "Optional MIME type filter for the document representation to\
+          \ download.\n\nWhen provided, the adapter MUST return only the document(s)\
+          \ matching this MIME type\n(for example, `application/xml`, `application/pdf`,\
+          \ or a country-specific UBL MIME type).\n\nWhen omitted, the adapter MUST\
+          \ attempt to retrieve and return all available representations \nfor the\
+          \ given document_id from the underlying e-invoicing provider.\n"
+        explode: true
         in: query
-        name: request_id
+        name: mime_type
+        required: false
+        schema:
+          enum:
+          - application/xml
+          - application/pdf
+          - application/json
+          - application/zip
+          - application/png
+          - application/vnd.oasis.ubl+xml
+          example: application/xml
+          type: string
+        style: form
+      - description: |
+          The ISO 3166-1 alpha-2 country code representing the country for which the e-invoicing data input fields need to be retrieved. Different countries may have varying e-invoicing requirements.
+        explode: true
+        in: query
+        name: country
         required: true
         schema:
-          description: The unique identifier of the document to be downloaded.
+          example: DE
+          type: string
+        style: form
+      - description: |
+          The transaction type for which the data input fields need to be retrieved. Required fields may vary depending on the type: B2B (Business to Business), B2C (Business to Consumer), or B2G (Business to Government).
+        explode: true
+        in: query
+        name: transaction_type
+        required: true
+        schema:
+          enum:
+          - B2B
+          - B2C
+          - B2G
+          example: B2B
+          type: string
+        style: form
+      - description: "Indicates the eInvoicing flow model that governs the document\
+          \ exchange and processing mechanism. \nDifferent countries adopt different\
+          \ models based on legal, technical, and administrative mandates.\nSupported\
+          \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+          \ cross-border electronic document exchange between businesses and governments.\n\
+          - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged\
+          \ between businesses and sometimes stored.\n- CLEARANCE: Invoices must be\
+          \ pre-approved by a tax authority before they are sent to the buyer.\n-\
+          \ REPORTING: Invoices are shared with tax authorities after issuance, usually\
+          \ for compliance and audit purposes.\n- ZUGFERD: A hybrid eInvoicing format\
+          \ used in Germany combining PDF and XML for human and machine readability.\n\
+          - CTC: Continuous Transaction Controls involve real-time or near-real-time\
+          \ invoice validation and transmission to tax authorities.\n- NEMHANDEL:\
+          \ Denmark’s national infrastructure for eInvoicing that supports secure\
+          \ delivery via specific formats like OIOUBL.\n- FACE: Spain’s centralized\
+          \ system (FACe/FACeB2B) for routing invoices to government or private recipients.\n\
+          - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices\
+          \ directly to the tax agency.\n"
+        explode: true
+        in: query
+        name: model
+        required: true
+        schema:
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
+        style: form
+      - description: "Type of document, either an invoice or a credit note."
+        explode: true
+        in: query
+        name: document_type
+        required: true
+        schema:
+          enum:
+          - INVOICE
+          - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         style: form
       responses:
@@ -1080,6 +1170,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/download_document_response'
           description: Document downloaded successfully.
+        "400":
+          content:
+            application/json:
+              example:
+                errors:
+                - code: INVALID_OPERATION
+                  message: The provided mime_type is not supported for this document.
+                  help_url: https://docs.example.com/errors#INVALID_OPERATION
+              schema:
+                $ref: '#/components/schemas/bad_request_error_response'
+          description: Bad Request – The request is invalid or malformed.
         "401":
           description: Unauthorized
         "403":
@@ -1997,6 +2098,7 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         fields:
           description: List of input fields with inclusion metadata.
@@ -2228,14 +2330,18 @@ components:
     not_found_error_response:
       example:
         errors:
-        - code: INVALID_OPERATION
+        - code: NOT_FOUND
           message: The requested document is not found.
           help_url: https://docs.example.com/errors#INVALID_OPERATION
       properties:
         errors:
+          description: A list of errors explaining why the requested resource was
+            not found.
           items:
             $ref: '#/components/schemas/not_found_error_response_errors_inner'
           type: array
+      required:
+      - errors
       type: object
     address:
       properties:
@@ -2980,7 +3086,7 @@ components:
         code:
           description: Application-specific error code
           enum:
-          - INVALID_OPERATION
+          - NOT_FOUND
           type: string
         message:
           description: A short message describing the reason for the error.
