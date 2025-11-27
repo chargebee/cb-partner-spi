@@ -219,6 +219,10 @@ paths:
                       - model: PEPPOL
                         country: DE
                         einvoicing_type: B2B
+                        supported_document_types:
+                        - INVOICE
+                        - CREDIT_NOTE
+                        - APPLICATION_RESPONSE
                     - id: 02083517-408f-4174-8c4d-42b029162f9c
                       business_entity_id:
                         identifier: 595e13fd-68b0-40c2-ade3-9780ce339d97
@@ -230,6 +234,9 @@ paths:
                       - model: ZUGFERD
                         country: DE
                         einvoicing_type: B2B
+                        supported_document_types:
+                        - INVOICE
+                        - CREDIT_NOTE
               schema:
                 $ref: '#/components/schemas/listActivations_200_response'
           description: A list of activations
@@ -1855,6 +1862,29 @@ components:
           - B2C
           - B2G
           type: string
+        supported_document_types:
+          description: "The types of business documents that are supported for this\
+            \ country activation.\n\nThis represents a normalized view of the provider's\
+            \ supported formats.\nFor example, `ubl-invoice`, `ubl-creditnote`, and\
+            \ `ubl-applicationresponse` should be\nmapped to:\n\n- `INVOICE` for invoice\
+            \ documents  \n- `CREDIT_NOTE` for credit note documents  \n- `APPLICATION_RESPONSE`\
+            \ for application response documents. APPLICATION_RESPONSE represents\
+            \ an electronic \nresponse document sent to indicate the processing result\
+            \ of a \npreviously submitted invoice or credit note, such as acceptance,\
+            \ rejection, or required corrections.\n\nProviders may support additional\
+            \ document types; if so, they should be\nreturned using the closest applicable\
+            \ value or a provider-specific\nextension value agreed with Chargebee.\n"
+          example:
+          - INVOICE
+          - CREDIT_NOTE
+          - APPLICATION_RESPONSE
+          items:
+            enum:
+            - INVOICE
+            - CREDIT_NOTE
+            - APPLICATION_RESPONSE
+            type: string
+          type: array
       type: object
     activations_response:
       properties:

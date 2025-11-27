@@ -149,6 +149,10 @@ paths:
                           - model: "PEPPOL"
                             country: "DE"
                             einvoicing_type: "B2B"
+                            supported_document_types:
+                              - INVOICE
+                              - CREDIT_NOTE
+                              - APPLICATION_RESPONSE
                       - id: "02083517-408f-4174-8c4d-42b029162f9c"
                         business_entity_id:
                           identifier: "595e13fd-68b0-40c2-ade3-9780ce339d97"
@@ -160,6 +164,9 @@ paths:
                           - model: "ZUGFERD"
                             country: "DE"
                             einvoicing_type: "B2B"
+                            supported_document_types:
+                              - INVOICE
+                              - CREDIT_NOTE
         '401':
           description: Unauthorized
         '403':
@@ -1409,6 +1416,34 @@ components:
             - B2B
             - B2C
             - B2G
+        supported_document_types:
+          type: array
+          description: |
+            The types of business documents that are supported for this country activation.
+            
+            This represents a normalized view of the provider's supported formats.
+            For example, `ubl-invoice`, `ubl-creditnote`, and `ubl-applicationresponse` should be
+            mapped to:
+            
+            - `INVOICE` for invoice documents  
+            - `CREDIT_NOTE` for credit note documents  
+            - `APPLICATION_RESPONSE` for application response documents. APPLICATION_RESPONSE represents an electronic 
+            response document sent to indicate the processing result of a 
+            previously submitted invoice or credit note, such as acceptance, rejection, or required corrections.
+            
+            Providers may support additional document types; if so, they should be
+            returned using the closest applicable value or a provider-specific
+            extension value agreed with Chargebee.
+          items:
+            type: string
+            enum:
+              - INVOICE
+              - CREDIT_NOTE
+              - APPLICATION_RESPONSE
+          example:
+            - INVOICE
+            - CREDIT_NOTE
+            - APPLICATION_RESPONSE
     activations_response:
       type: object
       properties:
