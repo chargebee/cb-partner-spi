@@ -140,7 +140,7 @@ paths:
                     activations:
                       - id: "02083517-408f-4174-8c4d-42b029162f9c"
                         business_entity:
-                          identifier: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                          id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
                           display_name: "Acme Germany"
                         status:
                           code: "COMPLETED"
@@ -155,7 +155,7 @@ paths:
                               - APPLICATION_RESPONSE
                       - id: "02083517-408f-4174-8c4d-42b029162f9c"
                         business_entity_id:
-                          identifier: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                          id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
                           display_name: "Acme Germany"
                         status:
                           code: "PENDING"
@@ -1438,7 +1438,7 @@ components:
         business_entity:
           type: object
           properties:
-            identifier:
+            id:
               type: string
               description: The unique identifier for the company
             display_name:
