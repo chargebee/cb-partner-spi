@@ -292,9 +292,9 @@
           "$ref": "#/definitions/CustomerIdentifiers",
           "description": "Specifies the customer identifiers required for E-invoicing in different countries."
         },
-        "failed_einvoice_download_format": {
-          "$ref": "#/definitions/FailedEinvoiceDownloadFormat",
-          "description": "Specifies the format of the failed e-invoice to be downloaded."
+        "document_download": {
+          "$ref": "#/definitions/DocumentDownload",
+          "description": "Specifies the download document capability configuration including whether it is supported and the supported MIME types for failed documents."
         }
       },
       "required": [
@@ -303,7 +303,7 @@
         "retrieve_activation_supported",
         "retrieve_einvoice_status_supported",
         "customer_identifiers",
-        "failed_einvoice_download_format"
+        "document_download"
       ],
       "examples": [
         {
@@ -336,8 +336,15 @@
                     "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
                 ]
               }
-            ]
-            }
+            ],
+            "document_download": {
+                "is_supported": true,
+                "failed_document_mime_types": [
+                    "application/vnd.oasis.ubl+xml",
+                    "application/xml"
+                ]
+              }
+          }
       ],
       "title": "Capabilities"
     },
@@ -411,16 +418,33 @@
       ],
       "title": "CustomerIdentifier"
     },
-    "FailedEinvoiceDownloadFormat": {
-      "type": "array",
-      "description": "Specifies the format of the failed e-invoice to be downloaded.",
-      "items": {
-        "type": "string"
+    "DocumentDownload": {
+      "type": "object",
+      "description": "Specifies the download document capability configuration including whether it is supported and the supported MIME types for failed documents.",
+      "additionalProperties": false,
+      "properties": {
+        "is_supported": {
+          "type": "boolean",
+          "description": "Specifies if downloading documents is supported.",
+          "default": true
+        },
+        "failed_document_mime_types": {
+          "type": "array",
+          "description": "Specifies the supported MIME types for downloading failed documents.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            "application/vnd.oasis.ubl+xml",
+            "application/xml"
+          ]
+        }
       },
-      "examples": [
-        "application/vnd.oasis.ubl+xml",
-        "application/xml"
-      ]
+      "required": [
+        "is_supported",
+        "failed_document_mime_types"
+      ],
+      "title": "DocumentDownload"
     },
     "IdentityConfiguration": {
       "type": "object",
