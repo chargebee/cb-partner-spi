@@ -291,6 +291,10 @@
         "customer_identifiers": {
           "$ref": "#/definitions/CustomerIdentifiers",
           "description": "Specifies the customer identifiers required for E-invoicing in different countries."
+        },
+        "failed_einvoice_download_format": {
+          "$ref": "#/definitions/FailedEinvoiceDownloadFormat",
+          "description": "Specifies the format of the failed e-invoice to be downloaded."
         }
       },
       "required": [
@@ -298,7 +302,8 @@
         "supported_currencies",
         "retrieve_activation_supported",
         "retrieve_einvoice_status_supported",
-        "customer_identifiers"
+        "customer_identifiers",
+        "failed_einvoice_download_format"
       ],
       "examples": [
         {
@@ -405,6 +410,17 @@
         }
       ],
       "title": "CustomerIdentifier"
+    },
+    "FailedEinvoiceDownloadFormat": {
+      "type": "array",
+      "description": "Specifies the format of the failed e-invoice to be downloaded.",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        "application/vnd.oasis.ubl+xml",
+        "application/xml"
+      ]
     },
     "IdentityConfiguration": {
       "type": "object",
