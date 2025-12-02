@@ -432,7 +432,15 @@
           "type": "array",
           "description": "Specifies the supported MIME types for downloading failed documents.",
           "items": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "application/xml",
+              "application/pdf",
+              "application/json",
+              "application/zip",
+              "application/png",
+              "application/vnd.oasis.ubl+xml"
+            ]
           },
           "examples": [
             "application/vnd.oasis.ubl+xml",
