@@ -54,23 +54,119 @@ paths:
         - Activations
       summary: Retrieve a list of Activations.
       description: |
-        Retrieves the list of country-level e-invoicing activations supported by the connected e-invoicing provider.
+      
+        Retrieves either:
 
-        Each activation represents the provider's capability to support e-invoicing in a specific country and network.
+        - A list of country-level e-invoicing activations configured at the connected e-invoicing provider, or
+        - A list of business entities configured at the provider, depending on the query parameters used.
 
-        Implementation of this endpoint is recommended only if the e-invoicing provider exposes an API to retrieve activations for a specific country.
+        Each activation represents the provider's capability to support e-invoicing in a specific country and model for a given business entity.
 
-        This endpoint enables Chargebee to identify the countries and e-invoicing networks that are currently available for activation on the provider’s platform.
+        **Business Entity Concept**
 
-        Within Chargebee, the endpoint is invoked during the provider configuration workflow for a selected country. It retrieves information about activations that are either already set up or currently in progress. This helps users assess which e-invoicing capabilities are available for use or require further setup.
+        In Chargebee, a *business entity* represents a business unit or brand  under the merchant's organization. Refer [here](https://apidocs.chargebee.com/docs/api/business_entities) for more details.
+        In this SPI, a business entity corresponds to the closest equivalent in the provider's system (for example, a company, or tenant).
+
+        **Modes of Operation**
+
+        - When called **without parameters**, returns all activations across
+          business entities (if supported by the provider).
+
+        - When called with `business_entity_id`, returns activations for that
+          specific business entity.
+
+        - When called with `mode=business_entities`, returns a list of
+          business entities that are active or configured in the provider.
+
+        This endpoint enables Chargebee to:
+
+        - Identify e-invoicing capabilities available for activation.
+        - Fetch business entity lists for provider configuration workflows.
+        - Retrieve activation details filtered by a specific business entity
+            during country-level setup.
+
+        **Example use cases**
+
+        - During integration setup:
+          `GET /einvoicing/activations?mode=business_entities`
+
+        - During country configuration:
+          `GET /einvoicing/activations?business_entity_id=<provider_entity_id>`
+
       operationId: listActivations
+      parameters:
+        - in: query
+          name: business_entity_id
+          schema:
+            type: string
+          description: |
+            Filters activations for a specific business entity.
+
+            In Chargebee, a *business entity* represents a business unit or brand under the merchant's organization. In this SPI, the
+            `business_entity_id` refers to the corresponding identifier in the
+            e-invoicing provider’s system (for example, a company or tenant ID).
+
+            When provided, the adapter must return only the activations that belong to the specified business entity.
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [ business_entities, activations ]
+          description: |
+            Optional mode for controlling the response type:
+            - `business_entities`: Returns list of Business Entities.
+            - `activations` (default): Returns list of activations.
       responses:
         '200':
           description: A list of activations
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/activations_response'
+                oneOf:
+                  - $ref: '#/components/schemas/activations_response'
+                  - $ref: '#/components/schemas/business_entities_response'
+              examples:
+                Business Entities response:
+                  summary: Response when listing companies
+                  value:
+                    business_entities:
+                      - id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                        display_name: "Acme BE"
+                      - id: "a3f7b451-29f0-42e0-8e4d-927c0ff19de7"
+                        display_name: "Beta GmbH"
+                Activations response:
+                  summary: Response when listing activations for a company
+                  value:
+                    activations:
+                      - id: "02083517-408f-4174-8c4d-42b029162f9c"
+                        business_entity:
+                          id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                          display_name: "Acme Germany"
+                        status:
+                          code: "COMPLETED"
+                          message: "Activation completed successfully."
+                        country_activations:
+                          - model: "PEPPOL"
+                            country: "DE"
+                            einvoicing_type: "B2B"
+                            supported_document_types:
+                              - INVOICE
+                              - CREDIT_NOTE
+                              - APPLICATION_RESPONSE
+                      - id: "02083517-408f-4174-8c4d-42b029162f9c"
+                        business_entity_id:
+                          id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                          display_name: "Acme Germany"
+                        status:
+                          code: "PENDING"
+                          message: "Activation pending."
+                        country_activations:
+                          - model: "ZUGFERD"
+                            country: "DE"
+                            einvoicing_type: "B2B"
+                            supported_document_types:
+                              - INVOICE
+                              - CREDIT_NOTE
         '401':
           description: Unauthorized
         '403':
@@ -83,6 +179,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/500_error_response'
+      x-codeSamples:
+        - lang: cURL
+          label: Integration setup – list companies
+          source: |
+            curl --request GET \
+              --url https://partner.app.com/einvoicing/activations?mode=companies \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key": … }'
+        - lang: cURL
+          label: Country configuration – list activations for one company
+          source: |
+            curl --request GET \
+              --url https://partner.app.com/einvoicing/activations?business_entity_id=595e13fd-68b0-40c2-ade3-9780ce339d97 \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key": … }'
   /einvoicing/data_input_fields:
     get:
       tags:
@@ -151,6 +262,7 @@ paths:
             enum:
               - INVOICE
               - CREDIT_NOTE
+              - APPLICATION_RESPONSE
       responses:
         '200':
           description: Successfully retrieved the data input fields for the given scenario.
@@ -1115,6 +1227,10 @@ paths:
       description: |
         Retrieves the document content associated with the provided documentId from the connected e-invoicing provider.
         
+        A document_id by itself is not always sufficient for the provider to determine which document formats or variants to return. Chargebee includes additional query parameters — such as country, transaction_type, and model — so the adapter can accurately identify and fetch the correct document representations.
+        
+        If the mime_type query parameter is not provided, the adapter MUST retrieve all available document representations for the specified document_id. When a specific mime_type is supplied, the adapter MUST return only the matching representation(s).
+        
         The document may be returned either as a pre-signed URL or as a direct binary stream (such as a PDF or XML file), depending on the provider’s capabilities and the SPI implementation.
         
         In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
@@ -1127,12 +1243,83 @@ paths:
           required: true
           schema:
             type: string
-        - name: request_id
+        - name: mime_type
           in: query
-          required: true
+          required: false
+          description: |
+            Optional MIME type filter for the document representation to download.
+
+            When provided, the adapter MUST return only the document(s) matching this MIME type
+            (for example, `application/xml`, `application/pdf`, or a country-specific UBL MIME type).
+
+            When omitted, the adapter MUST attempt to retrieve and return all available representations 
+            for the given document_id from the underlying e-invoicing provider.
           schema:
             type: string
-            description: The unique identifier of the document to be downloaded.
+            enum:
+              - application/xml
+              - application/pdf
+              - application/json
+              - application/zip
+              - application/png
+              - application/vnd.oasis.ubl+xml
+            example: "application/xml"
+        - name: country
+          in: query
+          required: true
+          description: |
+            The ISO 3166-1 alpha-2 country code representing the country for which the e-invoicing data input fields need to be retrieved. Different countries may have varying e-invoicing requirements.
+          schema:
+            type: string
+            example: "DE"
+        - name: transaction_type
+          in: query
+          required: true
+          description: >
+            The transaction type for which the data input fields need to be retrieved. Required fields may vary depending on the type: B2B (Business to Business), B2C (Business to Consumer), or B2G (Business to Government).
+          schema:
+            type: string
+            enum: [B2B, B2C, B2G]
+            example: "B2B"
+        - name: model
+          in: query
+          required: true
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+          schema:
+            type: string
+            enum:
+              - PEPPOL
+              - EINVOICE
+              - CLEARANCE
+              - REPORTING
+              - ZUGFERD
+              - CTC
+              - NEMHANDEL
+              - FACE
+              - VERIFACTU
+            example: "PEPPOL"
+        - name: document_type
+          in: query
+          required: true
+          description: Type of document, either an invoice or a credit note.
+          schema:
+            type: string
+            enum:
+              - INVOICE
+              - CREDIT_NOTE
+              - APPLICATION_RESPONSE
       responses:
         '200':
           description: Document downloaded successfully.
@@ -1145,6 +1332,17 @@ paths:
                   $ref: '#/components/examples/einvoice_document_download_url_response'
                 einvoice_document_download_stream_response:
                   $ref: '#/components/examples/einvoice_document_download_stream_response'
+        '400':
+          description: Bad Request – The request is invalid or malformed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error_response'
+              example:
+                errors:
+                  - code: INVALID_OPERATION
+                    message: The provided mime_type is not supported for this document.
+                    help_url: https://docs.example.com/errors#INVALID_OPERATION
         '401':
           description: Unauthorized
         '403':
@@ -1237,12 +1435,21 @@ components:
         id:
           type: string
           description: The unique identifier of the activation
+        business_entity:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The unique identifier for the company
+            display_name:
+              type: string
+              description: The display name of the company
         status:
           type: object
           properties:
             code:
               type: string
-              description: The status code of the activation.
+              description: The current status of the activation as reported by the e-invoicing provider.
               enum:
                 - COMPLETED
                 - FAILED
@@ -1250,15 +1457,7 @@ components:
             message:
               type: string
               description: A detailed message describing the activation status.
-        company:
-          type: object
-          properties:
-            identifier:
-              type: string
-              description: The unique identifier for the company
-            display_name:
-              type: string
-              description: The display name of the company
+
         country_activations:
           type: array
           items:
@@ -1304,6 +1503,34 @@ components:
             - B2B
             - B2C
             - B2G
+        supported_document_types:
+          type: array
+          description: |
+            The types of business documents that are supported for this country activation.
+            
+            This represents a normalized view of the provider's supported formats.
+            For example, `ubl-invoice`, `ubl-creditnote`, and `ubl-applicationresponse` should be
+            mapped to:
+            
+            - `INVOICE` for invoice documents  
+            - `CREDIT_NOTE` for credit note documents  
+            - `APPLICATION_RESPONSE` for application response documents. APPLICATION_RESPONSE represents an electronic 
+            response document sent to indicate the processing result of a 
+            previously submitted invoice or credit note, such as acceptance, rejection, or required corrections.
+            
+            Providers may support additional document types; if so, they should be
+            returned using the closest applicable value or a provider-specific
+            extension value agreed with Chargebee.
+          items:
+            type: string
+            enum:
+              - INVOICE
+              - CREDIT_NOTE
+              - APPLICATION_RESPONSE
+          example:
+            - INVOICE
+            - CREDIT_NOTE
+            - APPLICATION_RESPONSE
     activations_response:
       type: object
       properties:
@@ -1311,19 +1538,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/activation'
-      example:
-        activations:
-          - id: reg-123456789
-            status:
-              code: Completed
-              message: Activation completed successfully.
-            company:
-              identifier: DE123456789
-              display_name: Acme GmbH
-            country_activations:
-              - network: PEPPOL
-                country: DE
-                einvoicing_type: B2B
+    business_entities_response:
+      type: object
+      properties:
+        business_entities:
+          type: array
+          description: List of business_entities retrieved from the e-invoicing provider.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The unique identifier of the business entity.
+                example: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+              display_name:
+                type: string
+                description: The display name of the business entity.
+                example: "Acme BE"
     data_input_fields_response:
       type: object
       properties:
@@ -1368,6 +1599,7 @@ components:
           enum:
             - INVOICE
             - CREDIT_NOTE
+            - APPLICATION_RESPONSE
         fields:
           type: array
           description: List of input fields with inclusion metadata.
@@ -1376,14 +1608,14 @@ components:
             required:
               - path
               - data_type
-              - fieldName
+              - field_name
               - inclusion_type
             properties:
               path:
                 type: string
                 description: Path of the field in the final XML/UBL or JSON structure (as per provider specification).
                 example: "Invoice.cbc:ID"
-              fieldName:
+              field_name:
                 type: string
                 description: Canonical or local name of the field.
                 example: "cbc:ID"
@@ -1398,6 +1630,7 @@ components:
                   - string
                   - number
                   - date
+                  - boolean
               documentation_link:
                 type: string
                 description: External documentation reference for the field (if available).
@@ -1437,7 +1670,7 @@ components:
         document_type: "INVOICE"
         fields:
           - path: "Invoice.cbc:ID"
-            fieldName: "cbc:ID"
+            field_name: "cbc:ID"
             description: "Unique identifier for the invoice"
             data_type: "string"
             documentation_link: ""
@@ -1447,7 +1680,7 @@ components:
             inclusion_type: "Mandatory"
 
           - path: "Invoice.cbc:Note"
-            fieldName: "cbc:Note"
+            field_name: "cbc:Note"
             description: "Optional description or remarks"
             data_type: "string"
             documentation_link: ""
@@ -1457,7 +1690,7 @@ components:
             inclusion_type: "Optional"
 
           - path: "Invoice/cbc:BuyerReference"
-            fieldName: "cbc:BuyerReference"
+            field_name: "cbc:BuyerReference"
             description: >
               Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes.
               An invoice must have buyer reference or purchase order reference.
@@ -1470,7 +1703,7 @@ components:
             condition:
 
           - path: "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount"
-            fieldName: "cbc:LineExtensionAmount"
+            field_name: "cbc:LineExtensionAmount"
             description: >
               Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT),
               and must be rounded to a maximum of 2 decimals.
@@ -1884,6 +2117,36 @@ components:
           type: string
           description: A unique identifier assigned to the request for tracking and
             correlation purposes across systems and logs.
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
       required:
         - document_id
         - status
@@ -1918,10 +2181,8 @@ components:
       type: object
       required:
         - document_id
-        - request_id
         - documents
         - evidence
-        - network
       properties:
         document_id:
           type: string
@@ -1954,19 +2215,40 @@ components:
                 format: date-time
                 description: The time until which the document URL is valid.
                 example: 2025-03-28T09:24:29Z
-              network:
+        model:
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+              - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+              - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+              - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+              - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+              - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+              - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+              - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+              - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+              - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+              schema:
                 type: string
                 enum:
                   - PEPPOL
-                  - ZUGFeRD
-            example: "PEPPOL"
+                  - EINVOICE
+                  - CLEARANCE
+                  - REPORTING
+                  - ZUGFERD
+                  - CTC
+                  - NEMHANDEL
+                  - FACE
+                  - VERIFACTU
+                example: "PEPPOL"
       example:
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
           - mime_type: application/xml
             document_url: https://provider.com/downloads/invoice-20250402.xml
             expires_at: '2025-03-28T09:24:29Z'
-        network: peppol
+        model: peppol
     bad_request_error_response:
       type: object
       properties:
@@ -1997,6 +2279,36 @@ components:
             required:
               - code
               - message
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
       example:
         errors:
           - code: MISSING_REQUIRED_DATA
@@ -2007,6 +2319,7 @@ components:
       properties:
         errors:
           type: array
+          description: A list of errors explaining why the requested resource was not found.
           items:
             type: object
             properties:
@@ -2014,7 +2327,7 @@ components:
                 type: string
                 description: Application-specific error code
                 enum:
-                  - INVALID_OPERATION
+                  - NOT_FOUND
               message:
                 type: string
                 description: A short message describing the reason for the error.
@@ -2026,9 +2339,11 @@ components:
             required:
               - code
               - message
+      required:
+        - errors
       example:
         errors:
-          - code: INVALID_OPERATION
+          - code: NOT_FOUND
             message: The requested document is not found.
             help_url: https://docs.example.com/errors#INVALID_OPERATION
     address:
@@ -2128,6 +2443,36 @@ components:
           type: string
           description: A human-readable description of the unexpected error encountered.
           example: An unexpected error occurred while processing your request.
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
       required:
         - message
   examples:
@@ -2624,7 +2969,7 @@ components:
           - mime_type: application/xml
             document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
             expires_at: '2025-03-28T09:24:29Z'
-        network: peppol
+        model: peppol
     einvoice_document_download_stream_response:
       description: A sample response with Base64-encoded XML and PDF document content.
       value:
@@ -2637,7 +2982,7 @@ components:
           - mime_type: application/pdf
             document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
-        network: peppol
+        model: peppol
     callback_document_status_success_for_invoice:
       description: A sample callback notification indicating successful document submission.
       value:
