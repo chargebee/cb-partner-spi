@@ -291,6 +291,10 @@
         "customer_identifiers": {
           "$ref": "#/definitions/CustomerIdentifiers",
           "description": "Specifies the customer identifiers required for E-invoicing in different countries."
+        },
+        "document_download": {
+          "$ref": "#/definitions/DocumentDownload",
+          "description": "Specifies the download document capability configuration including whether it is supported and the supported MIME types for failed documents."
         }
       },
       "required": [
@@ -298,7 +302,8 @@
         "supported_currencies",
         "retrieve_activation_supported",
         "retrieve_einvoice_status_supported",
-        "customer_identifiers"
+        "customer_identifiers",
+        "document_download"
       ],
       "examples": [
         {
@@ -331,8 +336,15 @@
                     "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
                 ]
               }
-            ]
-            }
+            ],
+            "document_download": {
+                "is_supported": true,
+                "failed_document_mime_types": [
+                    "application/vnd.oasis.ubl+xml",
+                    "application/xml"
+                ]
+              }
+          }
       ],
       "title": "Capabilities"
     },
@@ -405,6 +417,42 @@
         }
       ],
       "title": "CustomerIdentifier"
+    },
+    "DocumentDownload": {
+      "type": "object",
+      "description": "Specifies the download document capability configuration including whether it is supported and the supported MIME types for failed documents.",
+      "additionalProperties": false,
+      "properties": {
+        "is_supported": {
+          "type": "boolean",
+          "description": "Specifies if downloading documents is supported.",
+          "default": true
+        },
+        "failed_document_mime_types": {
+          "type": "array",
+          "description": "Specifies the supported MIME types for downloading failed documents.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "application/xml",
+              "application/pdf",
+              "application/json",
+              "application/zip",
+              "application/png",
+              "application/vnd.oasis.ubl+xml"
+            ]
+          },
+          "examples": [
+            "application/vnd.oasis.ubl+xml",
+            "application/xml"
+          ]
+        }
+      },
+      "required": [
+        "is_supported",
+        "failed_document_mime_types"
+      ],
+      "title": "DocumentDownload"
     },
     "IdentityConfiguration": {
       "type": "object",
