@@ -449,8 +449,7 @@
         }
       },
       "required": [
-        "is_supported",
-        "failed_document_mime_types"
+        "is_supported"
       ],
       "title": "DocumentDownload"
     },
