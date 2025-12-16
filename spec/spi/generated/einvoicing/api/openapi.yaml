@@ -3038,6 +3038,10 @@ components:
           enum:
           - application/xml
           - application/pdf
+          - application/json
+          - application/zip
+          - application/png
+          - application/vnd.oasis.ubl+xml
           type: string
         document_url:
           description: Presigned URL to access the document. This param will be preferred

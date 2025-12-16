@@ -2201,6 +2201,10 @@ components:
                 enum:
                   - application/xml
                   - application/pdf
+                  - application/json
+                  - application/zip
+                  - application/png
+                  - application/vnd.oasis.ubl+xml
               document_url:
                 type: string
                 format: uri
