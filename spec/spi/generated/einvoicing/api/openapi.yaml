@@ -1505,7 +1505,11 @@ components:
           - target: Invoice.cac:InvoiceLine.cac:Item.cbc:Name
             source: "line_items[].description"
           - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID
-            source: "line_items[].classified_tax_category[].category"
+            expr: "line_items.exists(li, li.tax_rate > 0) ? 'S' : line_items.exists(li,\
+              \ li.tax_exempt_reason == 'ZERO_RATED') ? 'Z' : line_items.exists(li,\
+              \ li.tax_exempt_reason == 'EXEMPT') ? 'E' : line_items.exists(li, li.tax_exempt_reason\
+              \ == 'REVERSE_CHARGE') ? 'AE' : line_items.exists(li, li.tax_exempt_reason\
+              \ == 'OUTSIDE_SCOPE') ? 'O' : ''"
           - target: Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID
             source: "line_items[].classified_tax_category[].category"
           - target: Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount
@@ -1532,6 +1536,7 @@ components:
               unit_price: "100.0"
               amount: "100.0"
               item_code: CONS-APRIL
+              tax_rate: "44"
               classified_tax_category:
                 percentage: "14"
                 category: VAT
@@ -1542,6 +1547,7 @@ components:
               unit_price: "1000.0"
               amount: "1005.0"
               item_code: CONS-APRIL
+              tax_rate: "30"
               classified_tax_category:
                 percentage: "30"
                 category: EU VAT
@@ -1722,7 +1728,9 @@ components:
           - target: Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID
             source: credit_note.currency_code
           - target: Creditnote.cbc:Note
-            source: credit_note.custom_fields.cf_credit_note_reason
+            expr: "credit_note.amount > 0 ? 'Partial refund issued' : credit_note.custom_fields.cf_credit_note_reason\
+              \ != null ? credit_note.custom_fields.cf_credit_note_reason : 'Credit\
+              \ note issued'"
         values:
           credit_note.id: CN-20001
           credit_note.issue_date: 2025-04-05
@@ -2842,6 +2850,9 @@ components:
           description: Static value if applicable
           example: "380"
           type: string
+        expr:
+          description: CEL expression evaluated against `values`
+          type: string
       required:
       - target
       type: object
@@ -2861,8 +2872,10 @@ components:
 
           Each item must include:
           - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
-          - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
-          - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+          -  One of the below
+            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+            - `expr`: An inline expression evaluated against the values object to compute the target field’s value. This is used when the value depends on conditional logic, tax scenarios, payment methods, or other derived rules.
 
         - `values`:
         Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
