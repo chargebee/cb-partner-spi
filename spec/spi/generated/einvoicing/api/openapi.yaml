@@ -408,13 +408,6 @@ paths:
       requestBody:
         content:
           application/json:
-            examples:
-              invoice_document_submission_success:
-                $ref: '#/components/examples/invoice_document_submission_success'
-              invoice_document_submission_with_overrides_success:
-                $ref: '#/components/examples/invoice_document_submission_with_overrides_success'
-              credit_note_document_submission_success:
-                $ref: '#/components/examples/credit_note_document_submission_success'
             schema:
               $ref: '#/components/schemas/document'
         required: true
@@ -604,8 +597,12 @@ paths:
           \ {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Item.cbc:Name\"\
           ,\n          \"source\": \"line_items[].description\"\n        },\n    \
           \    {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID\"\
-          ,\n          \"source\": \"line_items[].classified_tax_category[].category\"\
-          \n        },\n        {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID\"\
+          ,\n          \"expr\": \"line_items.exists(li, li.tax_rate > 0) ? 'S' :\
+          \ line_items.exists(li, li.tax_exempt_reason == 'ZERO_RATED') ? 'Z' : line_items.exists(li,\
+          \ li.tax_exempt_reason == 'EXEMPT') ? 'E' : line_items.exists(li, li.tax_exempt_reason\
+          \ == 'REVERSE_CHARGE') ? 'AE' : line_items.exists(li, li.tax_exempt_reason\
+          \ == 'OUTSIDE_SCOPE') ? 'O' : ''\"\n        },\n        {\n          \"\
+          target\": \"Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID\"\
           ,\n          \"source\": \"line_items[].classified_tax_category[].category\"\
           \n        },\n        {\n          \"target\": \"Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount\"\
           ,\n          \"source\": \"line_items[].unit_price\"\n        },\n     \
@@ -807,28 +804,30 @@ paths:
           ,\n          \"source\": \"line_items[].unit_price\"\n        },\n     \
           \   {\n          \"target\": \"Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID\"\
           ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
-          \     {\n          \"target\": \"Creditnote.cbc:Note\",\n          \"source\"\
-          : \"credit_note.custom_fields.cf_credit_note_reason\"\n        }\n     \
-          \ ],\n      \"values\": {\n        \"credit_note.id\": \"CN-20001\",\n \
-          \       \"credit_note.issue_date\": \"2025-04-05\",\n        \"credit_note.tax_date\"\
-          : \"2025-04-05\",\n        \"credit_note.currency_code\": \"EUR\",\n   \
-          \     \"credit_note.due_date\": \"2025-04-30\",\n        \"credit_note.amount\"\
-          : 140.0,\n        \"credit_note.billing_reference\": {\n          \"invoice_document_reference\"\
-          : {\n            \"id\": \"INV-10001\",\n            \"issue_date\": \"\
-          2025-04-02\"\n          }\n        },\n        \"credit_note.note\": \"\
-          Refund for April invoice\",\n        \"business.address.country\": \"DE\"\
-          ,\n        \"business.legal_entity.company_id\": \"987654321\",\n      \
-          \  \"business.legal_entity.registration_name\": \"Example Seller GmbH\"\
-          ,\n        \"customer.billing_address.country\": \"DE\",\n        \"customer.legal_entity.company_id\"\
-          : \"123456789\",\n        \"customer.legal_entity.registration_name\": \"\
-          Example Buyer GmbH\",\n        \"credit_note.tax_total\": 40.0,\n      \
-          \  \"line_items\": [\n          {\n            \"id\": \"1\",\n        \
-          \    \"description\": \"Reversal of April service\",\n            \"quantity\"\
-          : 1,\n            \"unit_price\": 100.0,\n            \"amount\": 100.0,\n\
-          \            \"unit_code\": \"EA\",\n            \"classified_tax_category\"\
-          : {\n              \"percentage\": 14,\n              \"category\": \"VAT\"\
-          ,\n              \"country\": \"DE\"\n            }\n          },\n    \
-          \      {\n            \"id\": \"2\",\n            \"description\": \"Reversal\
+          \     {\n          \"target\": \"Creditnote.cbc:Note\",\n          \"expr:\
+          \ \"credit_note.amount > 0 ? 'Partial refund issued' : credit_note.custom_fields.cf_credit_note_reason\
+          \ != null ? credit_note.custom_fields.cf_credit_note_reason : 'Credit note\
+          \ issued'\"\n        }\n      ],\n      \"values\": {\n        \"credit_note.id\"\
+          : \"CN-20001\",\n        \"credit_note.issue_date\": \"2025-04-05\",\n \
+          \       \"credit_note.tax_date\": \"2025-04-05\",\n        \"credit_note.currency_code\"\
+          : \"EUR\",\n        \"credit_note.due_date\": \"2025-04-30\",\n        \"\
+          credit_note.amount\": 140.0,\n        \"credit_note.billing_reference\"\
+          : {\n          \"invoice_document_reference\": {\n            \"id\": \"\
+          INV-10001\",\n            \"issue_date\": \"2025-04-02\"\n          }\n\
+          \        },\n        \"credit_note.note\": \"Refund for April invoice\"\
+          ,\n        \"business.address.country\": \"DE\",\n        \"business.legal_entity.company_id\"\
+          : \"987654321\",\n        \"business.legal_entity.registration_name\": \"\
+          Example Seller GmbH\",\n        \"customer.billing_address.country\": \"\
+          DE\",\n        \"customer.legal_entity.company_id\": \"123456789\",\n  \
+          \      \"customer.legal_entity.registration_name\": \"Example Buyer GmbH\"\
+          ,\n        \"credit_note.tax_total\": 40.0,\n        \"line_items\": [\n\
+          \          {\n            \"id\": \"1\",\n            \"description\": \"\
+          Reversal of April service\",\n            \"quantity\": 1,\n           \
+          \ \"unit_price\": 100.0,\n            \"amount\": 100.0,\n            \"\
+          unit_code\": \"EA\",\n            \"classified_tax_category\": {\n     \
+          \         \"percentage\": 14,\n              \"category\": \"VAT\",\n  \
+          \            \"country\": \"DE\"\n            }\n          },\n        \
+          \  {\n            \"id\": \"2\",\n            \"description\": \"Reversal\
           \ of consulting charge\",\n            \"quantity\": 1,\n            \"\
           unit_price\": 40.0,\n            \"amount\": 40.0,\n            \"unit_code\"\
           : \"EA\",\n            \"classified_tax_category\": {\n              \"\
