@@ -563,7 +563,11 @@ paths:
                     },
                     {
                       "target": "Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID",
-                      "expr": "line_items.exists(li, li.tax_rate > 0) ? 'S' : line_items.exists(li, li.tax_exempt_reason == 'ZERO_RATED') ? 'Z' : line_items.exists(li, li.tax_exempt_reason == 'EXEMPT') ? 'E' : line_items.exists(li, li.tax_exempt_reason == 'REVERSE_CHARGE') ? 'AE' : line_items.exists(li, li.tax_exempt_reason == 'OUTSIDE_SCOPE') ? 'O' : ''"
+                      "expr": "li.tax_rate > 0.0 && (!has(li.tax_exempt_reason) || li.tax_exempt_reason == '') ? 'S' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'ZERO_RATED' ? 'Z' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'EXEMPT' ? 'E' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'REVERSE_CHARGE' ? 'AE' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'OUTSIDE_SCOPE' ? 'O' :\n''"
                     },
                     {
                       "target": "Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID",
@@ -834,7 +838,7 @@ paths:
                     },
                     {
                       "target": "Creditnote.cac:BillingReference",
-                      "source": "credit_note.billing_reference"
+                      "expr": "invoiceResponse.events.exists(e, has(e.responseKey) && e.responseKey == 'Receipt Message ID') ? invoiceResponse.events.filter(e, has(e.responseKey) && e.responseKey == 'Receipt Message ID').map(e, e.responseValue)[0] : null"
                     },
                     {
                       "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID",
@@ -938,6 +942,22 @@ paths:
                     "customer.legal_entity.company_id": "123456789",
                     "customer.legal_entity.registration_name": "Example Buyer GmbH",
                     "credit_note.tax_total": 40.0,
+                    "invoiceResponse": {
+                    "events": [
+                      {
+                        "responseKey": "Some Other Event",
+                        "responseValue": "Some Value"
+                      },
+                      {
+                        "responseKey": "Receipt Message ID",
+                        "responseValue": "RCPT123456"
+                      },
+                      {
+                        "responseKey": "Another Event",
+                        "responseValue": "Another Value"
+                      }
+                    ]
+                    },
                     "line_items": [
                       {
                         "id": "1",
