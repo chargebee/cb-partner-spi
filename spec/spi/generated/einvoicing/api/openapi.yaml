@@ -1840,7 +1840,6 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
-          - APPLICATION_RESPONSE
           type: string
         issue_date:
           description: The date when the document was issued. Format "YYYY-MM-DD"
@@ -2699,13 +2698,13 @@ components:
       properties:
         status:
           enum:
-          - Rejected
-          - Message acknowledgement
-          - Accepted
-          - In process
-          - Under query
-          - Conditionally accepted
-          - Paid
+          - REJECTED
+          - MESSAGE_ACKNOWLEDGEMENT
+          - ACCEPTED
+          - IN_PROCESS
+          - UNDER_QUERY
+          - CONDITIONALLY_ACCEPTED
+          - PAID
           type: string
         note:
           type: string

@@ -2109,13 +2109,13 @@ components:
                 status:
                   type: string
                   enum:
-                    - Rejected
-                    - Message acknowledgement
-                    - Accepted
-                    - In process
-                    - Under query
-                    - Conditionally accepted
-                    - Paid
+                    - REJECTED
+                    - MESSAGE_ACKNOWLEDGEMENT
+                    - ACCEPTED
+                    - IN_PROCESS
+                    - UNDER_QUERY
+                    - CONDITIONALLY_ACCEPTED
+                    - PAID
                 note:
                   type: string
             document_reference:
