@@ -991,7 +991,117 @@ paths:
                   }
                 }
               }'
+        - lang: cURL
+          label: Application response document submission
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "APPRESP-20250402-002",
+                "type": "APPLICATION_RESPONSE",
+                "issue_date": "2025-04-04",
+                "sender_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Sender GmbH",
+                    "company_id": "DE998877665"
+                  }
+                },
+                "receiver_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Receiver GmbH",
+                    "company_id": "DE112233445"
+                  }
+                },
+                "document_response": {
+                  "response": {
+                    "status": "Under query",
+                    "note": "Discrepancy in line item total"
+                  },
+                  "document_reference": {
+                    "id": "INV-20250401-789"
+                  }
+                }
+              }'
 
+        - lang: cURL
+          label: Application response document submission with overrides
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "APPRESP-20240401-001",
+                "type": "APPLICATION_RESPONSE",
+                "issue_date": "2025-04-03",
+                "sender_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Sender GmbH",
+                    "company_id": "DE123456789"
+                  }
+                },
+                "receiver_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Receiver GmbH",
+                    "company_id": "DE987654321"
+                  }
+                },
+                "document_response": {
+                  "response": {
+                    "status": "Accepted",
+                    "note": "Invoice accepted without issues"
+                  },
+                  "document_reference": {
+                    "id": "INV-20240330-567"
+                  }
+                },
+                "overrides": {
+                  "country": "DE",
+                  "model": "PEPPOL",
+                  "transaction_type": "B2B",
+                  "field_mapping": [
+                    {
+                      "target": "ApplicationResponse.cbc:ID",
+                      "source": "application_response.id"
+                    },
+                    {
+                      "target": "ApplicationResponse.cbc:IssueDate",
+                      "source": "application_response.issue_date"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:SenderParty.cac:PartyLegalEntity.cbc:RegistrationName",
+                      "source": "application_response.sender_party.legal_entity.registration_name"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:ReceiverParty.cac:PartyLegalEntity.cbc:RegistrationName",
+                      "source": "application_response.receiver_party.legal_entity.registration_name"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:DocumentResponse.cac:Response.cbc:ResponseCode",
+                      "source": "application_response.document_response.response.status"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:DocumentResponse.cac:Response.cbc:Description",
+                      "source": "application_response.document_response.response.note"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:DocumentResponse.cac:DocumentReference.cbc:ID",
+                      "source": "application_response.document_response.document_reference.id"
+                    }
+                  ],
+                  "values": {
+                    "application_response.id": "APPRESP-20240401-001",
+                    "application_response.issue_date": "2025-04-03",
+                    "application_response.sender_party.legal_entity.registration_name": "Example Sender GmbH",
+                    "application_response.receiver_party.legal_entity.registration_name": "Example Receiver GmbH",
+                    "application_response.document_response.response.status": "Accepted",
+                    "application_response.document_response.response.note": "Invoice accepted without issues",
+                    "application_response.document_response.document_reference.id": "INV-20240330-567"
+                  }
+                }
+              }'
       responses:
         '200':
           description: Document submitted successfully.
@@ -1951,7 +2061,7 @@ components:
         - tax_total
     application_response_document:
       type: object
-      description: Represents an invoice or credit note document to be validated and submitted via the e-invoicing provider.
+      description: Represents an application response document to be validated and submitted via the e-invoicing provider.
       required:
         - id
         - type
