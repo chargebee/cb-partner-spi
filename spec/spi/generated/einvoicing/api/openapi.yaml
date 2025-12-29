@@ -404,6 +404,8 @@ paths:
         The collected field mapping and the corresponding input values will be passed to the adapter via the `overrides` parameter.
 
         Note: When the `overrides` parameter is present, the adapter must rely exclusively on the `field_mapping` and `values` defined within it. All other standard schema fields should be ignored for transformation purposes.
+
+        Additionally, this endpoint supports submission of Application Response documents, such as invoice acknowledgements or rejections, to facilitate downstream workflows and business rule validation. These responses are submitted using the same endpoint but distinguished using a type discriminator with APPLICATION_RESPONSE.
       operationId: einvoicingDocumentSubmission
       requestBody:
         content:
@@ -1704,6 +1706,19 @@ components:
           type: array
       type: object
     document:
+      discriminator:
+        mapping:
+          INVOICE: '#/components/schemas/main_document'
+          CREDIT_NOTE: '#/components/schemas/main_document'
+          APPLICATION_RESPONSE: '#/components/schemas/application_response_document'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/main_document'
+      - $ref: '#/components/schemas/application_response_document'
+      type: object
+    main_document:
+      description: Represents an invoice or credit note document to be validated and
+        submitted via the e-invoicing provider.
       properties:
         id:
           description: A unique identifier for the document being submitted. This
@@ -1715,6 +1730,7 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         issue_date:
           description: The date when the document was issued. Format "YYYY-MM-DD"
@@ -1746,14 +1762,14 @@ components:
             is linked to earlier billing records. For credit notes this is essential
             as they must reference the original invoice they amend.
           items:
-            $ref: '#/components/schemas/document_billing_reference_inner'
+            $ref: '#/components/schemas/main_document_billing_reference_inner'
           required:
           - invoice_document_reference
           type: array
         accounting_supplier_party:
-          $ref: '#/components/schemas/document_accounting_supplier_party'
+          $ref: '#/components/schemas/main_document_accounting_supplier_party'
         accounting_customer_party:
-          $ref: '#/components/schemas/document_accounting_customer_party'
+          $ref: '#/components/schemas/main_document_accounting_customer_party'
         payment_means:
           description: A list of payment methods with corresponding payment details.
           items:
@@ -1761,12 +1777,12 @@ components:
           type: array
         lines:
           items:
-            $ref: '#/components/schemas/document_lines_inner'
+            $ref: '#/components/schemas/main_document_lines_inner'
           type: array
         tax_total:
-          $ref: '#/components/schemas/document_tax_total'
+          $ref: '#/components/schemas/main_document_tax_total'
         overrides:
-          $ref: '#/components/schemas/document_overrides'
+          $ref: '#/components/schemas/overrides'
       required:
       - accounting_customer_party
       - accounting_supplier_party
@@ -1779,6 +1795,143 @@ components:
       - tax_date
       - tax_total
       - type
+      type: object
+    application_response_document:
+      description: Represents an invoice or credit note document to be validated and
+        submitted via the e-invoicing provider.
+      properties:
+        id:
+          type: string
+        type:
+          description: The document type discriminator indicating this is an application
+            response.
+          enum:
+          - APPLICATION_RESPONSE
+          type: string
+        issue_date:
+          format: date
+          type: string
+        sender_party:
+          $ref: '#/components/schemas/application_response_document_sender_party'
+        receiver_party:
+          $ref: '#/components/schemas/application_response_document_sender_party'
+        document_response:
+          $ref: '#/components/schemas/application_response_document_document_response'
+        overrides:
+          $ref: '#/components/schemas/overrides'
+      required:
+      - document_response
+      - id
+      - issue_date
+      - receiver_party
+      - sender_party
+      - type
+      type: object
+    overrides:
+      description: |
+        Optional structure used to override the standard Chargebee SPI document model fields with a flexible field-value-based approach.
+
+        This is **typically used by adapters where field mapping is configured manually by the merchant** in the Chargebee UI, instead of relying on pre-defined mappings managed by the provider or Chargebee.
+
+        When present, the `overrides` object allows the adapter to **entirely ignore** the standard document payload and instead:
+        - Use `field_mapping` to determine where values go in the provider's schema
+        - Use `values` to retrieve the corresponding input data using dot-paths or array-style paths
+
+        ---
+        - `field_mapping`:
+        A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema. Includes custom fields too which are defined by merchant in chargebee.
+
+          Each item must include:
+          - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
+          -  One of the below
+            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+            - `expr`: An inline expression evaluated against the values object to compute the target field’s value. This is used when the value depends on conditional logic, tax scenarios, payment methods, or other derived rules.
+
+        - `values`:
+        Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
+
+            - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+              ```json
+              {
+                "invoice.id": "INV-10001",
+                "invoice.issue_date": "2025-04-02",
+                "invoice.currency_code": "EUR"
+              }
+              ```
+
+            - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+              ```json
+              {
+                "line_items": [
+                  { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                  { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                ]
+              }
+              ```
+
+        This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
+      properties:
+        country:
+          description: The ISO country code for the scenario.
+          example: DE
+          type: string
+        transaction_type:
+          description: "The type of transaction (B2B, B2C, B2G)."
+          enum:
+          - B2B
+          - B2C
+          - B2G
+          example: B2B
+          type: string
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
+            \ eInvoicing format used in Germany combining PDF and XML for human and\
+            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
+            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
+            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
+            \ and reporting sales invoices directly to the tax agency.\n"
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
+        field_mapping:
+          items:
+            $ref: '#/components/schemas/overrides_field_mapping_inner'
+          type: array
+        values:
+          description: "Flattened key-value representation of the data to be mapped\
+            \ using `field_mapping`. \n\nEach key in this object uses dot-notation\
+            \ to reference the source path, including arrays and nested arrays — for\
+            \ example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.\n\
+            \n- **Scalar values** (e.g., strings, numbers, dates) should be represented\
+            \ as flat keys:\n```json\n{\n  \"invoice.id\": \"INV-10001\",\n  \"invoice.issue_date\"\
+            : \"2025-04-02\",\n  \"invoice.currency_code\": \"EUR\"\n}\n```\n\n- **Complex\
+            \ types like arrays** (e.g., `line_items`) should be represented as nested\
+            \ JSON:\n```json\n{\n  \"line_items\": [\n    { \"id\": \"1\", \"line_item_tax\"\
+            : [ {\"name\" : \"VAT\" }] },\n    { \"id\": \"2\", \"line_item_tax\"\
+            : [ {\"name\" : \"Local Tax\"}] }\n  ]\n}\n```\n"
+          type: object
       type: object
     payment_means:
       description: Defines the method and details for payment.
@@ -2278,7 +2431,7 @@ components:
       - inclusion_type
       - path
       type: object
-    document_billing_reference_inner_invoice_document_reference:
+    main_document_billing_reference_inner_invoice_document_reference:
       description: A group of business terms providing information on one or more
         preceding Invoices.
       properties:
@@ -2292,12 +2445,12 @@ components:
       required:
       - id
       type: object
-    document_billing_reference_inner:
+    main_document_billing_reference_inner:
       properties:
         invoice_document_reference:
-          $ref: '#/components/schemas/document_billing_reference_inner_invoice_document_reference'
+          $ref: '#/components/schemas/main_document_billing_reference_inner_invoice_document_reference'
       type: object
-    document_accounting_supplier_party:
+    main_document_accounting_supplier_party:
       description: "Party responsible for issuing the document (that is, the supplier).\
         \ This represents the legal entity or business that creates the invoice and\
         \ bears responsibility for delivering goods or services."
@@ -2319,7 +2472,7 @@ components:
       - legalEntity
       - taxScheme
       type: object
-    document_accounting_customer_party:
+    main_document_accounting_customer_party:
       description: "Party responsible for receiving the invoice (i.e., the customer)."
       properties:
         name:
@@ -2339,7 +2492,7 @@ components:
       - legalEntity
       - taxScheme
       type: object
-    document_lines_inner_classified_tax_category_inner:
+    main_document_lines_inner_classified_tax_category_inner:
       properties:
         percentage:
           description: "The tax rate percentage applicable to this tax category (e.g.,\
@@ -2353,7 +2506,7 @@ components:
             \ is applicable (e.g., DE for Germany)."
           type: string
       type: object
-    document_lines_inner:
+    main_document_lines_inner:
       properties:
         id:
           description: A unique identifier for the individual line within the document.
@@ -2382,7 +2535,7 @@ components:
           description: "List of tax categories applicable to the invoice line, such\
             \ as VAT or other indirect taxes."
           items:
-            $ref: '#/components/schemas/document_lines_inner_classified_tax_category_inner'
+            $ref: '#/components/schemas/main_document_lines_inner_classified_tax_category_inner'
           type: array
       required:
       - amount
@@ -2392,7 +2545,7 @@ components:
       - name
       - quantity
       type: object
-    document_tax_total_tax_sub_totals_inner:
+    main_document_tax_total_tax_sub_totals_inner:
       properties:
         taxable_amount:
           description: Total taxable amount for the category.
@@ -2413,7 +2566,7 @@ components:
           description: "The category of tax applied (e.g., VAT)."
           type: string
       type: object
-    document_tax_total:
+    main_document_tax_total:
       description: Represents the total tax details for the document.
       properties:
         tax_amount:
@@ -2422,10 +2575,51 @@ components:
           type: number
         tax_sub_totals:
           items:
-            $ref: '#/components/schemas/document_tax_total_tax_sub_totals_inner'
+            $ref: '#/components/schemas/main_document_tax_total_tax_sub_totals_inner'
           type: array
       type: object
-    document_overrides_field_mapping_inner:
+    application_response_document_sender_party:
+      properties:
+        legal_entity:
+          $ref: '#/components/schemas/party_legal_entity'
+      required:
+      - legal_entity
+      type: object
+    application_response_document_document_response_response:
+      properties:
+        status:
+          enum:
+          - Rejected
+          - Message acknowledgement
+          - Accepted
+          - In process
+          - Under query
+          - Conditionally accepted
+          - Paid
+          type: string
+        note:
+          type: string
+      required:
+      - status
+      type: object
+    application_response_document_document_response_document_reference:
+      properties:
+        id:
+          type: string
+      required:
+      - id
+      type: object
+    application_response_document_document_response:
+      properties:
+        response:
+          $ref: '#/components/schemas/application_response_document_document_response_response'
+        document_reference:
+          $ref: '#/components/schemas/application_response_document_document_response_document_reference'
+      required:
+      - document_reference
+      - response
+      type: object
+    overrides_field_mapping_inner:
       properties:
         target:
           description: Path in the provider schema where the value should be mapped
@@ -2444,112 +2638,6 @@ components:
           type: string
       required:
       - target
-      type: object
-    document_overrides:
-      description: |
-        Optional structure used to override the standard Chargebee SPI document model fields with a flexible field-value-based approach.
-
-        This is **typically used by adapters where field mapping is configured manually by the merchant** in the Chargebee UI, instead of relying on pre-defined mappings managed by the provider or Chargebee.
-
-        When present, the `overrides` object allows the adapter to **entirely ignore** the standard document payload and instead:
-        - Use `field_mapping` to determine where values go in the provider's schema
-        - Use `values` to retrieve the corresponding input data using dot-paths or array-style paths
-
-        ---
-        - `field_mapping`:
-        A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema. Includes custom fields too which are defined by merchant in chargebee.
-
-          Each item must include:
-          - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
-          -  One of the below
-            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
-            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
-            - `expr`: An inline expression evaluated against the values object to compute the target field’s value. This is used when the value depends on conditional logic, tax scenarios, payment methods, or other derived rules.
-
-        - `values`:
-        Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
-
-            - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
-              ```json
-              {
-                "invoice.id": "INV-10001",
-                "invoice.issue_date": "2025-04-02",
-                "invoice.currency_code": "EUR"
-              }
-              ```
-
-            - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
-              ```json
-              {
-                "line_items": [
-                  { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
-                  { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
-                ]
-              }
-              ```
-
-        This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
-      properties:
-        country:
-          description: The ISO country code for the scenario.
-          example: DE
-          type: string
-        transaction_type:
-          description: "The type of transaction (B2B, B2C, B2G)."
-          enum:
-          - B2B
-          - B2C
-          - B2G
-          example: B2B
-          type: string
-        model:
-          description: "Indicates the eInvoicing flow model that governs the document\
-            \ exchange and processing mechanism. \nDifferent countries adopt different\
-            \ models based on legal, technical, and administrative mandates.\nSupported\
-            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
-            \ cross-border electronic document exchange between businesses and governments.\n\
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
-            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
-            \ must be pre-approved by a tax authority before they are sent to the\
-            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
-            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
-            \ eInvoicing format used in Germany combining PDF and XML for human and\
-            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
-            \ real-time or near-real-time invoice validation and transmission to tax\
-            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
-            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
-            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
-            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
-            \ and reporting sales invoices directly to the tax agency.\n"
-          enum:
-          - PEPPOL
-          - EINVOICE
-          - CLEARANCE
-          - REPORTING
-          - ZUGFERD
-          - CTC
-          - NEMHANDEL
-          - FACE
-          - VERIFACTU
-          example: PEPPOL
-          type: string
-        field_mapping:
-          items:
-            $ref: '#/components/schemas/document_overrides_field_mapping_inner'
-          type: array
-        values:
-          description: "Flattened key-value representation of the data to be mapped\
-            \ using `field_mapping`. \n\nEach key in this object uses dot-notation\
-            \ to reference the source path, including arrays and nested arrays — for\
-            \ example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.\n\
-            \n- **Scalar values** (e.g., strings, numbers, dates) should be represented\
-            \ as flat keys:\n```json\n{\n  \"invoice.id\": \"INV-10001\",\n  \"invoice.issue_date\"\
-            : \"2025-04-02\",\n  \"invoice.currency_code\": \"EUR\"\n}\n```\n\n- **Complex\
-            \ types like arrays** (e.g., `line_items`) should be represented as nested\
-            \ JSON:\n```json\n{\n  \"line_items\": [\n    { \"id\": \"1\", \"line_item_tax\"\
-            : [ {\"name\" : \"VAT\" }] },\n    { \"id\": \"2\", \"line_item_tax\"\
-            : [ {\"name\" : \"Local Tax\"}] }\n  ]\n}\n```\n"
-          type: object
       type: object
     payment_means_payee_financial_account:
       description: A group of business terms to specify credit transfer payments.
