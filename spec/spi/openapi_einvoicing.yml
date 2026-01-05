@@ -1195,6 +1195,22 @@ paths:
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=ACCEPTED' \
               --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+              --data-urlencode 'provider_responses={
+                "source":"avalara",
+                "received_at":"2025-12-29T12:17:47.791Z",
+                "type":"polling",
+                "payload":{
+                  "id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
+                  "companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5",
+                  "status":"Complete",
+                  "events":[
+                    {"eventDateTime":"2025-12-29T12:17:47.791","message":"Document started processing"},
+                    {"eventDateTime":"2025-12-29T12:17:47.934","message":"Validations for the submitted document were successful"},
+                    {"eventDateTime":"2025-12-29T12:17:53.063","message":"The document was delivered to the recipient","responseKey":"Receipt Message ID","responseValue":"8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.avalara.io"}
+                  ]
+                }
+              }
+            }'
 
         - lang: cURL
           label: Invoice document submission failed
@@ -2628,7 +2644,7 @@ components:
           type: string
           format: date-time
           description: ISO 8601 timestamp indicating when the status was determined.
-        external_payloads:
+        provider_responses:
           type: array
           description: Optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
           items:
