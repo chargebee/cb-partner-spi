@@ -2303,11 +2303,11 @@ components:
           description: ISO 8601 timestamp indicating when the status was determined.
           format: date-time
           type: string
-        external_payloads:
+        provider_responses:
           description: Optional array of raw payloads received from the e-invoicing
             provider that is used for downstream mapping and for audits.
           items:
-            $ref: '#/components/schemas/callback_document_status_external_payloads_inner'
+            $ref: '#/components/schemas/callback_document_status_provider_responses_inner'
           type: array
         errors:
           description: List of errors (if any) returned by the provider if status
@@ -2939,7 +2939,7 @@ components:
       - code
       - message
       type: object
-    callback_document_status_external_payloads_inner:
+    callback_document_status_provider_responses_inner:
       properties:
         source:
           description: The e-invoicing provider that sent the response
