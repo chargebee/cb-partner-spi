@@ -1530,6 +1530,35 @@ components:
         einvoicing_provider_id: avalara
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
+        provider_responses: |
+          [
+            {
+              "source": "avalara",
+              "received_at": "2025-12-29T12:17:47.791Z",
+              "type": "polling",
+              "payload": {
+                "id": "ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
+                "companyId": "304382fd-1268-4e7b-86db-a8d51ff309d5",
+                "status": "Complete",
+                "events": [
+                  {
+                    "eventDateTime": "2025-12-29T12:17:47.791",
+                    "message": "Document started processing"
+                  },
+                  {
+                    "eventDateTime": "2025-12-29T12:17:47.934",
+                    "message": "Validations for the submitted document were successful"
+                  },
+                  {
+                    "eventDateTime": "2025-12-29T12:17:53.063",
+                    "message": "The document was delivered to the recipient",
+                    "responseKey": "Receipt Message ID",
+                    "responseValue": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.avalara.io"
+                  }
+                ]
+              }
+            }
+          ]
     callback_document_status_success_for_credit_note:
       description: A sample callback notification indicating successful document submission.
       value:
@@ -2274,6 +2303,12 @@ components:
           description: ISO 8601 timestamp indicating when the status was determined.
           format: date-time
           type: string
+        external_payloads:
+          description: Optional array of raw payloads received from the e-invoicing
+            provider that is used for downstream mapping and for audits.
+          items:
+            $ref: '#/components/schemas/callback_document_status_external_payloads_inner'
+          type: array
         errors:
           description: List of errors (if any) returned by the provider if status
             is FAILED
@@ -2903,6 +2938,21 @@ components:
       required:
       - code
       - message
+      type: object
+    callback_document_status_external_payloads_inner:
+      properties:
+        source:
+          description: The e-invoicing provider that sent the response
+          type: string
+        received_at:
+          description: Timestamp when the response was received by the adapter.
+          format: date-time
+          type: string
+        payload:
+          additionalProperties: true
+          description: Provider-specific raw JSON payload stored as-is for audit and
+            downstream mapping.
+          type: object
       type: object
     callback_document_status_errors_inner:
       properties:
