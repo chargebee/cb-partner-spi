@@ -88,6 +88,7 @@ paths:
               examples:
                 Error500:
                   $ref: '#/components/examples/Error500Response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -420,6 +421,7 @@ paths:
               examples:
                 einvoice_document_submission_pending:
                   $ref: '#/components/examples/einvoice_document_submission_pending'
+                  value: null
               schema:
                 $ref: '#/components/schemas/document_submission_response'
           description: Document submitted successfully.
@@ -429,6 +431,7 @@ paths:
               examples:
                 einvoice_document_submission_failed:
                   $ref: '#/components/examples/einvoice_document_submission_failed'
+                  value: null
               schema:
                 $ref: '#/components/schemas/bad_request_error_response'
           description: Bad request
@@ -1022,7 +1025,7 @@ paths:
             --data-urlencode 'einvoicing_provider_id=avalara' \
             --data-urlencode 'status=ACCEPTED' \
             --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
-            --data-urlencode 'provider_responses={
+            --data-urlencode 'provider_response={
               "source":"avalara",
               "received_at":"2025-12-29T12:17:47.791Z",
               "type":"polling",
@@ -1151,8 +1154,10 @@ paths:
               examples:
                 successful_einvoice_document_submission_response:
                   $ref: '#/components/examples/successful_einvoice_document_submission_response'
+                  value: null
                 failed_einvoice_document_submission_response:
                   $ref: '#/components/examples/failed_einvoice_document_submission_response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/document_status'
           description: Document status retrieved successfully.
@@ -1302,8 +1307,10 @@ paths:
               examples:
                 einvoice_document_download_url_response:
                   $ref: '#/components/examples/einvoice_document_download_url_response'
+                  value: null
                 einvoice_document_download_stream_response:
                   $ref: '#/components/examples/einvoice_document_download_stream_response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/download_document_response'
           description: Document downloaded successfully.
@@ -1455,6 +1462,7 @@ paths:
               examples:
                 Error500:
                   $ref: '#/components/examples/Error500Response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -1546,7 +1554,7 @@ components:
         einvoicing_provider_id: avalara
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
-        provider_responses: |
+        provider_response: |
           [
             {
               "source": "avalara",
@@ -1630,6 +1638,7 @@ components:
           examples:
             Error500:
               $ref: '#/components/examples/Error500Response'
+              value: null
           schema:
             $ref: '#/components/schemas/BasicErrorResponse'
       description: Unexpected error while processing request.
@@ -2318,21 +2327,25 @@ components:
           description: ISO 8601 timestamp indicating when the status was determined.
           format: date-time
           type: string
-        provider_responses:
-          description: Optional array of raw payloads received from the e-invoicing
-            provider that is used for downstream mapping and for audits.
-          items:
-            $ref: '#/components/schemas/callback_document_status_provider_responses_inner'
-          type: array
+        provider_response:
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: "[{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
+            ,\"payload\":{\"id\":\"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7\",\"companyId\"\
+            :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}]"
+          type: string
         errors:
-          description: List of errors (if any) returned by the provider if status
-            is FAILED
-          items:
-            $ref: '#/components/schemas/callback_document_status_errors_inner'
-          type: array
+          description: |
+            JSON string containing a list of errors (if any) returned by the provider if status is FAILED.
+            The JSON should be an array of objects with the following structure:
+            [{"code": "string", "message": "string", "help_url": "string (optional)"}]
+          example: "[{\"code\":\"MISSING_REQUIRED_DATA\",\"message\":\"The request\
+            \ did not contain a required property\",\"help_url\":\"https://docs.example.com/errors\"\
+            }]"
+          type: string
       required:
-      - document_id
-      - document_type
       - status
       - timestamp
       type: object
@@ -2948,37 +2961,6 @@ components:
         help_url:
           description: The link to the documentation for more information about the
             error and the corrective action.
-          format: uri
-          type: string
-      required:
-      - code
-      - message
-      type: object
-    callback_document_status_provider_responses_inner:
-      properties:
-        source:
-          description: The e-invoicing provider that sent the response
-          type: string
-        received_at:
-          description: Timestamp when the response was received by the adapter.
-          format: date-time
-          type: string
-        payload:
-          additionalProperties: true
-          description: Provider-specific raw JSON payload stored as-is for audit and
-            downstream mapping.
-          type: object
-      type: object
-    callback_document_status_errors_inner:
-      properties:
-        code:
-          description: Unique error code
-          type: string
-        message:
-          description: Human-readable error message
-          type: string
-        help_url:
-          description: Optional URL to documentation/help
           format: uri
           type: string
       required:

@@ -1195,7 +1195,7 @@ paths:
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=ACCEPTED' \
               --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
-              --data-urlencode 'provider_responses={
+              --data-urlencode 'provider_response={
                 "source":"avalara",
                 "received_at":"2025-12-29T12:17:47.791Z",
                 "type":"polling",
@@ -2644,45 +2644,21 @@ components:
           type: string
           format: date-time
           description: ISO 8601 timestamp indicating when the status was determined.
-        provider_responses:
-          type: array
-          description: Optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
-          items:
-              type: object
-              properties:
-                source:
-                  type: string
-                  description: The e-invoicing provider that sent the response
-                received_at:
-                  type: string
-                  format: date-time
-                  description: Timestamp when the response was received by the adapter.
-                payload:
-                  type: object
-                  description: Provider-specific raw JSON payload stored as-is for audit and downstream mapping.
-                  additionalProperties: true
+        provider_response:
+          type: string
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '[{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}]'
         errors:
-          type: array
-          description: List of errors (if any) returned by the provider if status is FAILED
-          items:
-            type: object
-            required:
-              - code
-              - message
-            properties:
-              code:
-                type: string
-                description: Unique error code
-              message:
-                type: string
-                description: Human-readable error message
-              help_url:
-                type: string
-                format: uri
-                description: Optional URL to documentation/help
+          type: string
+          description: |
+            JSON string containing a list of errors (if any) returned by the provider if status is FAILED.
+            The JSON should be an array of objects with the following structure:
+            [{"code": "string", "message": "string", "help_url": "string (optional)"}]
+          example: '[{"code":"MISSING_REQUIRED_DATA","message":"The request did not contain a required property","help_url":"https://docs.example.com/errors"}]'
       required:
-        - document_id
-        - document_type
         - status
         - timestamp
     500_error_response:
@@ -2781,7 +2757,7 @@ components:
         einvoicing_provider_id: avalara
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
-        provider_responses: >
+        provider_response: >
           [
             {
               "source": "avalara",
