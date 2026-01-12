@@ -88,6 +88,7 @@ paths:
               examples:
                 Error500:
                   $ref: '#/components/examples/Error500Response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -435,6 +436,7 @@ paths:
               examples:
                 einvoice_document_submission_pending:
                   $ref: '#/components/examples/einvoice_document_submission_pending'
+                  value: null
               schema:
                 $ref: '#/components/schemas/document_submission_response'
           description: Document submitted successfully.
@@ -444,6 +446,7 @@ paths:
               examples:
                 einvoice_document_submission_failed:
                   $ref: '#/components/examples/einvoice_document_submission_failed'
+                  value: null
               schema:
                 $ref: '#/components/schemas/bad_request_error_response'
           description: Bad request
@@ -1006,6 +1009,10 @@ paths:
         "202":
           description: Callback request accepted for asynchronous processing.
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/einvoicingDocumentStatusCallbackForInvoice_400_response'
           description: Invalid payload or required fields missing.
         "401":
           description: Unauthorized request. Signature validation failed or sender
@@ -1063,7 +1070,9 @@ paths:
             --data-urlencode 'einvoicing_provider_id=avalara' \
             --data-urlencode 'status=FAILED' \
             --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
-            --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"The request did not contain a required property 'taxAmount'","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
+            --data-urlencode 'errors[0][code]=MISSING_REQUIRED_DATA' \
+            --data-urlencode 'errors[0][message]=The request did not contain a required property taxAmount' \
+            --data-urlencode 'errors[0][help_url]=https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER'
       - lang: cURL
         label: Invoice rejected (includes related application response)
         source: |
@@ -1113,6 +1122,10 @@ paths:
         "202":
           description: Callback request accepted for asynchronous processing.
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/einvoicingDocumentStatusCallbackForInvoice_400_response'
           description: Invalid payload or required fields missing.
         "401":
           description: Unauthorized request. Signature validation failed or sender
@@ -1154,7 +1167,9 @@ paths:
             --data-urlencode 'einvoicing_provider_id=avalara' \
             --data-urlencode 'status=FAILED' \
             --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
-            --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"An Invoice shall at least have one VAT breakdown group","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
+            --data-urlencode 'errors[0][code]=MISSING_REQUIRED_DATA' \
+            --data-urlencode 'errors[0][message]=An Invoice shall at least have one VAT breakdown group' \
+            --data-urlencode 'errors[0][help_url]=https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER'
   /einvoicing/documents/{document_id}/status:
     get:
       description: |
@@ -1182,8 +1197,10 @@ paths:
               examples:
                 successful_einvoice_document_submission_response:
                   $ref: '#/components/examples/successful_einvoice_document_submission_response'
+                  value: null
                 failed_einvoice_document_submission_response:
                   $ref: '#/components/examples/failed_einvoice_document_submission_response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/document_status'
           description: Document status retrieved successfully.
@@ -1333,8 +1350,10 @@ paths:
               examples:
                 einvoice_document_download_url_response:
                   $ref: '#/components/examples/einvoice_document_download_url_response'
+                  value: null
                 einvoice_document_download_stream_response:
                   $ref: '#/components/examples/einvoice_document_download_stream_response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/download_document_response'
           description: Document downloaded successfully.
@@ -1486,6 +1505,7 @@ paths:
               examples:
                 Error500:
                   $ref: '#/components/examples/Error500Response'
+                  value: null
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -1661,6 +1681,7 @@ components:
           examples:
             Error500:
               $ref: '#/components/examples/Error500Response'
+              value: null
           schema:
             $ref: '#/components/schemas/BasicErrorResponse'
       description: Unexpected error while processing request.
@@ -1916,7 +1937,6 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
-          - APPLICATION_RESPONSE
           type: string
         issue_date:
           description: The date when the document was issued. Format "YYYY-MM-DD"
@@ -2361,13 +2381,12 @@ components:
           type: string
         errors:
           description: |
-            JSON string containing a list of errors (if any) returned by the provider if status is FAILED.
-            The JSON should be an array of objects with the following structure:
-            [{"code": "string", "message": "string", "help_url": "string (optional)"}]
-          example: "[{\"code\":\"MISSING_REQUIRED_DATA\",\"message\":\"The request\
-            \ did not contain a required property\",\"help_url\":\"https://docs.example.com/errors\"\
-            }]"
-          type: string
+            Optional list of errors (if any) returned by the provider if status is FAILED.
+            Encoded using Chargebee's form-urlencoded bracket notation, e.g. `errors[0][code]`.
+          items:
+            $ref: '#/components/schemas/callback_error'
+          maxItems: 50
+          type: array
         related_documents:
           description: |
             Optional list of related (secondary) document status objects, encoded using Chargebee's
@@ -2383,6 +2402,29 @@ components:
       required:
       - status
       - timestamp
+      type: object
+    callback_error:
+      description: Error details returned by the provider.
+      properties:
+        code:
+          description: Error code identifying the type of error.
+          example: MISSING_REQUIRED_DATA
+          maxLength: 100
+          type: string
+        message:
+          description: Human-readable error message describing what went wrong.
+          example: The request did not contain a required property
+          maxLength: 500
+          type: string
+        help_url:
+          description: Optional URL to documentation or help resources for this error.
+          example: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+          format: uri
+          maxLength: 500
+          type: string
+      required:
+      - code
+      - message
       type: object
     callback_related_document_status:
       description: Related/secondary document status details.
@@ -2588,6 +2630,17 @@ components:
       oneOf:
       - $ref: '#/components/schemas/activations_response'
       - $ref: '#/components/schemas/business_entities_response'
+    einvoicingDocumentStatusCallbackForInvoice_400_response:
+      properties:
+        errors:
+          items:
+            $ref: '#/components/schemas/callback_error'
+          type: array
+        related_documents:
+          items:
+            $ref: '#/components/schemas/callback_related_document_status'
+          type: array
+      type: object
     activation_business_entity:
       properties:
         id:

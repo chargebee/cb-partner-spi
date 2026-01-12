@@ -1194,6 +1194,19 @@ paths:
           description: Callback request accepted for asynchronous processing.
         '400':
           description: Invalid payload or required fields missing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_error'
+                  related_documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_related_document_status'
         '401':
           description: Unauthorized request. Signature validation failed or sender is not allowed.
         '422':
@@ -1240,7 +1253,9 @@ paths:
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=FAILED' \
               --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
-              --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"The request did not contain a required property 'taxAmount'","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
+              --data-urlencode 'errors[0][code]=MISSING_REQUIRED_DATA' \
+              --data-urlencode 'errors[0][message]=The request did not contain a required property taxAmount' \
+              --data-urlencode 'errors[0][help_url]=https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER'
         - lang: cURL
           label: Invoice rejected (includes related application response)
           source: |
@@ -1303,6 +1318,19 @@ paths:
           description: Callback request accepted for asynchronous processing.
         '400':
           description: Invalid payload or required fields missing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_error'
+                  related_documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_related_document_status'
         '401':
           description: Unauthorized request. Signature validation failed or sender is not allowed.
         '422':
@@ -1333,7 +1361,9 @@ paths:
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=FAILED' \
               --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
-              --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"An Invoice shall at least have one VAT breakdown group","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
+              --data-urlencode 'errors[0][code]=MISSING_REQUIRED_DATA' \
+              --data-urlencode 'errors[0][message]=An Invoice shall at least have one VAT breakdown group' \
+              --data-urlencode 'errors[0][help_url]=https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER'
 
   /einvoicing/documents/{document_id}/status:
     get:
@@ -2686,12 +2716,13 @@ components:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '[{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}]'
         errors:
-          type: string
+          type: array
           description: |
-            JSON string containing a list of errors (if any) returned by the provider if status is FAILED.
-            The JSON should be an array of objects with the following structure:
-            [{"code": "string", "message": "string", "help_url": "string (optional)"}]
-          example: '[{"code":"MISSING_REQUIRED_DATA","message":"The request did not contain a required property","help_url":"https://docs.example.com/errors"}]'
+            Optional list of errors (if any) returned by the provider if status is FAILED.
+            Encoded using Chargebee's form-urlencoded bracket notation, e.g. `errors[0][code]`.
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/callback_error'
         related_documents:
           type: array
           description: |
@@ -2707,6 +2738,29 @@ components:
       required:
         - status
         - timestamp
+    callback_error:
+      type: object
+      description: Error details returned by the provider.
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifying the type of error.
+          maxLength: 100
+          example: MISSING_REQUIRED_DATA
+        message:
+          type: string
+          description: Human-readable error message describing what went wrong.
+          maxLength: 500
+          example: The request did not contain a required property
+        help_url:
+          type: string
+          format: uri
+          description: Optional URL to documentation or help resources for this error.
+          maxLength: 500
+          example: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
     callback_related_document_status:
       type: object
       description: Related/secondary document status details.
