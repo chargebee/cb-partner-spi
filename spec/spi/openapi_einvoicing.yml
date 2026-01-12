@@ -108,6 +108,24 @@ paths:
 
             When provided, the adapter must return only the activations that belong to the specified business entity.
         - in: query
+          name: country
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+          description: |
+            Filters activations by country.
+              
+            The value must be a two-letter ISO 3166-1 alpha-2 country code
+            (for example, `DE`, `FR`, `IT`).
+              
+            When provided, the adapter must return only the activations that
+            are applicable for the specified country.
+              
+            This parameter is typically used during country-level e-invoicing
+            configuration to determine whether a provider supports e-invoicing
+            for a given country and business ent
+        - in: query
           name: mode
           schema:
             type: string

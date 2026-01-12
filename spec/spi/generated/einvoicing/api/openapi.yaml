@@ -177,6 +177,21 @@ paths:
         schema:
           type: string
         style: form
+      - description: "Filters activations by country.\n  \nThe value must be a two-letter\
+          \ ISO 3166-1 alpha-2 country code\n(for example, `DE`, `FR`, `IT`).\n  \n\
+          When provided, the adapter must return only the activations that\nare applicable\
+          \ for the specified country.\n  \nThis parameter is typically used during\
+          \ country-level e-invoicing\nconfiguration to determine whether a provider\
+          \ supports e-invoicing\nfor a given country and business ent\n"
+        explode: true
+        in: query
+        name: country
+        required: false
+        schema:
+          maxLength: 2
+          minLength: 2
+          type: string
+        style: form
       - description: |
           Optional mode for controlling the response type:
           - `business_entities`: Returns list of Business Entities.
