@@ -1064,22 +1064,6 @@ paths:
             --data-urlencode 'status=FAILED' \
             --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
             --data-urlencode 'errors=[{"code":"MISSING_REQUIRED_DATA","message":"The request did not contain a required property 'taxAmount'","help_url":"https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER"}]'
-      - lang: cURL
-        label: Invoice rejected (includes related application response)
-        source: |
-          curl --request POST \
-            --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
-            --header 'Authorization: Bearer <token>' \
-            --header 'Content-Type: application/x-www-form-urlencoded' \
-            --data-urlencode 'einvoicing_provider_id=avalara' \
-            --data-urlencode 'document_type=INVOICE' \
-            --data-urlencode 'status=REJECTED' \
-            --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
-            --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
-            --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
-            --data-urlencode 'related_documents[0][status]=SUCCESS' \
-            --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-            --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
   /api/v2/credit_notes/{document_id}/einvoice_status:
     post:
       description: |
@@ -2368,63 +2352,7 @@ components:
             \ did not contain a required property\",\"help_url\":\"https://docs.example.com/errors\"\
             }]"
           type: string
-        related_documents:
-          description: |
-            Optional list of related (secondary) document status objects, encoded using Chargebee's
-            form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
-
-            Use this to include secondary documents such as `ubl-application-response` that influenced the
-            primary document outcome. Chargebee may store this for diagnostics; it does not change the
-            primary idempotency key.
-          items:
-            $ref: '#/components/schemas/callback_related_document_status'
-          maxItems: 10
-          type: array
       required:
-      - status
-      - timestamp
-      type: object
-    callback_related_document_status:
-      description: Related/secondary document status details.
-      properties:
-        document_id:
-          description: Unique identifier of the related submitted document in Chargebee
-            tracking.
-          maxLength: 100
-          type: string
-        document_type:
-          description: "Document type of the related document (e.g., ubl-application-response)."
-          example: ubl-application-response
-          maxLength: 100
-          type: string
-        status:
-          description: Current status of the related document.
-          enum:
-          - SUCCESS
-          - IN_PROGRESS
-          - FAILED
-          type: string
-        timestamp:
-          description: ISO 8601 timestamp indicating when the related document status
-            was determined.
-          format: date-time
-          type: string
-        provider_response:
-          description: Provider-specific payload snapshot for the related document
-            (stringified JSON).
-          example: |
-            {"provider_document_id":"ar_123","status":"Complete","interfaceName":"PEPPOL"}
-          type: string
-        errors:
-          description: |
-            Provider errors for the related document (stringified JSON array).
-            Present when `status=FAILED`.
-          example: |
-            [{"code":"AR_VALIDATION_FAILED","message":"Invalid response code"}]
-          type: string
-      required:
-      - document_id
-      - document_type
       - status
       - timestamp
       type: object
