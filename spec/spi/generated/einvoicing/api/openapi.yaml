@@ -286,6 +286,23 @@ paths:
             --url https://partner.app.com/einvoicing/activations?business_entity_id=595e13fd-68b0-40c2-ade3-9780ce339d97 \
             --header 'Content-Type: application/json' \
             --header 'Authorization: {"api_key": … }'
+      - lang: cURL
+        label: Invoice rejected (includes related application response)
+        source: |
+          curl --request POST \
+            --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+            --header 'Authorization: Bearer <token>' \
+            --header 'Content-Type: application/x-www-form-urlencoded' \
+            --data-urlencode 'einvoicing_provider_id=avalara' \
+            --data-urlencode 'document_type=INVOICE' \
+            --data-urlencode 'status=REJECTED' \
+            --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
+            --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
+            --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
+            --data-urlencode 'related_documents[0][status]=SUCCESS' \
+           --data-urlencode 'related_documents[0][flow]=INBOUND' \
+            --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
+            --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
       x-accepts: application/json
   /einvoicing/data_input_fields:
     get:
@@ -1598,34 +1615,32 @@ components:
         status: ACCEPTED
         timestamp: 2025-05-23T13:22:50.519Z
         provider_response: |
-          [
-            {
-              "source": "avalara",
-              "received_at": "2025-12-29T12:17:47.791Z",
-              "type": "polling",
-              "payload": {
-                "id": "ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
-                "companyId": "304382fd-1268-4e7b-86db-a8d51ff309d5",
-                "status": "Complete",
-                "events": [
-                  {
-                    "eventDateTime": "2025-12-29T12:17:47.791",
-                    "message": "Document started processing"
-                  },
-                  {
-                    "eventDateTime": "2025-12-29T12:17:47.934",
-                    "message": "Validations for the submitted document were successful"
-                  },
-                  {
-                    "eventDateTime": "2025-12-29T12:17:53.063",
-                    "message": "The document was delivered to the recipient",
-                    "responseKey": "Receipt Message ID",
-                    "responseValue": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.avalara.io"
-                  }
-                ]
-              }
+          {
+            "source": "avalara",
+            "received_at": "2025-12-29T12:17:47.791Z",
+            "type": "polling",
+            "payload": {
+              "id": "ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
+              "companyId": "304382fd-1268-4e7b-86db-a8d51ff309d5",
+              "status": "Complete",
+              "events": [
+                {
+                  "eventDateTime": "2025-12-29T12:17:47.791",
+                  "message": "Document started processing"
+                },
+                {
+                  "eventDateTime": "2025-12-29T12:17:47.934",
+                  "message": "Validations for the submitted document were successful"
+                },
+                {
+                  "eventDateTime": "2025-12-29T12:17:53.063",
+                  "message": "The document was delivered to the recipient",
+                  "responseKey": "Receipt Message ID",
+                  "responseValue": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.avalara.io"
+                }
+              ]
             }
-          ]
+          }
     callback_document_status_success_for_credit_note:
       description: A sample callback notification indicating successful document submission.
       value:
@@ -2375,9 +2390,9 @@ components:
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
-          example: "[{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
+          example: "{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
             ,\"payload\":{\"id\":\"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7\",\"companyId\"\
-            :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}]"
+            :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}"
           type: string
         errors:
           description: |
@@ -2446,6 +2461,12 @@ components:
           - IN_PROGRESS
           - FAILED
           type: string
+        flow:
+          description: The direction flow of the related document.
+          enum:
+          - INBOUND
+          - OUTBOUND
+          type: string
         timestamp:
           description: ISO 8601 timestamp indicating when the related document status
             was determined.
@@ -2467,6 +2488,7 @@ components:
       required:
       - document_id
       - document_type
+      - flow
       - status
       - timestamp
       type: object
