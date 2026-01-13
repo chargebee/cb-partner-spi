@@ -226,7 +226,7 @@ paths:
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
               --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
-             --data-urlencode 'related_documents[0][flow]=INBOUND' \
+            --data-urlencode 'related_documents[0][flow]=INBOUND' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
               --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
   /einvoicing/data_input_fields:
