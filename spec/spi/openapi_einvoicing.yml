@@ -2720,6 +2720,13 @@ components:
             - SUCCESS
             - IN_PROGRESS
             - FAILED
+            - ACCEPTED
+            - REJECTED
+            - MESSAGE_ACKNOWLEDGEMENT
+            - IN_PROCESS
+            - UNDER_QUERY
+            - CONDITIONALLY_ACCEPTED
+            - PAID
           description: Current status of the document after processing by the provider.
         timestamp:
           type: string
@@ -2746,7 +2753,7 @@ components:
             Optional list of related (secondary) document status objects, encoded using Chargebee's
             form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
             
-            Use this to include secondary documents such as `ubl-application-response` that influenced the
+            Use this to include secondary documents such as `APPLICATION_RESPONSE` that influenced the
             primary document outcome. Chargebee may store this for diagnostics; it does not change the
             primary idempotency key.
           maxItems: 10
@@ -2795,9 +2802,9 @@ components:
 
         document_type:
           type: string
-          description: Document type of the related document (e.g., ubl-application-response).
+          description: Document type of the related document (e.g., APPLICATION_RESPONSE).
           maxLength: 100
-          example: ubl-application-response
+          example: APPLICATION_RESPONSE
 
         status:
           type: string
