@@ -2526,7 +2526,7 @@ components:
       example:
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: application/xml
+          - mime_type: "application/xml"
             document_url: https://provider.com/downloads/invoice-20250402.xml
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
@@ -2878,7 +2878,7 @@ components:
         document_id: DOC-20250402-0001
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: application/xml
+          - mime_type: "application/xml"
             document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
@@ -2888,10 +2888,10 @@ components:
         document_id: DOC-20250402-0001
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: application/xml
+          - mime_type: "application/xml"
             document_content: PHh...Q0w+  # Base64-encoded XML content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
-          - mime_type: application/pdf
+          - mime_type: "application/pdf"
             document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
