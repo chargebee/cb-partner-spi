@@ -168,9 +168,9 @@ paths:
                             country: "DE"
                             einvoicing_type: "B2B"
                             supported_document_types:
-                              - INVOICE
-                              - CREDIT_NOTE
-                              - APPLICATION_RESPONSE
+                              - "ubl-invoice"
+                              - "ubl-creditnote"
+                              - "ubl-applicationresponse"
                       - id: "02083517-408f-4174-8c4d-42b029162f9c"
                         business_entity_id:
                           id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
@@ -183,8 +183,8 @@ paths:
                             country: "DE"
                             einvoicing_type: "B2B"
                             supported_document_types:
-                              - INVOICE
-                              - CREDIT_NOTE
+                              - "ubl-invoice"
+                              - "ubl-creditnote"
         '401':
           description: Unauthorized
         '403':
@@ -220,7 +220,6 @@ paths:
               --header 'Authorization: Bearer <token>' \
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
-              --data-urlencode 'document_type=INVOICE' \
               --data-urlencode 'status=REJECTED' \
               --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
@@ -228,7 +227,7 @@ paths:
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
             --data-urlencode 'related_documents[0][flow]=INBOUND' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-              --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
+              --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
   /einvoicing/data_input_fields:
     get:
       tags:
@@ -291,13 +290,10 @@ paths:
         - name: document_type
           in: query
           required: true
-          description: Type of document, either an invoice or a credit note.
+          description: Type of business document.
           schema:
             type: string
-            enum:
-              - INVOICE
-              - CREDIT_NOTE
-              - APPLICATION_RESPONSE
+            example: "ubl-invoice"
       responses:
         '200':
           description: Successfully retrieved the data input fields for the given scenario.
@@ -537,6 +533,7 @@ paths:
                   "country": "DE", 
                   "transaction_type": "B2B",
                   "model": "PEPPOL",
+                  "document_type": "ubl-invoice",
                   "field_mapping": [
                     {
                       "target": "Invoice.cbc:ID",
@@ -856,6 +853,7 @@ paths:
                   "country": "DE", 
                   "transaction_type": "B2B",
                   "model": "PEPPOL",
+                  "document_type": "ubl-creditnote",
                   "field_mapping": [
                     {
                       "target": "Creditnote.cbc:ID",
@@ -1096,6 +1094,7 @@ paths:
                   "country": "DE",
                   "model": "PEPPOL",
                   "transaction_type": "B2B",
+                  "document_type": "ubl-applicationresponse",
                   "field_mapping": [
                     {
                       "target": "ApplicationResponse.cbc:ID",
@@ -1281,14 +1280,13 @@ paths:
               --header 'Authorization: Bearer <token>' \
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
-              --data-urlencode 'document_type=INVOICE' \
               --data-urlencode 'status=REJECTED' \
               --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
               --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-              --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
+              --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
 
   /api/v2/credit_notes/{document_id}/einvoice_status :
     post:
@@ -1480,13 +1478,6 @@ paths:
             for the given document_id from the underlying e-invoicing provider.
           schema:
             type: string
-            enum:
-              - application/xml
-              - application/pdf
-              - application/json
-              - application/zip
-              - application/png
-              - application/vnd.oasis.ubl+xml
             example: "application/xml"
         - name: country
           in: query
@@ -1537,13 +1528,10 @@ paths:
         - name: document_type
           in: query
           required: true
-          description: Type of document, either an invoice or a credit note.
+          description: Type of business document.
           schema:
             type: string
-            enum:
-              - INVOICE
-              - CREDIT_NOTE
-              - APPLICATION_RESPONSE
+            example: "ubl-invoice"
       responses:
         '200':
           description: Document downloaded successfully.
@@ -1731,30 +1719,12 @@ components:
           type: array
           description: |
             The types of business documents that are supported for this country activation.
-            
-            This represents a normalized view of the provider's supported formats.
-            For example, `ubl-invoice`, `ubl-creditnote`, and `ubl-applicationresponse` should be
-            mapped to:
-            
-            - `INVOICE` for invoice documents  
-            - `CREDIT_NOTE` for credit note documents  
-            - `APPLICATION_RESPONSE` for application response documents. APPLICATION_RESPONSE represents an electronic 
-            response document sent to indicate the processing result of a 
-            previously submitted invoice or credit note, such as acceptance, rejection, or required corrections.
-            
-            Providers may support additional document types; if so, they should be
-            returned using the closest applicable value or a provider-specific
-            extension value agreed with Chargebee.
           items:
             type: string
-            enum:
-              - INVOICE
-              - CREDIT_NOTE
-              - APPLICATION_RESPONSE
           example:
-            - INVOICE
-            - CREDIT_NOTE
-            - APPLICATION_RESPONSE
+            - "ubl-invoice" 
+            - "ubl-creditnote"
+            - "ubl-applicationresponse"
     activations_response:
       type: object
       properties:
@@ -1819,11 +1789,8 @@ components:
           example: "PEPPOL"
         document_type:
           type: string
-          description: Type of document, either an invoice or a credit note.
-          enum:
-            - INVOICE
-            - CREDIT_NOTE
-            - APPLICATION_RESPONSE
+          description: Type of business document.
+          example: "ubl-invoice"
         fields:
           type: array
           description: List of input fields with inclusion metadata.
@@ -1891,7 +1858,7 @@ components:
         country: "DE"
         transaction_type: "B2B"
         model: "PEPPOL"
-        document_type: "INVOICE"
+        document_type: "ubl-invoice"
         fields:
           - path: "Invoice.cbc:ID"
             field_name: "cbc:ID"
@@ -2306,6 +2273,10 @@ components:
             - FACE
             - VERIFACTU
           example: "PEPPOL"
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-invoice"
         field_mapping:
           type: array
           items:
@@ -2491,7 +2462,6 @@ components:
       required:
         - document_id
         - documents
-        - evidence
       properties:
         document_id:
           type: string
@@ -2507,13 +2477,6 @@ components:
               mime_type:
                 type: string
                 description: The MIME type of the document.
-                enum:
-                  - application/xml
-                  - application/pdf
-                  - application/json
-                  - application/zip
-                  - application/png
-                  - application/vnd.oasis.ubl+xml
               document_url:
                 type: string
                 format: uri
@@ -2558,7 +2521,7 @@ components:
       example:
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: application/xml
+          - mime_type: "application/xml"
             document_url: https://provider.com/downloads/invoice-20250402.xml
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
@@ -2730,8 +2693,7 @@ components:
           description: Current status of the document after processing by the provider.
         timestamp:
           type: string
-          format: date-time
-          description: ISO 8601 timestamp indicating when the status was determined.
+          description: Timestamp (UTC) in seconds indicating when the status was determined.
         provider_response:
           type: string
           description: |
@@ -2821,14 +2783,15 @@ components:
           description: The direction flow of the related document.
         timestamp:
           type: string
-          format: date-time
-          description: ISO 8601 timestamp indicating when the related document status was determined.
+          description: Timestamp (UTC) in seconds indicating when the related document status was determined.
 
         provider_response:
           type: string
-          description: Provider-specific payload snapshot for the related document (stringified JSON).
-          example: >
-            {"provider_document_id":"ar_123","status":"Complete","interfaceName":"PEPPOL"}
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
 
         errors:
           type: string
@@ -2910,7 +2873,7 @@ components:
         document_id: DOC-20250402-0001
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: application/xml
+          - mime_type: "application/xml"
             document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
@@ -2920,10 +2883,10 @@ components:
         document_id: DOC-20250402-0001
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
-          - mime_type: application/xml
+          - mime_type: "application/xml"
             document_content: PHh...Q0w+  # Base64-encoded XML content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
-          - mime_type: application/pdf
+          - mime_type: "application/pdf"
             document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
