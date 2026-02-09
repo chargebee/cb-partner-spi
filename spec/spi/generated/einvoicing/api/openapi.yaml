@@ -236,9 +236,9 @@ paths:
                         country: DE
                         einvoicing_type: B2B
                         supported_document_types:
-                        - INVOICE
-                        - CREDIT_NOTE
-                        - APPLICATION_RESPONSE
+                        - ubl-invoice
+                        - ubl-creditnote
+                        - ubl-applicationresponse
                     - id: 02083517-408f-4174-8c4d-42b029162f9c
                       business_entity_id:
                         id: 595e13fd-68b0-40c2-ade3-9780ce339d97
@@ -251,8 +251,8 @@ paths:
                         country: DE
                         einvoicing_type: B2B
                         supported_document_types:
-                        - INVOICE
-                        - CREDIT_NOTE
+                        - ubl-invoice
+                        - ubl-creditnote
               schema:
                 $ref: '#/components/schemas/listActivations_200_response'
           description: A list of activations
@@ -294,7 +294,6 @@ paths:
             --header 'Authorization: Bearer <token>' \
             --header 'Content-Type: application/x-www-form-urlencoded' \
             --data-urlencode 'einvoicing_provider_id=avalara' \
-            --data-urlencode 'document_type=INVOICE' \
             --data-urlencode 'status=REJECTED' \
             --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
             --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
@@ -302,7 +301,7 @@ paths:
             --data-urlencode 'related_documents[0][status]=SUCCESS' \
           --data-urlencode 'related_documents[0][flow]=INBOUND' \
             --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-            --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
+            --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
       x-accepts: application/json
   /einvoicing/data_input_fields:
     get:
@@ -374,16 +373,13 @@ paths:
           example: PEPPOL
           type: string
         style: form
-      - description: "Type of document, either an invoice or a credit note."
+      - description: Type of business document.
         explode: true
         in: query
         name: document_type
         required: true
         schema:
-          enum:
-          - INVOICE
-          - CREDIT_NOTE
-          - APPLICATION_RESPONSE
+          example: ubl-invoice
           type: string
         style: form
       responses:
@@ -605,14 +601,15 @@ paths:
           : 14.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
           \          \"category\": \"VAT\"\n        }\n      ]\n    },\n    \"overrides\"\
           : {\n      \"country\": \"DE\", \n      \"transaction_type\": \"B2B\",\n\
-          \      \"model\": \"PEPPOL\",\n      \"field_mapping\": [\n        {\n \
-          \         \"target\": \"Invoice.cbc:ID\",\n          \"source\": \"invoice.id\"\
-          \n        },\n        {\n          \"target\": \"Invoice.cbc:IssueDate\"\
-          ,\n          \"source\": \"invoice.issue_date\"\n        },\n        {\n\
-          \          \"target\": \"Invoice.cbc:InvoiceTypeCode\",\n          \"fixed_value\"\
-          : \"380\"\n        },\n        {\n          \"target\": \"Invoice.cbc:DocumentCurrencyCode\"\
-          ,\n          \"source\": \"invoice.currency_code\"\n        },\n       \
-          \ {\n          \"target\": \"Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          \      \"model\": \"PEPPOL\",\n      \"document_type\": \"ubl-invoice\"\
+          ,\n      \"field_mapping\": [\n        {\n          \"target\": \"Invoice.cbc:ID\"\
+          ,\n          \"source\": \"invoice.id\"\n        },\n        {\n       \
+          \   \"target\": \"Invoice.cbc:IssueDate\",\n          \"source\": \"invoice.issue_date\"\
+          \n        },\n        {\n          \"target\": \"Invoice.cbc:InvoiceTypeCode\"\
+          ,\n          \"fixed_value\": \"380\"\n        },\n        {\n         \
+          \ \"target\": \"Invoice.cbc:DocumentCurrencyCode\",\n          \"source\"\
+          : \"invoice.currency_code\"\n        },\n        {\n          \"target\"\
+          : \"Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"business.address.country\"\n        },\n    \
           \    {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"customer.billing_address.country\"\n        },\n\
@@ -796,15 +793,16 @@ paths:
           : 7.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
           \          \"category\": \"VAT\"\n        }\n      ]\n    },\n    \"overrides\"\
           : {\n      \"country\": \"DE\", \n      \"transaction_type\": \"B2B\",\n\
-          \      \"model\": \"PEPPOL\",\n      \"field_mapping\": [\n        {\n \
-          \         \"target\": \"Creditnote.cbc:ID\",\n          \"source\": \"credit_note.id\"\
-          \n        },\n        {\n          \"target\": \"Creditnote.cbc:IssueDate\"\
-          ,\n          \"source\": \"credit_note.issue_date\"\n        },\n      \
-          \  {\n          \"target\": \"Creditnote.cbc:CreditNoteTypeCode\",\n   \
-          \       \"fixed_value\": \"396\"\n        },\n        {\n          \"target\"\
-          : \"Creditnote.cbc:DocumentCurrencyCode\",\n          \"source\": \"credit_note.currency_code\"\
-          \n        },\n        {\n          \"target\": \"Creditnote.cac:BillingReference\"\
-          ,\n          \"expr\": \"invoiceResponse.events.exists(e, has(e.responseKey)\
+          \      \"model\": \"PEPPOL\",\n      \"document_type\": \"ubl-creditnote\"\
+          ,\n      \"field_mapping\": [\n        {\n          \"target\": \"Creditnote.cbc:ID\"\
+          ,\n          \"source\": \"credit_note.id\"\n        },\n        {\n   \
+          \       \"target\": \"Creditnote.cbc:IssueDate\",\n          \"source\"\
+          : \"credit_note.issue_date\"\n        },\n        {\n          \"target\"\
+          : \"Creditnote.cbc:CreditNoteTypeCode\",\n          \"fixed_value\": \"\
+          396\"\n        },\n        {\n          \"target\": \"Creditnote.cbc:DocumentCurrencyCode\"\
+          ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
+          \     {\n          \"target\": \"Creditnote.cac:BillingReference\",\n  \
+          \        \"expr\": \"invoiceResponse.events.exists(e, has(e.responseKey)\
           \ && e.responseKey == 'Receipt Message ID') ? invoiceResponse.events.filter(e,\
           \ has(e.responseKey) && e.responseKey == 'Receipt Message ID').map(e, e.responseValue)[0]\
           \ : null\"\n        },\n        {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID\"\
@@ -950,6 +948,7 @@ paths:
                 "country": "DE",
                 "model": "PEPPOL",
                 "transaction_type": "B2B",
+                "document_type": "ubl-applicationresponse",
                 "field_mapping": [
                   {
                     "target": "ApplicationResponse.cbc:ID",
@@ -1098,14 +1097,13 @@ paths:
             --header 'Authorization: Bearer <token>' \
             --header 'Content-Type: application/x-www-form-urlencoded' \
             --data-urlencode 'einvoicing_provider_id=avalara' \
-            --data-urlencode 'document_type=INVOICE' \
             --data-urlencode 'status=REJECTED' \
             --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
             --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
             --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
             --data-urlencode 'related_documents[0][status]=SUCCESS' \
             --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-            --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
+            --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
   /api/v2/credit_notes/{document_id}/einvoice_status:
     post:
       description: |
@@ -1278,13 +1276,6 @@ paths:
         name: mime_type
         required: false
         schema:
-          enum:
-          - application/xml
-          - application/pdf
-          - application/json
-          - application/zip
-          - application/png
-          - application/vnd.oasis.ubl+xml
           example: application/xml
           type: string
         style: form
@@ -1348,16 +1339,13 @@ paths:
           example: PEPPOL
           type: string
         style: form
-      - description: "Type of document, either an invoice or a credit note."
+      - description: Type of business document.
         explode: true
         in: query
         name: document_type
         required: true
         schema:
-          enum:
-          - INVOICE
-          - CREDIT_NOTE
-          - APPLICATION_RESPONSE
+          example: ubl-invoice
           type: string
         style: form
       responses:
@@ -1785,26 +1773,13 @@ components:
           - B2G
           type: string
         supported_document_types:
-          description: "The types of business documents that are supported for this\
-            \ country activation.\n\nThis represents a normalized view of the provider's\
-            \ supported formats.\nFor example, `ubl-invoice`, `ubl-creditnote`, and\
-            \ `ubl-applicationresponse` should be\nmapped to:\n\n- `INVOICE` for invoice\
-            \ documents  \n- `CREDIT_NOTE` for credit note documents  \n- `APPLICATION_RESPONSE`\
-            \ for application response documents. APPLICATION_RESPONSE represents\
-            \ an electronic \nresponse document sent to indicate the processing result\
-            \ of a \npreviously submitted invoice or credit note, such as acceptance,\
-            \ rejection, or required corrections.\n\nProviders may support additional\
-            \ document types; if so, they should be\nreturned using the closest applicable\
-            \ value or a provider-specific\nextension value agreed with Chargebee.\n"
+          description: |
+            The types of business documents that are supported for this country activation.
           example:
-          - INVOICE
-          - CREDIT_NOTE
-          - APPLICATION_RESPONSE
+          - ubl-invoice
+          - ubl-creditnote
+          - ubl-applicationresponse
           items:
-            enum:
-            - INVOICE
-            - CREDIT_NOTE
-            - APPLICATION_RESPONSE
             type: string
           type: array
       type: object
@@ -1828,7 +1803,7 @@ components:
         country: DE
         transaction_type: B2B
         model: PEPPOL
-        document_type: INVOICE
+        document_type: ubl-invoice
         fields:
         - path: Invoice.cbc:ID
           field_name: cbc:ID
@@ -1915,11 +1890,8 @@ components:
           example: PEPPOL
           type: string
         document_type:
-          description: "Type of document, either an invoice or a credit note."
-          enum:
-          - INVOICE
-          - CREDIT_NOTE
-          - APPLICATION_RESPONSE
+          description: Type of business document.
+          example: ubl-invoice
           type: string
         fields:
           description: List of input fields with inclusion metadata.
@@ -2136,6 +2108,10 @@ components:
           - VERIFACTU
           example: PEPPOL
           type: string
+        document_type:
+          description: Type of business document.
+          example: ubl-invoice
+          type: string
         field_mapping:
           items:
             $ref: '#/components/schemas/overrides_field_mapping_inner'
@@ -2282,7 +2258,6 @@ components:
       required:
       - document_id
       - documents
-      - evidence
       type: object
     bad_request_error_response:
       example:
@@ -2389,8 +2364,7 @@ components:
           - PAID
           type: string
         timestamp:
-          description: ISO 8601 timestamp indicating when the status was determined.
-          format: date-time
+          description: Timestamp (UTC) in seconds indicating when the status was determined.
           type: string
         provider_response:
           description: |
@@ -2475,15 +2449,17 @@ components:
           - OUTBOUND
           type: string
         timestamp:
-          description: ISO 8601 timestamp indicating when the related document status
-            was determined.
-          format: date-time
+          description: Timestamp (UTC) in seconds indicating when the related document
+            status was determined.
           type: string
         provider_response:
-          description: Provider-specific payload snapshot for the related document
-            (stringified JSON).
-          example: |
-            {"provider_document_id":"ar_123","status":"Complete","interfaceName":"PEPPOL"}
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: "{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
+            ,\"payload\":{\"id\":\"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7\",\"companyId\"\
+            :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}"
           type: string
         errors:
           description: |
@@ -3059,13 +3035,6 @@ components:
       properties:
         mime_type:
           description: The MIME type of the document.
-          enum:
-          - application/xml
-          - application/pdf
-          - application/json
-          - application/zip
-          - application/png
-          - application/vnd.oasis.ubl+xml
           type: string
         document_url:
           description: Presigned URL to access the document. This param will be preferred
