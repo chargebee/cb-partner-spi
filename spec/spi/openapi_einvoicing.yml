@@ -220,7 +220,6 @@ paths:
               --header 'Authorization: Bearer <token>' \
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
-              --data-urlencode 'document_type=INVOICE' \
               --data-urlencode 'status=REJECTED' \
               --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
@@ -1281,7 +1280,6 @@ paths:
               --header 'Authorization: Bearer <token>' \
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
-              --data-urlencode 'document_type=INVOICE' \
               --data-urlencode 'status=REJECTED' \
               --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
@@ -1530,13 +1528,10 @@ paths:
         - name: document_type
           in: query
           required: true
-          description: Type of document, either an invoice or a credit note.
+          description: Type of business document.
           schema:
             type: string
-            enum:
-              - INVOICE
-              - CREDIT_NOTE
-              - APPLICATION_RESPONSE
+            example: "ubl-invoice"
       responses:
         '200':
           description: Document downloaded successfully.
