@@ -227,7 +227,7 @@ paths:
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
             --data-urlencode 'related_documents[0][flow]=INBOUND' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-              --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
+              --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
   /einvoicing/data_input_fields:
     get:
       tags:
@@ -1286,7 +1286,7 @@ paths:
               --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
-              --data-urlencode 'related_documents[0][provider_response]={"provider_document_id":"ar_2b7c1c2e-1111-4dcd-9999-acde00001234","status":"Complete","interfaceName":"PEPPOL"}'
+              --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
 
   /api/v2/credit_notes/{document_id}/einvoice_status :
     post:
@@ -2789,9 +2789,11 @@ components:
 
         provider_response:
           type: string
-          description: Provider-specific payload snapshot for the related document (stringified JSON).
-          example: >
-            {"provider_document_id":"ar_123","status":"Complete","interfaceName":"PEPPOL"}
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
 
         errors:
           type: string
