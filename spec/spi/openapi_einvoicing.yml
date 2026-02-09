@@ -2693,8 +2693,7 @@ components:
           description: Current status of the document after processing by the provider.
         timestamp:
           type: string
-          format: date-time
-          description: ISO 8601 timestamp indicating when the status was determined.
+          description: Timestamp (UTC) in seconds indicating when the status was determined.
         provider_response:
           type: string
           description: |
@@ -2784,8 +2783,7 @@ components:
           description: The direction flow of the related document.
         timestamp:
           type: string
-          format: date-time
-          description: ISO 8601 timestamp indicating when the related document status was determined.
+          description: Timestamp (UTC) in seconds indicating when the related document status was determined.
 
         provider_response:
           type: string
