@@ -297,7 +297,7 @@ paths:
             --data-urlencode 'status=REJECTED' \
             --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
             --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
-            --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
+            --data-urlencode 'related_documents[0][document_type]=ubl-applicationresponse' \
             --data-urlencode 'related_documents[0][status]=SUCCESS' \
           --data-urlencode 'related_documents[0][flow]=INBOUND' \
             --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
@@ -1100,7 +1100,7 @@ paths:
             --data-urlencode 'status=REJECTED' \
             --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
             --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
-            --data-urlencode 'related_documents[0][document_type]=APPLICATION_RESPONSE' \
+            --data-urlencode 'related_documents[0][document_type]=ubl-applicationresponse' \
             --data-urlencode 'related_documents[0][status]=SUCCESS' \
             --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
             --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
@@ -2388,7 +2388,7 @@ components:
             Optional list of related (secondary) document status objects, encoded using Chargebee's
             form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
 
-            Use this to include secondary documents such as `APPLICATION_RESPONSE` that influenced the
+            Use this to include secondary documents such as `ubl-applicationresponse` that influenced the
             primary document outcome. Chargebee may store this for diagnostics; it does not change the
             primary idempotency key.
           items:
@@ -2431,8 +2431,8 @@ components:
           maxLength: 100
           type: string
         document_type:
-          description: "Document type of the related document (e.g., APPLICATION_RESPONSE)."
-          example: APPLICATION_RESPONSE
+          description: "Document type of the related document (e.g., ubl-applicationresponse)."
+          example: ubl-applicationresponse
           maxLength: 100
           type: string
         status:
