@@ -2204,6 +2204,13 @@ components:
           - ACCEPTED
           - FAILED
           - SUCCESS
+          - IN_PROGRESS
+          - REJECTED
+          - MESSAGE_ACKNOWLEDGEMENT
+          - IN_PROCESS
+          - UNDER_QUERY
+          - CONDITIONALLY_ACCEPTED
+          - PAID
           type: string
         submission_date:
           description: Date and time when the document was submitted.
