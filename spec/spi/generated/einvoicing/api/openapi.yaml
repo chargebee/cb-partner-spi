@@ -1235,9 +1235,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/500_error_response'
           description: Unexpected error while processing request.
-      servers:
-      - description: Callback server for credit note document status
-        url: "https://{domain}.chargebee.com"
       summary: Get Document Status
       tags:
       - Documents

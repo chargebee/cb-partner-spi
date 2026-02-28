@@ -1402,9 +1402,6 @@ paths:
 
         '
       operationId: einvoicingDocumentStatus
-      servers:
-        - url: https://{domain}.chargebee.com
-          description: Callback server for credit note document status
       parameters:
         - name: document_id
           in: path
