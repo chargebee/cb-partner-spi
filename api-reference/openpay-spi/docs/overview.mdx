@@ -1,0 +1,42 @@
+# OpenPay SPI Integration
+
+The **OpenPay Service Provider Interface (SPI)** enables seamless communication between Chargebee and external payment gateways through a standardized interface.
+
+You can refer to the spec file for this SPI [here](https://github.com/chargebee/cb-partner-spi/blob/main/spec/spi/openapi_openpay.yml).
+
+Chargebee leverages external payment services to execute the following operations efficiently:
+
+### 1. Payment Method Management
+Create, update, retrieve, confirm, and delete payment methods, along with associated customer profiles, in the payment gateway.
+
+### 2. Payment Processing
+Process, verify, capture, refund, and void payments through the configured gateway.
+
+### 3. Payment Intents
+Create payment intents to prepare for payment transactions, including setting up amount, currency, and customer details.
+
+### 4. Gateway Setup
+Set up and validate gateway account credentials, supporting both direct gateway integrations and orchestrator-based setups.
+
+## The Role of the OpenPay Adapter App
+
+To connect with external payment gateways, Chargebee requires an OpenPay adapter—a bridge facilitating seamless communication between Chargebee and the payment gateway. This connection is established using the **OpenPay Service Provider Interface (SPI)**.
+
+## Building an OpenPay Adapter App
+
+To integrate a payment gateway with Chargebee, you must implement the OpenPay SPI by developing an adapter app. This is essential for one of the following scenarios:
+
+- **As a Payment Gateway Provider:**
+  Connect your gateway with Chargebee to provide seamless payment processing capabilities to merchants.
+
+- **As a Merchant:**
+  Connect your preferred payment gateway to Chargebee for tailored payment management.
+
+- **As a System Integrator:**
+  Develop a connector to bridge a payment gateway and Chargebee, enabling integration for merchants.
+
+By implementing the OpenPay SPI, you enable Chargebee to perform payment operations efficiently, ensuring accurate processing and streamlined workflows.
+
+## Integrate your OpenPay Adapter App
+
+To integrate your OpenPay Adapter App you can follow the App Onboarding process from [here](../../../app-onboarding/guide).
