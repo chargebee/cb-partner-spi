@@ -2454,10 +2454,18 @@ components:
           description: Date and time when the document was submitted.
         processing_details:
           $ref: '#/components/schemas/bad_request_error_response'
+        provider_response:
+          type: string
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
       example:
         document_id: DOC-20250402-0001
-        status: Success
+        status: SUCCESS
         submission_date: 2025-04-02T07:39:31.815Z
+        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
       required:
         - document_id
         - status
