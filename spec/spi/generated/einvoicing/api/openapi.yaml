@@ -2435,7 +2435,6 @@ components:
           maxLength: 500
           type: string
       required:
-      - code
       - message
       type: object
     callback_related_document_status:
@@ -3091,7 +3090,6 @@ components:
           format: uri
           type: string
       required:
-      - code
       - message
       type: object
     not_found_error_response_errors_inner:

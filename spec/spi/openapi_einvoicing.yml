@@ -2565,7 +2565,6 @@ components:
                 description: The link to the documentation for more information about
                   the error and the corrective action.
             required:
-              - code
               - message
         provider_interaction:
           type: object
@@ -2740,7 +2739,6 @@ components:
       type: object
       description: Error details returned by the provider.
       required:
-        - code
         - message
       properties:
         code:
