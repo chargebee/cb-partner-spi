@@ -435,7 +435,7 @@ paths:
       description: >
         Retrieves details of a specific payment transaction using its unique identifier.
         This operation is used to fetch information about a completed or pending payment.
-      operationId: retrievePayment
+      operationId: getPayment
       parameters:
         - $ref: '#/components/parameters/EnvParam'
         - $ref: '#/components/parameters/XSiteNameParam'
@@ -632,43 +632,18 @@ components:
           $ref: '#/components/schemas/BoletoResponse'
         mandate:
           $ref: '#/components/schemas/Mandate'
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         status_reason:
           type: string
           description: Reason for the current status of the payment method, usually error reason
           x-field-extra-annotation: "@NonSensitive"
-        additional_data:
-          $ref: '#/components/schemas/AdditionalData'
+        additional_info:
+          $ref: '#/components/schemas/AdditionalInfo'
         redirection:
           $ref: '#/components/schemas/Redirection'
         status:
           $ref: '#/components/schemas/PaymentMethodStatus'
-
-    AuthContext:
-      type: object
-      description: |
-        Represents the authentication context for the payment request, including credentials and setup parameters.
-      properties:
-        gateway_credentials:
-          type: object
-          description: Credentials for the payment gateway.
-          additionalProperties:
-            type: string
-            x-field-extra-annotation: "@Secret"
-        platform_credentials:
-          type: object
-          description: Credentials for the payment orchestrator or platform.
-          additionalProperties:
-            type: string
-            x-field-extra-annotation: "@Secret"
-        set_up_parameters:
-          type: object
-          description: Additional parameters required for communication with the orchestrator or gateway.
-            Some orchestrators provide parameters during setup that need to be included in every request made to the orchestrator.
-          additionalProperties:
-            type: string
-            x-field-extra-annotation: "@NonSensitive"
 
     AddPaymentMethodRequest:
       type: object
@@ -709,8 +684,8 @@ components:
           $ref: '#/components/schemas/PaymentMethodVerification'
         session:
           $ref: '#/components/schemas/Session'
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         redirection:
           $ref: '#/components/schemas/Redirection'
         metadata:
@@ -774,7 +749,7 @@ components:
           type: string
           description: Unique identifier for the customer
           x-field-extra-annotation: "@PII"
-        additional_data:
+        additional_info:
           type: object
           additionalProperties:
             type: string
@@ -842,6 +817,7 @@ components:
         id:
           type: string
           description: Unique identifier for the customer in the payment gateway.
+          x-field-extra-annotation: "@NonSensitive"
         first_name:
           type: string
           description: The customer's first name.
@@ -976,7 +952,7 @@ components:
         - amount
         - currency
     
-    AdditionalData:
+    AdditionalInfo:
       type: object
       description: Container for any additional data that might be returned by the payment gateway
       additionalProperties:
@@ -1027,7 +1003,7 @@ components:
         address:
           $ref: '#/components/schemas/Address'
     
-    BillingAddress:
+    BillingDetails:
       type: object
       description: Contains billing-related details for the payment method
       properties:
@@ -1353,7 +1329,7 @@ components:
         bank_name:
           type: string
           description: Name of the bank.
-          example: 'Bank of America'
+          example: 'Swedbank'
           x-field-extra-annotation: "@NonSensitive"
         issuing_country:
           type: string
@@ -1391,7 +1367,7 @@ components:
         bank_name:
           type: string
           description: Name of the bank.
-          example: 'Bank of America'
+          example: 'Royal Bank of Canada'
           x-field-extra-annotation: "@NonSensitive"
         issuing_country:
           type: string
@@ -1421,8 +1397,8 @@ components:
           description: Comma-separated list of country codes supported in the Plaid connection, e.g., "US,CA".
           x-field-extra-annotation: "@NonSensitive"
       required:
-        - publicToken
-        - accountId
+        - public_tken
+        - account_id
 
     UpiRequest:
       description: This parameter holds the UPI payment method details.
@@ -1512,7 +1488,7 @@ components:
         bank_name:
           type: string
           description: Name of the bank.
-          example: 'Bank of America'
+          example: 'Commonwealth Bank'
           x-field-extra-annotation: "@NonSensitive"
         issuing_country:
           type: string
@@ -1550,7 +1526,7 @@ components:
         bank_name:
           type: string
           description: Name of the bank.
-          example: 'Bank of America'
+          example: 'ANZ Bank New Zealand'
           x-field-extra-annotation: "@NonSensitive"
         issuing_country:
           type: string
@@ -1574,7 +1550,7 @@ components:
         bank_name:
           type: string
           description: Name of the bank.
-          example: 'Bank of America'
+          example: 'Barclays'
           x-field-extra-annotation: "@NonSensitive"
         issuing_country:
           type: string
@@ -1689,7 +1665,7 @@ components:
           $ref: '#/components/schemas/Redirection'
         gateway_request_reference:
           type: string
-          description: Reference to the request made to the payment gateway for tracking and reconciliation purposes
+          description: Reference identifier for the gateway request
           x-field-extra-annotation: "@NonSensitive"
         session:
           $ref: '#/components/schemas/Session'
@@ -1711,8 +1687,8 @@ components:
           type: string
           description: Token or ID representing the payment method to be updated
           x-field-extra-annotation: "@PCI"
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         card:
           $ref: '#/components/schemas/UpdateCardRequest'
 
@@ -1755,16 +1731,16 @@ components:
           $ref: '#/components/schemas/PaymentMethodStatus'
         payment_method:
           $ref: '#/components/schemas/PaymentMethodType'
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         bank_account:
           $ref: '#/components/schemas/BankAccountResponse'
         card:
           $ref: '#/components/schemas/CardResponse'
         wallet:
           $ref: '#/components/schemas/Wallet'
-        additional_data:
-          $ref: '#/components/schemas/AdditionalData'
+        additional_info:
+          $ref: '#/components/schemas/AdditionalInfo'
         status_reason:
           type: string
           description: Reason for the current status of the payment method, usually error reason
@@ -1792,8 +1768,8 @@ components:
           $ref: '#/components/schemas/PaymentMethodType'
         shipping_address:
           $ref: '#/components/schemas/ShippingAddress'
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         mandate:
           $ref: '#/components/schemas/Mandate'
         bank_account:
@@ -1810,7 +1786,7 @@ components:
           format: uri
           description: URL to redirect the customer for additional authentication or verification.
           x-field-extra-annotation: "@NonSensitive"
-        additional_data:
+        additional_info:
           type: object
           additionalProperties:
             type: string
@@ -1847,16 +1823,16 @@ components:
           $ref: '#/components/schemas/BoletoResponse'
         mandate:
           $ref: '#/components/schemas/Mandate'
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         shipping_address:
           $ref: '#/components/schemas/ShippingAddress'
         status_reason:
           type: string
           description: Reason for the current status of the payment method, usually error reason
           x-field-extra-annotation: "@NonSensitive"
-        additional_data:
-          $ref: '#/components/schemas/AdditionalData'
+        additional_info:
+          $ref: '#/components/schemas/AdditionalInfo'
         status:
           $ref: '#/components/schemas/PaymentMethodStatus'
         redirection:
@@ -2051,8 +2027,8 @@ components:
           type: string
           description: Description to appear on the customer's bank statement for this transaction
           x-field-extra-annotation: "@NonSensitive"
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
         shipping_address:
           $ref: '#/components/schemas/ShippingAddress'
         redirection:
@@ -2137,12 +2113,12 @@ components:
               $ref: '#/components/schemas/BankAccountResponse'
             wallet:
               $ref: '#/components/schemas/Wallet'
-            billing_info:
-              $ref: '#/components/schemas/BillingAddress'
+            billing_details:
+              $ref: '#/components/schemas/BillingDetails'
             status:
               $ref: '#/components/schemas/PaymentMethodStatus'
-            additional_data:
-              $ref: '#/components/schemas/AdditionalData'
+            additional_info:
+              $ref: '#/components/schemas/AdditionalInfo'
             mandate:
               $ref: '#/components/schemas/Mandate'
         network_transaction_id:
@@ -2170,7 +2146,7 @@ components:
             - Present only if required by the gateway.  
             - If not required, this field will be omitted or null.  
         additional_info:
-          $ref: '#/components/schemas/AdditionalData'
+          $ref: '#/components/schemas/AdditionalInfo'
         redirection:
           $ref: '#/components/schemas/Redirection'
         error:
@@ -2222,20 +2198,17 @@ components:
               type: string
               description: ISO 4217 currency code (e.g., USD, EUR)
               x-field-extra-annotation: "@NonSensitive"
-        billing_address:
-          $ref: '#/components/schemas/BillingAddress'
-        additional_data:
-          $ref: '#/components/schemas/AdditionalData'
+        billing_details:
+          $ref: '#/components/schemas/BillingDetails'
+        additional_info:
+          $ref: '#/components/schemas/AdditionalInfo'
     
     VerifyPaymentResponse:
       type: object
       description: Response containing payment verification details
       properties:
         status:
-          type: string
-          enum: [AUTHORIZED, CAPTURED, FAILURE, REQUIRE_CHALLENGE, IN_PROGRESS, PENDING_AUTHORIZATION, VOID, UNKNOWN]
-          description: Status of the payment verification
-          x-field-extra-annotation: "@NonSensitive"
+          $ref: '#/components/schemas/PaymentStatus'
         money:
           $ref: '#/components/schemas/Money'
         timestamp:
@@ -2259,8 +2232,8 @@ components:
               $ref: '#/components/schemas/BankAccountResponse'
             wallet:
               $ref: '#/components/schemas/Wallet'
-            billing_info:
-              $ref: '#/components/schemas/BillingAddress'
+            billing_details:
+              $ref: '#/components/schemas/BillingDetails'
             status:
               $ref: '#/components/schemas/PaymentMethodStatus'
           x-field-extra-annotation: "@PCI"
@@ -2277,103 +2250,13 @@ components:
           description: Transaction ID assigned by the payment orchestrator
           x-field-extra-annotation: "@NonSensitive"
         additional_info:
-          $ref: '#/components/schemas/AdditionalData'
+          $ref: '#/components/schemas/AdditionalInfo'
         redirection:
           $ref: '#/components/schemas/Redirection'
         error:
           $ref: '#/components/schemas/GatewayError'
 
-    VerifyCardInfo:
-      type: object
-      description: Card information from payment verification
-      properties:
-        bin:
-          type: string
-          description: First 6-8 digits of the card number (BIN)
-          x-field-extra-annotation: "@PFI"
-        last4:
-          type: string
-          description: Last four digits of the card number
-          x-field-extra-annotation: "@PFI"
-        expiry_month:
-          type: integer
-          description: Two-digit expiration month of the card (1-12)
-          x-field-extra-annotation: "@PFI"
-        expiry_year:
-          type: integer
-          description: Four-digit expiration year of the card
-          x-field-extra-annotation: "@PFI"
-        funding_type:
-          type: string
-          description: Type of funding (e.g., credit, debit, prepaid)
-          x-field-extra-annotation: "@NonSensitive"
-        issuing_country:
-          type: string
-          description: Country where the card was issued
-          x-field-extra-annotation: "@NonSensitive"
-        brand:
-          type: string
-          description: Card brand or network (e.g., Visa, Mastercard)
-          x-field-extra-annotation: "@NonSensitive"
 
-    VerifyBankAccountInfo:
-      type: object
-      description: Bank account information from payment verification
-      properties:
-        last4:
-          type: string
-          description: Last four digits of the bank account number
-          x-field-extra-annotation: "@PFI"
-
-    VerifyBillingInfo:
-      type: object
-      description: Billing information from payment verification
-      properties:
-        first_name:
-          type: string
-          description: First name on the billing record
-          x-field-extra-annotation: "@PII"
-        last_name:
-          type: string
-          description: Last name on the billing record
-          x-field-extra-annotation: "@PII"
-        email:
-          type: string
-          format: email
-          description: Email address associated with billing
-          x-field-extra-annotation: "@PII"
-        phone:
-          type: string
-          description: Phone number associated with billing
-          x-field-extra-annotation: "@PII"
-        company_name:
-          type: string
-          description: Company name if applicable
-          x-field-extra-annotation: "@NonSensitive"
-        address1:
-          type: string
-          description: Primary address line
-          x-field-extra-annotation: "@PII"
-        address2:
-          type: string
-          description: Secondary address line
-          x-field-extra-annotation: "@PII"
-        city:
-          type: string
-          description: City or locality name
-          x-field-extra-annotation: "@PII"
-        state:
-          type: string
-          description: State, province, or region
-          x-field-extra-annotation: "@PII"
-        postal_code:
-          type: string
-          description: Postal or ZIP code
-          x-field-extra-annotation: "@PII"
-        country:
-          type: string
-          description: Two-letter ISO country code
-          x-field-extra-annotation: "@NonSensitive"
     VoidPaymentRequest:
       type: object
       description: Request to void a payment that has been authorized but not captured
@@ -2482,8 +2365,8 @@ components:
           $ref: '#/components/schemas/RefundStatus'
         error:
           $ref: '#/components/schemas/GatewayError'
-        additional_data:
-          $ref: '#/components/schemas/AdditionalData'
+        additional_info:
+          $ref: '#/components/schemas/AdditionalInfo'
 
     RetrievePaymentsRequest:
       type: object
@@ -2499,7 +2382,7 @@ components:
           type: string
           description: A unique identifier originally passed as `gateway_request_reference` in the collect payment API.
           x-field-extra-annotation: "@NonSensitive"
-        additional_data:
+        additional_info:
           type: object
           additionalProperties:
             type: string
@@ -2533,12 +2416,12 @@ components:
           x-field-extra-annotation: "@NonSensitive"
         gateway_request_reference:
           type: string
-          x-field-extra-annotation: "@NonSensitive"
           description: Reference identifier for the gateway request
+          x-field-extra-annotation: "@NonSensitive"
         customer_id:
           type: string
-          x-field-extra-annotation: "@NonSensitive"
           description: Unique identifier of the customer associated with this payment
+          x-field-extra-annotation: "@NonSensitive"
         status:
           $ref: '#/components/schemas/PaymentStatus'
         money:
@@ -2546,8 +2429,8 @@ components:
         timestamp:
           type: integer
           format: int64
-          x-field-extra-annotation: "@NonSensitive"
           description: Timestamp when the payment was processed. Measured in milliseconds since the Unix epoch.
+          x-field-extra-annotation: "@NonSensitive"
         error:
           $ref: '#/components/schemas/GatewayError'
         requires_challenge_action_data:
@@ -2556,7 +2439,7 @@ components:
           additionalProperties:
             type: string
             description: Additional parameters required for challenge actions, such as 3D Secure authentication
-        additional_data:
+        additional_info:
           type: object
           additionalProperties:
             type: string
@@ -2601,12 +2484,12 @@ components:
               $ref: '#/components/schemas/BankAccountResponse'
             wallet:
               $ref: '#/components/schemas/Wallet'
-            billing_info:
-              $ref: '#/components/schemas/BillingAddress'
+            billing_details:
+              $ref: '#/components/schemas/BillingDetails'
             status:
               $ref: '#/components/schemas/PaymentMethodStatus'
-            additional_data:
-              $ref: '#/components/schemas/AdditionalData'
+            additional_info:
+              $ref: '#/components/schemas/AdditionalInfo'
     CapturePaymentRequest:
       type: object
       description: Request to capture a payment that has been authorized
@@ -2711,8 +2594,8 @@ components:
               $ref: '#/components/schemas/PaymentMethodStatus'
             card:
               $ref: '#/components/schemas/CardResponse'
-            billing_address:
-              $ref: '#/components/schemas/BillingAddress'
+            billing_details:
+              $ref: '#/components/schemas/BillingDetails'
         timestamp:
           type: integer
           format: int64

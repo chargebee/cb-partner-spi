@@ -18,25 +18,26 @@ Create payment intents to prepare for payment transactions, including setting up
 ### 4. Gateway Setup
 Set up and validate gateway account credentials, supporting both direct gateway integrations and orchestrator-based setups.
 
-## The Role of the OpenPay Adapter App
+## The Role of the OpenPay Adapter
 
-To connect with external payment gateways, Chargebee requires an OpenPay adapter—a bridge facilitating seamless communication between Chargebee and the payment gateway. This connection is established using the **OpenPay Service Provider Interface (SPI)**.
+Chargebee maintains a built-in adapter layer that connects to a range of supported payment gateways out of the box. Most merchants do not need to implement anything—Chargebee handles the communication with the payment gateway on their behalf.
 
-## Building an OpenPay Adapter App
+## Building a Custom OpenPay Adapter
 
-To integrate a payment gateway with Chargebee, you must implement the OpenPay SPI by developing an adapter app. This is essential for one of the following scenarios:
+In some cases, you may want to go beyond the built-in adapter. Implementing the OpenPay SPI lets you build a custom adapter if any of the following apply:
 
-- **As a Payment Gateway Provider:**
-  Connect your gateway with Chargebee to provide seamless payment processing capabilities to merchants.
+- **Unsupported Gateway:**
+  The payment gateway you want to use is not yet supported by Chargebee. You can implement an adapter yourself to bring that gateway into the Chargebee ecosystem.
 
-- **As a Merchant:**
-  Connect your preferred payment gateway to Chargebee for tailored payment management.
+- **Payment Gateway Provider:**
+  You are a gateway provider and want to offer a native, certified integration with Chargebee for your merchants.
 
-- **As a System Integrator:**
-  Develop a connector to bridge a payment gateway and Chargebee, enabling integration for merchants.
+- **Custom Adapter for an Existing Gateway:**
+  You need behavior that differs from Chargebee's built-in adapter—such as custom routing logic, orchestrator-specific handling, or additional gateway parameters.
 
-By implementing the OpenPay SPI, you enable Chargebee to perform payment operations efficiently, ensuring accurate processing and streamlined workflows.
+- **System Integrator:**
+  You are building a connector on behalf of a merchant or gateway, bridging a payment service with Chargebee.
 
-## Integrate your OpenPay Adapter App
+## Integrate your OpenPay Adapter
 
-To integrate your OpenPay Adapter App you can follow the App Onboarding process from [here](../../../app-onboarding/guide).
+To integrate your custom OpenPay Adapter you can follow the App Onboarding process from [here](../../../app-onboarding/guide).
