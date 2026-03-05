@@ -1,0 +1,24 @@
+---
+title: Testing with Postman
+---
+Postman is an API development environment that simplifies running and testing API requests. With Postman, you won't have to copy and paste data from one endpoint to another.
+
+[![Run In Postman](https://run.pstmn.io/button.svg)](https://www.postman.com/chargebee/chargebee-partners/collection/20277265-49371005-6594-4493-8ef3-4c3377adcc83)
+
+1. **Download and Install Postman**
+    - Download Postman from the [Postman Downloads page](https://www.postman.com/downloads/).
+    - Install the application on your system by following the setup instructions.
+
+2. **Access OpenPay SPI**
+    - Visit the [OpenPay SPI Workspace](https://www.postman.com/chargebee/chargebee-partners/collection/20277265-49371005-6594-4493-8ef3-4c3377adcc83).
+
+3. **Fork Collection and select the Environment**
+    - Fork the Collection and choose the "OpenPay_Provider" environment from the Postman workspace.
+
+4. **Configure Environment Variables**
+    - Add the following environment variables:
+        - `url` - The base URL of the app.
+        - `env` - The environment to use (`sandbox` or `live`).
+        - `authorization_header` - The value for the authorization header required for API authentication. This should be a base64-encoded JSON containing `gateway_credentials`, `platform_credentials` (if applicable), and `set_up_parameters` (if applicable).
+
+Now, you're ready to interact with OpenPay SPI endpoints using Postman.
