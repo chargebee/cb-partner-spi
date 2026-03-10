@@ -2461,7 +2461,7 @@ components:
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
-        response_attributes:
+        provider_references:
           type: string
           description: |
             Optional JSON array of key-value pairs from the e-invoicing provider (e.g. Receipt Message ID, Response Message ID).
@@ -2718,7 +2718,7 @@ components:
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
-        response_attributes:
+        provider_references:
           type: string
           description: |
             Optional JSON array of key-value pairs returned by the e-invoicing provider (e.g. Receipt Message ID, Response Message ID, Receiver ID).
@@ -2815,7 +2815,7 @@ components:
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
-        response_attributes:
+        provider_references:
           type: string
           description: |
             Optional JSON array of key-value pairs for this related document (e.g. Receipt Message ID, Response Message ID).
@@ -2952,7 +2952,7 @@ components:
                 ]
               }
             }
-        response_attributes: >
+        provider_references: >
             [
               {"key": "Receipt Message ID", "value": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.provider.io"},
               {"key": "Response Message ID", "value": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.provider.io"},
