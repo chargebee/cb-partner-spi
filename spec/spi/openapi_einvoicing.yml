@@ -2461,6 +2461,12 @@ components:
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_references:
+          type: string
+          description: |
+            Optional JSON array of key-value pairs from the e-invoicing provider (e.g. Receipt Message ID, Response Message ID).
+            Format: [{"key": "string", "value": "string"}, ...]
+          example: '[{"key":"Receipt Message ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.provider.io"},{"key":"Response Message ID","value":"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.provider.io"}]'
       example:
         document_id: DOC-20250402-0001
         status: SUCCESS
@@ -2712,6 +2718,13 @@ components:
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_references:
+          type: string
+          description: |
+            Optional JSON array of key-value pairs returned by the e-invoicing provider (e.g. Receipt Message ID, Response Message ID, Receiver ID).
+            Chargebee stores this in einvoice properties and appends entries on each callback, similar to provider_response.
+            Format: [{"key": "string", "value": "string"}, ...]
+          example: '[{"key":"Receipt Message ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.avalara.io"},{"key":"Response Message ID","value":"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.avalara.io"},{"key":"Receiver ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@sbx.avalara.io"}]'
         errors:
           type: array
           description: |
@@ -2802,7 +2815,13 @@ components:
             The JSON should be an array of objects with the following structure:
             [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
-
+        provider_references:
+          type: string
+          description: |
+            Optional JSON array of key-value pairs for this related document (e.g. Receipt Message ID, Response Message ID).
+            Chargebee stores this in the artifact properties and appends entries on each callback, similar to provider_response.
+            Format: [{"key": "string", "value": "string"}, ...]
+          example: '[{"key":"Receipt Message ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.avalara.io"},{"key":"Response Message ID","value":"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.avalara.io"}]'
         errors:
           type: string
           description: |
@@ -2933,6 +2952,12 @@ components:
                 ]
               }
             }
+        provider_references: >
+            [
+              {"key": "Receipt Message ID", "value": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.provider.io"},
+              {"key": "Response Message ID", "value": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.provider.io"},
+              {"key": "Receiver ID", "value": "3ed9530e-f2e8-4733-ace8-f868a5e077eb@sbx.provider.io"}
+            ]
 
     callback_document_status_success_for_credit_note:
       description: A sample callback notification indicating successful document submission.
