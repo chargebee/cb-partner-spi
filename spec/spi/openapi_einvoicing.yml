@@ -308,8 +308,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/bad_request_error_response'
               example:
-                error_code: "INVALID_REQUEST"
-                message: "Missing required query parameters."
+                errors:
+                  - code: MISSING_REQUIRED_DATA
+                    message: "Missing required query parameters."
+                    help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
         '401':
           description: Unauthorized
         '404':
@@ -319,8 +321,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/not_found_error_response'
               example:
-                error_code: "NOT_FOUND"
-                message: "No data input fields were found for the specified country, network, and transaction type."
+                errors:
+                  - code: NOT_FOUND
+                    message: "No data input fields were found for the specified country, network, and transaction type."
+                    help_url: https://docs.example.com/errors#NOT_FOUND
         '500':
           description: Internal Server Error – An error occurred on the server.
   /einvoicing/documents:
@@ -2873,12 +2877,11 @@ components:
       description: A sample response indicating the document is under processing.
       value:
         document_id: DOC-20250402-0002
-        status: PENDING
+        status: ACCEPTED
         request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
     einvoice_document_submission_failed:
       description: A sample response indicating document submission failure due to missing required data.
       value:
-        status: FAILED
         errors:
           - code: MISSING_REQUIRED_DATA
             message: The request did not contain a required property 'taxAmount'
@@ -2887,15 +2890,19 @@ components:
       description: A sample response indicating successful e-invoice document submission.
       value:
         document_id: DOC-20250402-0001
-        status: Success
-        submission_date: 2025-04-02T07:39:31.815Z
+        status: SUCCESS
+        submission_date: '2025-04-02T07:39:31.815Z'
+        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
     failed_einvoice_document_submission_response:
       description: A sample failed document submission response due to unregistered VAT number.
       value:
+        document_id: DOC-20250402-0001
         status: FAILED
-        errors:
-          - code: INVALID_DATA
-            message: The VAT number provided is not registered with the tax authority.
+        processing_details:
+          errors:
+            - code: INVALID_DATA
+              message: The VAT number provided is not registered with the tax authority.
+              help_url: https://docs.example.com/errors#INVALID_DATA
     einvoice_document_download_url_response:
       description: A sample response with pre-signed S3 URL for document download.
       value:
@@ -2905,7 +2912,7 @@ components:
           - mime_type: "application/xml"
             document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
             expires_at: '2025-03-28T09:24:29Z'
-        model: peppol
+        model: PEPPOL
     einvoice_document_download_stream_response:
       description: A sample response with Base64-encoded XML and PDF document content.
       value:
@@ -2918,13 +2925,13 @@ components:
           - mime_type: "application/pdf"
             document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
             expires_at: '2025-03-28T09:24:29Z'
-        model: peppol
+        model: PEPPOL
     callback_document_status_success_for_invoice:
       description: A sample callback notification indicating successful document submission.
       value:
         einvoicing_provider_id: avalara
         status: ACCEPTED
-        timestamp: 2025-05-23T13:22:50.519Z
+        timestamp: '2025-05-23T13:22:50.519Z'
         provider_response: >
             {
               "source": "avalara",
@@ -2962,15 +2969,15 @@ components:
     callback_document_status_success_for_credit_note:
       description: A sample callback notification indicating successful document submission.
       value:
-        document_id: CN20250205
+        einvoicing_provider_id: avalara
         status: ACCEPTED
-        timestamp: 2025-05-23T13:22:50.519Z
+        timestamp: '2025-05-23T13:22:50.519Z'
     callback_document_status_failed_for_invoice:
       description: A sample callback notification indicating document submission failure.
       value:
         einvoicing_provider_id: avalara
         status: FAILED
-        timestamp: 2025-05-23T13:22:50.519Z
+        timestamp: '2025-05-23T13:22:50.519Z'
         errors:
           - code: MISSING_REQUIRED_DATA
             message: The request did not contain a required property 'taxAmount'
@@ -2980,7 +2987,7 @@ components:
       value:
         einvoicing_provider_id: avalara
         status: FAILED
-        timestamp: 2025-05-23T13:22:50.519Z
+        timestamp: '2025-05-23T13:22:50.519Z'
         errors:
           - code: MISSING_REQUIRED_DATA
             message: An Invoice shall at least have one VAT breakdown group
