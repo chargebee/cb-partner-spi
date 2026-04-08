@@ -85,10 +85,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
-                  value: null
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -1564,10 +1562,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
-                  value: null
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -1666,11 +1662,6 @@ components:
         - code: MISSING_REQUIRED_DATA
           message: An Invoice shall at least have one VAT breakdown group
           help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
-    Error500Response:
-      description: Unexpected error during processing the request.
-      summary: Unexpected error.
-      value:
-        message: Unexpected error during processing the request.
   parameters:
     MerchantId:
       description: Merchant's domain name will be sent by Chargebee
@@ -1692,10 +1683,8 @@ components:
     Error500:
       content:
         application/json:
-          examples:
-            Error500:
-              $ref: '#/components/examples/Error500Response'
-              value: null
+          example:
+            message: Unexpected error during processing the request.
           schema:
             $ref: '#/components/schemas/BasicErrorResponse'
       description: Unexpected error while processing request.
