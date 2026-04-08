@@ -49,7 +49,10 @@ components:
             $ref: '#/components/schemas/BasicErrorResponse'
           examples:
             Error500:
-              $ref: '#/components/examples/Error500Response'
+              summary: Unexpected error.
+              description: Unexpected error during processing the request.
+              value:
+                message: Unexpected error during processing the request.
     Error503:
       description: Service is unhealthy.
       content:
@@ -74,9 +77,3 @@ components:
                 type: API
                 status: DOWN
             time: '2022-11-01T10:42:08.131+05:30'
-  examples:
-    Error500Response:
-      summary: Unexpected error.
-      description: Unexpected error during processing the request.
-      value:
-        message: Unexpected error during processing the request.
