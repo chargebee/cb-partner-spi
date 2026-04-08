@@ -47,12 +47,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/BasicErrorResponse'
-          examples:
-            Error500:
-              summary: Unexpected error.
-              description: Unexpected error during processing the request.
-              value:
-                message: Unexpected error during processing the request.
+          example:
+            message: Unexpected error during processing the request.
     Error503:
       description: Service is unhealthy.
       content:
