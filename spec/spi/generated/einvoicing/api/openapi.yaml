@@ -452,8 +452,13 @@ paths:
             application/json:
               examples:
                 einvoice_document_submission_pending:
-                  $ref: '#/components/examples/einvoice_document_submission_pending'
-                  value: null
+                  description: A sample response indicating the document is under
+                    processing at the provider.
+                  summary: Document under processing
+                  value:
+                    document_id: DOC-20250402-0002
+                    status: ACCEPTED
+                    request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
               schema:
                 $ref: '#/components/schemas/document_submission_response'
           description: Document submitted successfully.
@@ -462,8 +467,14 @@ paths:
             application/json:
               examples:
                 einvoice_document_submission_failed:
-                  $ref: '#/components/examples/einvoice_document_submission_failed'
-                  value: null
+                  description: A sample response when the request is invalid or missing
+                    required data.
+                  summary: Bad request
+                  value:
+                    errors:
+                    - code: MISSING_REQUIRED_DATA
+                      message: The request did not contain a required property 'taxAmount'
+                      help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
               schema:
                 $ref: '#/components/schemas/bad_request_error_response'
           description: Bad request
@@ -474,6 +485,11 @@ paths:
         "500":
           content:
             application/json:
+              examples:
+                unexpected_error:
+                  summary: Server error
+                  value:
+                    message: An unexpected error occurred while processing your request.
               schema:
                 $ref: '#/components/schemas/500_error_response'
           description: Unexpected error while processing request.
