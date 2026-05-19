@@ -380,7 +380,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE987654321"
@@ -396,7 +396,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE123456789"
@@ -470,7 +470,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE987654321"
@@ -486,7 +486,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE123456789"
@@ -697,7 +697,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE987654321"
@@ -713,7 +713,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE123456789"
@@ -790,7 +790,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE987654321"
@@ -806,7 +806,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "party_identifiers": [
                     {
                       "scheme": "VAT",
                       "id": "DE123456789"
@@ -2038,18 +2038,17 @@ components:
             address:
               description: Address of the Supplier party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
+            party_identifiers:
               type: array
-              description: List of tax identifiers associated with the supplier.
+              description: List of identifiers associated with the supplier party (for example, VAT, GST, or other registration IDs).
               items:
-                $ref: '#/components/schemas/tax_scheme'
+                $ref: '#/components/schemas/party_identifier'
             legal_entity:
               description: Legal entity of the supplier party.
               $ref: '#/components/schemas/party_legal_entity'
           required:
             - address
-            - taxScheme
-            - legalEntity
+            - party_identifiers
         accounting_customer_party:
           type: object
           description: Party responsible for receiving the invoice (i.e., the customer).
@@ -2060,18 +2059,17 @@ components:
             address:
               description: Address of the customer party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
+            party_identifiers:
               type: array
-              description: List of tax identifiers associated.
+              description: List of identifiers associated with the customer party (for example, VAT, GST, or other registration IDs).
               items:
-                $ref: '#/components/schemas/tax_scheme'
+                $ref: '#/components/schemas/party_identifier'
             legal_entity:
               description: Legal entity of the customer party.
               $ref: '#/components/schemas/party_legal_entity'
           required:
             - address
-            - taxScheme
-            - legalEntity
+            - party_identifiers
         payment_means:
           type: array
           description: A list of payment methods with corresponding payment details.
@@ -2719,15 +2717,15 @@ components:
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code.
-    tax_scheme:
+    party_identifier:
       type: object
       properties:
         scheme:
           type: string
-          description: A code identifying the tax regime under which this party is registered—such as VAT, GST, or a region-specific tax scheme. This enables the adapter or e‑invoicing provider to apply the correct tax logic or reporting rules.
+          description: A code identifying the identifier scheme (for example, VAT, GST, or a region-specific registration scheme).
         id:
           type: string
-          description: The tax identification number assigned to the party by the relevant authority (for example, VAT number or legal registration ID). It is used for official identification and compliance in the e‑invoicing process.
+          description: The identifier value assigned to the party under the given scheme (for example, VAT number or legal registration ID).
       required:
         - scheme
         - id
