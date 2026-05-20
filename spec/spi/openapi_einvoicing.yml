@@ -2048,6 +2048,7 @@ components:
               $ref: '#/components/schemas/party_legal_entity'
           required:
             - address
+            - legal_entity
             - party_identifiers
         accounting_customer_party:
           type: object
@@ -2069,6 +2070,7 @@ components:
               $ref: '#/components/schemas/party_legal_entity'
           required:
             - address
+            - legal_entity
             - party_identifiers
         payment_means:
           type: array

@@ -2821,6 +2821,7 @@ components:
           $ref: '#/components/schemas/party_legal_entity'
       required:
       - address
+      - legal_entity
       - party_identifiers
       type: object
     main_document_accounting_customer_party:
@@ -2841,6 +2842,7 @@ components:
           $ref: '#/components/schemas/party_legal_entity'
       required:
       - address
+      - legal_entity
       - party_identifiers
       type: object
     main_document_lines_inner_classified_tax_category_inner:
