@@ -380,10 +380,19 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Seller GmbH",
+                    "company_id": "987654321",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
+                    },
+                    {
+                      "scheme": "0009",
+                      "id": "12345678900012"
                     }
                   ]
                 },
@@ -396,10 +405,15 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Buyer GmbH",
+                    "company_id": "123456789",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
                     }
                   ]
                 },
@@ -470,10 +484,19 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Seller GmbH",
+                    "company_id": "987654321",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
+                    },
+                    {
+                      "scheme": "0009",
+                      "id": "12345678900012"
                     }
                   ]
                 },
@@ -486,10 +509,15 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Buyer GmbH",
+                    "company_id": "123456789",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
                     }
                   ]
                 },
@@ -697,10 +725,19 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Seller GmbH",
+                    "company_id": "987654321",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
+                    },
+                    {
+                      "scheme": "0009",
+                      "id": "12345678900012"
                     }
                   ]
                 },
@@ -713,10 +750,15 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Buyer GmbH",
+                    "company_id": "123456789",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
                     }
                   ]
                 },
@@ -790,10 +832,19 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Seller GmbH",
+                    "company_id": "987654321",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
+                    },
+                    {
+                      "scheme": "0009",
+                      "id": "12345678900012"
                     }
                   ]
                 },
@@ -806,10 +857,15 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
+                  "legal_entity": {
+                    "registration_name": "Example Buyer GmbH",
+                    "company_id": "123456789",
+                    "company_id_scheme": "0002"
+                  },
+                  "party_identifiers": [
                     {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
+                      "scheme": "9957",
+                      "id": "FR12345678901"
                     }
                   ]
                 },
@@ -976,9 +1032,11 @@ paths:
                     "credit_note.note": "Refund for April invoice",
                     "business.address.country": "DE",
                     "business.legal_entity.company_id": "987654321",
+                    "business.legal_entity.company_id_scheme": "9930",
                     "business.legal_entity.registration_name": "Example Seller GmbH",
                     "customer.billing_address.country": "DE",
                     "customer.legal_entity.company_id": "123456789",
+                    "customer.legal_entity.company_id_scheme": "9930",
                     "customer.legal_entity.registration_name": "Example Buyer GmbH",
                     "credit_note.tax_total": 40.0,
                     "invoiceResponse": {
@@ -1042,13 +1100,15 @@ paths:
                 "sender_party": {
                   "legal_entity": {
                     "registration_name": "Example Sender GmbH",
-                    "company_id": "DE998877665"
+                    "company_id": "DE998877665",
+                    "company_id_scheme": "9930"
                   }
                 },
                 "receiver_party": {
                   "legal_entity": {
                     "registration_name": "Example Receiver GmbH",
-                    "company_id": "DE112233445"
+                    "company_id": "DE112233445",
+                    "company_id_scheme": "9930"
                   }
                 },
                 "document_response": {
@@ -1076,13 +1136,15 @@ paths:
                 "sender_party": {
                   "legal_entity": {
                     "registration_name": "Example Sender GmbH",
-                    "company_id": "DE123456789"
+                    "company_id": "DE123456789",
+                    "company_id_scheme": "9930"
                   }
                 },
                 "receiver_party": {
                   "legal_entity": {
                     "registration_name": "Example Receiver GmbH",
-                    "company_id": "DE987654321"
+                    "company_id": "DE987654321",
+                    "company_id_scheme": "9930"
                   }
                 },
                 "document_response": {
@@ -2038,18 +2100,25 @@ components:
             address:
               description: Address of the Supplier party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
+            party_identifiers:
               type: array
-              description: List of tax identifiers associated with the supplier.
+              description: |
+                Additional identifiers for tax, routing, or interoperability (for example, Peppol participant or VAT IDs).
+                Does not replace legal_entity.company_id. Prefer ISO 6523 ICD numeric scheme codes (for example, 9957, 0009).
               items:
-                $ref: '#/components/schemas/tax_scheme'
+                $ref: '#/components/schemas/party_identifier'
+              example:
+                - scheme: "9957"
+                  id: "FR12345678901"
+                - scheme: "0009"
+                  id: "12345678900012"
             legal_entity:
-              description: Legal entity of the supplier party.
+              description: Primary legal registration identity of the supplier party.
               $ref: '#/components/schemas/party_legal_entity'
           required:
             - address
-            - taxScheme
-            - legalEntity
+            - legal_entity
+            - party_identifiers
         accounting_customer_party:
           type: object
           description: Party responsible for receiving the invoice (i.e., the customer).
@@ -2060,18 +2129,23 @@ components:
             address:
               description: Address of the customer party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
+            party_identifiers:
               type: array
-              description: List of tax identifiers associated.
+              description: |
+                Additional identifiers for tax, routing, or interoperability (for example, Peppol participant or VAT IDs).
+                Does not replace legal_entity.company_id. Prefer ISO 6523 ICD numeric scheme codes (for example, 9957, 0009).
               items:
-                $ref: '#/components/schemas/tax_scheme'
+                $ref: '#/components/schemas/party_identifier'
+              example:
+                - scheme: "9957"
+                  id: "FR12345678901"
             legal_entity:
-              description: Legal entity of the customer party.
+              description: Primary legal registration identity of the customer party.
               $ref: '#/components/schemas/party_legal_entity'
           required:
             - address
-            - taxScheme
-            - legalEntity
+            - legal_entity
+            - party_identifiers
         payment_means:
           type: array
           description: A list of payment methods with corresponding payment details.
@@ -2719,31 +2793,47 @@ components:
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code.
-    tax_scheme:
+    party_identifier:
       type: object
+      description: An additional party identifier for tax, routing, or interoperability. Use legal_entity for the primary legal registration identity.
       properties:
         scheme:
           type: string
-          description: A code identifying the tax regime under which this party is registered—such as VAT, GST, or a region-specific tax scheme. This enables the adapter or e‑invoicing provider to apply the correct tax logic or reporting rules.
+          description: |
+            Identifier scheme for this party identifier. Prefer ISO 6523 ICD numeric codes as used in Peppol
+            and related e-invoicing networks (for example, 9957 for a French VAT number, 0009 for SIRET).
+            Non-numeric string values are allowed when a mandate or provider requires a scheme not represented
+            by a standard ICD code. Do not use Peppol alias labels (for example, FR:VAT or FR:SIRET) in place of ICD values.
+            The adapter maps scheme and id to provider wire formats (for example, UBL schemeID and cbc:ID).
         id:
           type: string
-          description: The tax identification number assigned to the party by the relevant authority (for example, VAT number or legal registration ID). It is used for official identification and compliance in the e‑invoicing process.
+          description: The identifier value for the given scheme (for example, FR12345678901 or a 14-digit SIRET).
       required:
         - scheme
         - id
+      example:
+        scheme: "9957"
+        id: "FR12345678901"
     party_legal_entity:
       type: object
-      description: Legal entity information of the party.
+      description: Primary legal registration identity of the party. Distinct from party_identifiers, which carry additional tax, routing, or interoperability identifiers.
       properties:
         registration_name:
           type: string
           description: The full formal name by which the party is registered.
         company_id:
           type: string
-          description: An identifier issued by an official registrar that identifies
-            the party as a legal entity or person.
+          description: Primary legal or company registration identifier for the party.
+        company_id_scheme:
+          type: string
+          description: |
+            Identifier scheme for company_id. Prefer ISO 6523 ICD numeric codes (for example, 0002 for SIRENE, 0204 for Leitweg-ID).
+            Non-numeric string values are allowed when required by a mandate or provider. The adapter maps scheme and id
+            to provider wire formats. Do not use Peppol alias labels (for example, FR:SIRENE) in place of ICD values.
+          example: "0002"
       required:
-        - registrationName
+        - registration_name
+        - company_id
     callback_document_status:
       type: object
       properties:
