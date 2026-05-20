@@ -169,7 +169,8 @@
                 "pages": [
                   "api-reference/common/fetch-the-health-status-of-the-service-provider"
                 ]
-              }
+              },
+              "api-reference/einvoicing-spi/docs/testing-with-postman"
             ]
           },
           {
