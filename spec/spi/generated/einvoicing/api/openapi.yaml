@@ -520,10 +520,19 @@ paths:
                   "city": "Cologne",
                   "country": "DE"
                 },
+                "legal_entity": {
+                  "registration_name": "Example Seller GmbH",
+                  "company_id": "987654321",
+                  "company_id_scheme": "0002"
+                },
                 "party_identifiers": [
                   {
-                    "scheme": "VAT",
-                    "id": "DE987654321"
+                    "scheme": "9957",
+                    "id": "FR12345678901"
+                  },
+                  {
+                    "scheme": "0009",
+                    "id": "12345678900012"
                   }
                 ]
               },
@@ -536,10 +545,15 @@ paths:
                   "city": "Berlin",
                   "country": "DE"
                 },
+                "legal_entity": {
+                  "registration_name": "Example Buyer GmbH",
+                  "company_id": "123456789",
+                  "company_id_scheme": "0002"
+                },
                 "party_identifiers": [
                   {
-                    "scheme": "VAT",
-                    "id": "DE123456789"
+                    "scheme": "9957",
+                    "id": "FR12345678901"
                   }
                 ]
               },
@@ -596,13 +610,19 @@ paths:
           Example Seller GmbH\",\n      \"address\": {\n        \"line_1\": \"Hauptstr.\
           \ 456\",\n        \"line_2\": \"Suite 5\",\n        \"zip\": \"50667\",\n\
           \        \"city\": \"Cologne\",\n        \"country\": \"DE\"\n      },\n\
-          \      \"party_identifiers\": [\n        {\n          \"scheme\": \"VAT\"\
-          ,\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n    \"\
-          accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\",\n\
-          \      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n    \
-          \    \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n        \"\
-          city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n      \"party_identifiers\"\
-          : [\n        {\n          \"scheme\": \"VAT\",\n          \"id\": \"DE123456789\"\
+          \      \"legal_entity\": {\n        \"registration_name\": \"Example Seller\
+          \ GmbH\",\n        \"company_id\": \"987654321\",\n        \"company_id_scheme\"\
+          : \"0002\"\n      },\n      \"party_identifiers\": [\n        {\n      \
+          \    \"scheme\": \"9957\",\n          \"id\": \"FR12345678901\"\n      \
+          \  },\n        {\n          \"scheme\": \"0009\",\n          \"id\": \"\
+          12345678900012\"\n        }\n      ]\n    },\n    \"accounting_customer_party\"\
+          : {\n      \"name\": \"Example Buyer GmbH\",\n      \"address\": {\n   \
+          \     \"line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\"\
+          ,\n        \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"\
+          country\": \"DE\"\n      },\n      \"legal_entity\": {\n        \"registration_name\"\
+          : \"Example Buyer GmbH\",\n        \"company_id\": \"123456789\",\n    \
+          \    \"company_id_scheme\": \"0002\"\n      },\n      \"party_identifiers\"\
+          : [\n        {\n          \"scheme\": \"9957\",\n          \"id\": \"FR12345678901\"\
           \n        }\n      ]\n    },\n    \"payment_means\": [\n      {\n      \
           \  \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"payment_id\": \"PAY-2024-00987\"\
           ,\n        \"card_account\": {\n          \"primary_account_number_id\"\
@@ -711,10 +731,19 @@ paths:
                   "city": "Cologne",
                   "country": "DE"
                 },
+                "legal_entity": {
+                  "registration_name": "Example Seller GmbH",
+                  "company_id": "987654321",
+                  "company_id_scheme": "0002"
+                },
                 "party_identifiers": [
                   {
-                    "scheme": "VAT",
-                    "id": "DE987654321"
+                    "scheme": "9957",
+                    "id": "FR12345678901"
+                  },
+                  {
+                    "scheme": "0009",
+                    "id": "12345678900012"
                   }
                 ]
               },
@@ -727,10 +756,15 @@ paths:
                   "city": "Berlin",
                   "country": "DE"
                 },
+                "legal_entity": {
+                  "registration_name": "Example Buyer GmbH",
+                  "company_id": "123456789",
+                  "company_id_scheme": "0002"
+                },
                 "party_identifiers": [
                   {
-                    "scheme": "VAT",
-                    "id": "DE123456789"
+                    "scheme": "9957",
+                    "id": "FR12345678901"
                   }
                 ]
               },
@@ -788,24 +822,30 @@ paths:
           name\": \"Example Seller GmbH\",\n      \"address\": {\n        \"line_1\"\
           : \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n        \"zip\"\
           : \"50667\",\n        \"city\": \"Cologne\",\n        \"country\": \"DE\"\
-          \n      },\n      \"party_identifiers\": [\n        {\n          \"scheme\"\
-          : \"VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
-          \    \"accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\"\
-          ,\n      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n  \
-          \      \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n       \
-          \ \"city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n      \"\
-          party_identifiers\": [\n        {\n          \"scheme\": \"VAT\",\n    \
-          \      \"id\": \"DE123456789\"\n        }\n      ]\n    },\n    \"payment_means\"\
-          : [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"\
-          payment_id\": \"PAY-2024-01002\",\n        \"card_account\": {\n       \
-          \   \"primary_account_number_id\": \"4111********2222\",\n          \"card_holder_name\"\
-          : \"John Doe\",\n          \"network_id\": \"VISA\"\n        }\n      }\n\
-          \    ],\n    \"lines\": [\n      {\n        \"id\": \"1\",\n        \"description\"\
-          : \"Refund for overcharge in April\",\n        \"quantity\": 1,\n      \
-          \  \"unit_price\": 50.0,\n        \"amount\": 50.0,\n        \"item_code\"\
-          : \"APRIL-REFUND\",\n        \"classified_tax_category\": [\n          {\n\
-          \            \"percentage\": 14,\n            \"category\": \"VAT\",\n \
-          \           \"country\": \"DE\"\n          }\n        ]\n      }\n    ],\n\
+          \n      },\n      \"legal_entity\": {\n        \"registration_name\": \"\
+          Example Seller GmbH\",\n        \"company_id\": \"987654321\",\n       \
+          \ \"company_id_scheme\": \"0002\"\n      },\n      \"party_identifiers\"\
+          : [\n        {\n          \"scheme\": \"9957\",\n          \"id\": \"FR12345678901\"\
+          \n        },\n        {\n          \"scheme\": \"0009\",\n          \"id\"\
+          : \"12345678900012\"\n        }\n      ]\n    },\n    \"accounting_customer_party\"\
+          : {\n      \"name\": \"Example Buyer GmbH\",\n      \"address\": {\n   \
+          \     \"line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\"\
+          ,\n        \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"\
+          country\": \"DE\"\n      },\n      \"legal_entity\": {\n        \"registration_name\"\
+          : \"Example Buyer GmbH\",\n        \"company_id\": \"123456789\",\n    \
+          \    \"company_id_scheme\": \"0002\"\n      },\n      \"party_identifiers\"\
+          : [\n        {\n          \"scheme\": \"9957\",\n          \"id\": \"FR12345678901\"\
+          \n        }\n      ]\n    },\n    \"payment_means\": [\n      {\n      \
+          \  \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"payment_id\": \"PAY-2024-01002\"\
+          ,\n        \"card_account\": {\n          \"primary_account_number_id\"\
+          : \"4111********2222\",\n          \"card_holder_name\": \"John Doe\",\n\
+          \          \"network_id\": \"VISA\"\n        }\n      }\n    ],\n    \"\
+          lines\": [\n      {\n        \"id\": \"1\",\n        \"description\": \"\
+          Refund for overcharge in April\",\n        \"quantity\": 1,\n        \"\
+          unit_price\": 50.0,\n        \"amount\": 50.0,\n        \"item_code\": \"\
+          APRIL-REFUND\",\n        \"classified_tax_category\": [\n          {\n \
+          \           \"percentage\": 14,\n            \"category\": \"VAT\",\n  \
+          \          \"country\": \"DE\"\n          }\n        ]\n      }\n    ],\n\
           \    \"tax_total\": {\n      \"tax_amount\": 7.0,\n      \"tax_sub_totals\"\
           : [\n        {\n          \"taxable_amount\": 50.0,\n          \"tax_amount\"\
           : 7.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
@@ -873,30 +913,31 @@ paths:
           INV-10001\",\n            \"issue_date\": \"2025-04-02\"\n          }\n\
           \        },\n        \"credit_note.note\": \"Refund for April invoice\"\
           ,\n        \"business.address.country\": \"DE\",\n        \"business.legal_entity.company_id\"\
-          : \"987654321\",\n        \"business.legal_entity.registration_name\": \"\
-          Example Seller GmbH\",\n        \"customer.billing_address.country\": \"\
-          DE\",\n        \"customer.legal_entity.company_id\": \"123456789\",\n  \
-          \      \"customer.legal_entity.registration_name\": \"Example Buyer GmbH\"\
-          ,\n        \"credit_note.tax_total\": 40.0,\n        \"invoiceResponse\"\
-          : {\n        \"events\": [\n          {\n            \"responseKey\": \"\
-          Some Other Event\",\n            \"responseValue\": \"Some Value\"\n   \
-          \       },\n          {\n            \"responseKey\": \"Receipt Message\
-          \ ID\",\n            \"responseValue\": \"RCPT123456\"\n          },\n \
-          \         {\n            \"responseKey\": \"Another Event\",\n         \
-          \   \"responseValue\": \"Another Value\"\n          }\n        ]\n     \
-          \   },\n        \"line_items\": [\n          {\n            \"id\": \"1\"\
-          ,\n            \"description\": \"Reversal of April service\",\n       \
-          \     \"quantity\": 1,\n            \"unit_price\": 100.0,\n           \
-          \ \"amount\": 100.0,\n            \"unit_code\": \"EA\",\n            \"\
-          classified_tax_category\": {\n              \"percentage\": 14,\n      \
-          \        \"category\": \"VAT\",\n              \"country\": \"DE\"\n   \
-          \         }\n          },\n          {\n            \"id\": \"2\",\n   \
-          \         \"description\": \"Reversal of consulting charge\",\n        \
-          \    \"quantity\": 1,\n            \"unit_price\": 40.0,\n            \"\
-          amount\": 40.0,\n            \"unit_code\": \"EA\",\n            \"classified_tax_category\"\
-          : {\n              \"percentage\": 30,\n              \"category\": \"EU\
-          \ VAT\",\n              \"country\": \"DE\"\n            }\n          }\n\
-          \        ]\n      }\n    }\n  }'\n"
+          : \"987654321\",\n        \"business.legal_entity.company_id_scheme\": \"\
+          9930\",\n        \"business.legal_entity.registration_name\": \"Example\
+          \ Seller GmbH\",\n        \"customer.billing_address.country\": \"DE\",\n\
+          \        \"customer.legal_entity.company_id\": \"123456789\",\n        \"\
+          customer.legal_entity.company_id_scheme\": \"9930\",\n        \"customer.legal_entity.registration_name\"\
+          : \"Example Buyer GmbH\",\n        \"credit_note.tax_total\": 40.0,\n  \
+          \      \"invoiceResponse\": {\n        \"events\": [\n          {\n    \
+          \        \"responseKey\": \"Some Other Event\",\n            \"responseValue\"\
+          : \"Some Value\"\n          },\n          {\n            \"responseKey\"\
+          : \"Receipt Message ID\",\n            \"responseValue\": \"RCPT123456\"\
+          \n          },\n          {\n            \"responseKey\": \"Another Event\"\
+          ,\n            \"responseValue\": \"Another Value\"\n          }\n     \
+          \   ]\n        },\n        \"line_items\": [\n          {\n            \"\
+          id\": \"1\",\n            \"description\": \"Reversal of April service\"\
+          ,\n            \"quantity\": 1,\n            \"unit_price\": 100.0,\n  \
+          \          \"amount\": 100.0,\n            \"unit_code\": \"EA\",\n    \
+          \        \"classified_tax_category\": {\n              \"percentage\": 14,\n\
+          \              \"category\": \"VAT\",\n              \"country\": \"DE\"\
+          \n            }\n          },\n          {\n            \"id\": \"2\",\n\
+          \            \"description\": \"Reversal of consulting charge\",\n     \
+          \       \"quantity\": 1,\n            \"unit_price\": 40.0,\n          \
+          \  \"amount\": 40.0,\n            \"unit_code\": \"EA\",\n            \"\
+          classified_tax_category\": {\n              \"percentage\": 30,\n      \
+          \        \"category\": \"EU VAT\",\n              \"country\": \"DE\"\n\
+          \            }\n          }\n        ]\n      }\n    }\n  }'\n"
       - lang: cURL
         label: Application response document submission
         source: |
@@ -911,13 +952,15 @@ paths:
               "sender_party": {
                 "legal_entity": {
                   "registration_name": "Example Sender GmbH",
-                  "company_id": "DE998877665"
+                  "company_id": "DE998877665",
+                  "company_id_scheme": "9930"
                 }
               },
               "receiver_party": {
                 "legal_entity": {
                   "registration_name": "Example Receiver GmbH",
-                  "company_id": "DE112233445"
+                  "company_id": "DE112233445",
+                  "company_id_scheme": "9930"
                 }
               },
               "document_response": {
@@ -944,13 +987,15 @@ paths:
               "sender_party": {
                 "legal_entity": {
                   "registration_name": "Example Sender GmbH",
-                  "company_id": "DE123456789"
+                  "company_id": "DE123456789",
+                  "company_id_scheme": "9930"
                 }
               },
               "receiver_party": {
                 "legal_entity": {
                   "registration_name": "Example Receiver GmbH",
-                  "company_id": "DE987654321"
+                  "company_id": "DE987654321",
+                  "company_id_scheme": "9930"
                 }
               },
               "document_response": {
@@ -2341,31 +2386,49 @@ components:
           type: string
       type: object
     party_identifier:
+      description: "An additional party identifier for tax, routing, or interoperability.\
+        \ Use legal_entity for the primary legal registration identity."
+      example:
+        scheme: "9957"
+        id: FR12345678901
       properties:
         scheme:
-          description: "A code identifying the identifier scheme (for example, VAT,\
-            \ GST, or a region-specific registration scheme)."
+          description: |
+            Identifier scheme for this party identifier. Prefer ISO 6523 ICD numeric codes as used in Peppol
+            and related e-invoicing networks (for example, 9957 for a French VAT number, 0009 for SIRET).
+            Non-numeric string values are allowed when a mandate or provider requires a scheme not represented
+            by a standard ICD code. Do not use Peppol alias labels (for example, FR:VAT or FR:SIRET) in place of ICD values.
+            The adapter maps scheme and id to provider wire formats (for example, UBL schemeID and cbc:ID).
           type: string
         id:
-          description: "The identifier value assigned to the party under the given\
-            \ scheme (for example, VAT number or legal registration ID)."
+          description: "The identifier value for the given scheme (for example, FR12345678901\
+            \ or a 14-digit SIRET)."
           type: string
       required:
       - id
       - scheme
       type: object
     party_legal_entity:
-      description: Legal entity information of the party.
+      description: "Primary legal registration identity of the party. Distinct from\
+        \ party_identifiers, which carry additional tax, routing, or interoperability\
+        \ identifiers."
       properties:
         registration_name:
           description: The full formal name by which the party is registered.
           type: string
         company_id:
-          description: An identifier issued by an official registrar that identifies
-            the party as a legal entity or person.
+          description: Primary legal or company registration identifier for the party.
+          type: string
+        company_id_scheme:
+          description: |
+            Identifier scheme for company_id. Prefer ISO 6523 ICD numeric codes (for example, 0002 for SIRENE, 0204 for Leitweg-ID).
+            Non-numeric string values are allowed when required by a mandate or provider. The adapter maps scheme and id
+            to provider wire formats. Do not use Peppol alias labels (for example, FR:SIRENE) in place of ICD values.
+          example: "0002"
           type: string
       required:
-      - registrationName
+      - company_id
+      - registration_name
       type: object
     callback_document_status:
       properties:
@@ -2812,8 +2875,14 @@ components:
         address:
           $ref: '#/components/schemas/address'
         party_identifiers:
-          description: "List of identifiers associated with the supplier party (for\
-            \ example, VAT, GST, or other registration IDs)."
+          description: |
+            Additional identifiers for tax, routing, or interoperability (for example, Peppol participant or VAT IDs).
+            Does not replace legal_entity.company_id. Prefer ISO 6523 ICD numeric scheme codes (for example, 9957, 0009).
+          example:
+          - scheme: "9957"
+            id: FR12345678901
+          - scheme: "0009"
+            id: "12345678900012"
           items:
             $ref: '#/components/schemas/party_identifier'
           type: array
@@ -2833,8 +2902,12 @@ components:
         address:
           $ref: '#/components/schemas/address'
         party_identifiers:
-          description: "List of identifiers associated with the customer party (for\
-            \ example, VAT, GST, or other registration IDs)."
+          description: |
+            Additional identifiers for tax, routing, or interoperability (for example, Peppol participant or VAT IDs).
+            Does not replace legal_entity.company_id. Prefer ISO 6523 ICD numeric scheme codes (for example, 9957, 0009).
+          example:
+          - scheme: "9957"
+            id: FR12345678901
           items:
             $ref: '#/components/schemas/party_identifier'
           type: array
