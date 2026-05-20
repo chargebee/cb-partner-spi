@@ -1,0 +1,3010 @@
+openapi: 3.0.0
+info:
+  title: E-Invoicing Service Provider Interface
+  description: >
+    ## E-invoicing Service Provider Interface (SPI) - Overview
+      Chargebee streamlines e-invoicing compliance across regions by facilitating the following operations throughout the billing lifecycle.
+    
+    1) Retrieve E-invoicing Activations:
+        - Retrieves the list of country and network activations that are configured in the connected e-invoicing provider platform.
+        - Each activation reflects a country and e-invoicing network that has been set up and made available by the provider.
+        - Chargebee uses this operation during provider enablement to determine which activations can be offered to merchants.
+    2) Document Submission:
+        - Submits invoices and credit notes to external e-invoicing systems for validation, compliance processing, and delivery to tax authorities or trading partners.
+    3) Status Tracking:
+        - Supports asynchronous document lifecycle tracking through webhook notifications sent by the e-invoicing adapter. These updates reflect real-time status changes as documents move through validation, compliance, and regulatory delivery stages.
+        - Allows on-demand status checks to retrieve the latest processing state of submitted documents, ensuring continued visibility even if webhook delivery is delayed or disrupted.
+    4) Final Document Retrieval:
+        - Retrieves finalized and regulator-approved documents for archiving, auditing or customer-facing use.
+
+    Chargebee leverages external e-invoicing services to execute these operations effectively. These external e-invoicing servies are the  certified vendors offering APIs to handle e-invoicing compliance and document exchange with tax authorities.
+    
+    
+    ## The Role of the E-invoicing Adapter App:
+      To connect with external e-invoicing systems, Chargebee uses an E-invoicing Adapter App -  a bridge that enables secure and standardized communication between Chargebee and the e-invoicing system. This communication is governed by the E-invoicing Service Provider Interface (SPI).
+
+    ## Building an E-invoicing Adapter App
+      To integrate an e-invoicing system with Chargebee, you must implement the E-invoicing SPI by developing an adapter app. This is required in the following scenarios:
+    
+      - As an E-invoicing Provider:
+        - Connect your compliance platform to Chargebee so merchants can automatically submit billing documents in a regulator-approved format.
+      - As a System Integrator:
+        - Build a connector that bridges a third-party e-invoicing provider and Chargebee, enabling seamless integration for merchants.
+
+    By implementing the E-invoicing SPI, you enable Chargebee to support global regulatory compliance through a scalable and region-agnostic architecture.
+  version: "1.0.0"
+servers:
+  - url: https://api.example.com
+    description: Production server (replace with actual service URL)
+  - url: https://sandbox.example.com
+    description: Sandbox server for testing
+tags:
+  - name: Activations
+    description: Operations related to e-invoicing activations
+  - name: Documents
+    description: Operations related to e-invoicing documents
+security:
+  - ApiKeyAuth: []
+paths:
+  /credentials/validate:
+    $ref: ./paths/credentials.yml
+  /einvoicing/activations:
+    get:
+      tags:
+        - Activations
+      summary: Retrieve a list of Activations.
+      description: |
+      
+        Retrieves either:
+
+        - A list of country-level e-invoicing activations configured at the connected e-invoicing provider, or
+        - A list of business entities configured at the provider, depending on the query parameters used.
+
+        Each activation represents the provider's capability to support e-invoicing in a specific country and model for a given business entity.
+
+        **Business Entity Concept**
+
+        In Chargebee, a *business entity* represents a business unit or brand  under the merchant's organization. Refer [here](https://apidocs.chargebee.com/docs/api/business_entities) for more details.
+        In this SPI, a business entity corresponds to the closest equivalent in the provider's system (for example, a company, or tenant).
+
+        **Modes of Operation**
+
+        - When called **without parameters**, returns all activations across
+          business entities (if supported by the provider).
+
+        - When called with `business_entity_id`, returns activations for that
+          specific business entity.
+
+        - When called with `mode=business_entities`, returns a list of
+          business entities that are active or configured in the provider.
+
+        This endpoint enables Chargebee to:
+
+        - Identify e-invoicing capabilities available for activation.
+        - Fetch business entity lists for provider configuration workflows.
+        - Retrieve activation details filtered by a specific business entity
+            during country-level setup.
+
+        **Example use cases**
+
+        - During integration setup:
+          `GET /einvoicing/activations?mode=business_entities`
+
+        - During country configuration:
+          `GET /einvoicing/activations?business_entity_id=<provider_entity_id>`
+
+      operationId: listActivations
+      parameters:
+        - in: query
+          name: business_entity_id
+          schema:
+            type: string
+          description: |
+            Filters activations for a specific business entity.
+
+            In Chargebee, a *business entity* represents a business unit or brand under the merchant's organization. In this SPI, the
+            `business_entity_id` refers to the corresponding identifier in the
+            e-invoicing provider’s system (for example, a company or tenant ID).
+
+            When provided, the adapter must return only the activations that belong to the specified business entity.
+        - in: query
+          name: country
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 2
+          description: |
+            Filters activations by country.
+              
+            The value must be a two-letter ISO 3166-1 alpha-2 country code
+            (for example, `DE`, `FR`, `IT`).
+              
+            When provided, the adapter must return only the activations that
+            are applicable for the specified country.
+              
+            This parameter is typically used during country-level e-invoicing
+            configuration to determine whether a provider supports e-invoicing
+            for a given country and business ent
+        - in: query
+          name: mode
+          schema:
+            type: string
+            enum: [ business_entities, activations ]
+          description: |
+            Optional mode for controlling the response type:
+            - `business_entities`: Returns list of Business Entities.
+            - `activations` (default): Returns list of activations.
+      responses:
+        '200':
+          description: A list of activations
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/activations_response'
+                  - $ref: '#/components/schemas/business_entities_response'
+              examples:
+                Business Entities response:
+                  summary: Response when listing companies
+                  value:
+                    business_entities:
+                      - id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                        display_name: "Acme BE"
+                      - id: "a3f7b451-29f0-42e0-8e4d-927c0ff19de7"
+                        display_name: "Beta GmbH"
+                Activations response:
+                  summary: Response when listing activations for a company
+                  value:
+                    activations:
+                      - id: "02083517-408f-4174-8c4d-42b029162f9c"
+                        business_entity:
+                          id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                          display_name: "Acme Germany"
+                        status:
+                          code: "COMPLETED"
+                          message: "Activation completed successfully."
+                        country_activations:
+                          - model: "PEPPOL"
+                            country: "DE"
+                            einvoicing_type: "B2B"
+                            supported_document_types:
+                              - "ubl-invoice"
+                              - "ubl-creditnote"
+                              - "ubl-applicationresponse"
+                      - id: "02083517-408f-4174-8c4d-42b029162f9c"
+                        business_entity_id:
+                          id: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+                          display_name: "Acme Germany"
+                        status:
+                          code: "PENDING"
+                          message: "Activation pending."
+                        country_activations:
+                          - model: "ZUGFERD"
+                            country: "DE"
+                            einvoicing_type: "B2B"
+                            supported_document_types:
+                              - "ubl-invoice"
+                              - "ubl-creditnote"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+        '500':
+          description: Unexpected error while processing request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500_error_response'
+      x-codeSamples:
+        - lang: cURL
+          label: Integration setup – list companies
+          source: |
+            curl --request GET \
+              --url https://partner.app.com/einvoicing/activations?mode=companies \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key": … }'
+        - lang: cURL
+          label: Country configuration – list activations for one company
+          source: |
+            curl --request GET \
+              --url https://partner.app.com/einvoicing/activations?business_entity_id=595e13fd-68b0-40c2-ade3-9780ce339d97 \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key": … }'
+        - lang: cURL
+          label: Invoice rejected (includes related application response)
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=REJECTED' \
+              --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
+              --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
+              --data-urlencode 'related_documents[0][document_type]=ubl-applicationresponse' \
+              --data-urlencode 'related_documents[0][status]=SUCCESS' \
+            --data-urlencode 'related_documents[0][flow]=INBOUND' \
+              --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
+              --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+  /einvoicing/data_input_fields:
+    get:
+      tags:
+        - Activations
+      summary: Retrieves data input fields
+      description: |
+        This optional SPI endpoint is used to retrieve the required and optional data input fields for various e-invoicing scenarios supported by the provider. Each scenario is defined by a unique combination of country, e-invoicing network, and transaction type (B2B, B2C, or B2G).
+        
+        Implementation of this endpoint is recommended only if the e-invoicing provider requires merchant to configure field mappings themselves, rather than relying on predefined mappings managed by the provider or Chargebee.
+        
+        Within Chargebee, this endpoint is invoked during the e-invoicing setup workflow, when a user maps fields between the provider’s schema and Chargebee’s internal data model for a specific combination of country, network, and transaction type. Once this configuration is complete, the resulting field mappings are included in the document submission request and passed to the adapter via the field_mapping parameter, enabling the adapter to transform the SPI-compliant payload into the provider’s required format.
+      operationId: getDataInputFields
+      parameters:
+        - name: country
+          in: query
+          required: true
+          description: |
+            The ISO 3166-1 alpha-2 country code representing the country for which the e-invoicing data input fields need to be retrieved. Different countries may have varying e-invoicing requirements.
+          schema:
+            type: string
+            example: "DE"
+        - name: transaction_type
+          in: query
+          required: true
+          description: >
+            The transaction type for which the data input fields need to be retrieved. Required fields may vary depending on the type: B2B (Business to Business), B2C (Business to Consumer), or B2G (Business to Government).
+          schema:
+            type: string
+            enum: [B2B, B2C, B2G]
+            example: "B2B"
+        - name: model
+          in: query
+          required: true
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+          schema:
+            type: string
+            enum:
+              - PEPPOL
+              - EINVOICE
+              - CLEARANCE
+              - REPORTING
+              - ZUGFERD
+              - CTC
+              - NEMHANDEL
+              - FACE
+              - VERIFACTU
+            example: "PEPPOL"
+        - name: document_type
+          in: query
+          required: true
+          description: Type of business document.
+          schema:
+            type: string
+            example: "ubl-invoice"
+      responses:
+        '200':
+          description: Successfully retrieved the data input fields for the given scenario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/data_input_fields_response'
+        '400':
+          description: Bad Request – The request is malformed or missing required parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error_response'
+              example:
+                errors:
+                  - code: MISSING_REQUIRED_DATA
+                    message: "Missing required query parameters."
+                    help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found – The requested country or network does not exist or is not supported.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+              example:
+                errors:
+                  - code: NOT_FOUND
+                    message: "No data input fields were found for the specified country, network, and transaction type."
+                    help_url: https://docs.example.com/errors#NOT_FOUND
+        '500':
+          description: Internal Server Error – An error occurred on the server.
+  /einvoicing/documents:
+    post:
+      tags:
+        - Documents
+      summary: Submit a document
+      description: |
+        Submits a new document, such as an invoice or credit note, to the connected e-invoicing provider for validation, compliance checks, and delivery to the appropriate tax authorities or business partners.
+        
+        This endpoint is MANDATORY for enabling document submission through the Chargebee E-invoicing SPI framework.
+        
+        Within Chargebee, this endpoint is invoked asynchronously by an internal background job whenever a new invoice, credit note, or other supported billing document is generated and requires processing through the configured e-invoicing provider.
+        
+        If the e-invoicing provider requires merchants to configure field mappings manually, instead of relying on predefined mappings managed by Chargebee, Chargebee will collect this mapping as entered by the Chargebee merchant through the Chargebee Admin Console.
+        
+        The collected field mapping and the corresponding input values will be passed to the adapter via the `overrides` parameter.
+
+        Note: When the `overrides` parameter is present, the adapter must rely exclusively on the `field_mapping` and `values` defined within it. All other standard schema fields should be ignored for transformation purposes.
+        
+        Additionally, this endpoint supports submission of Application Response documents, such as invoice acknowledgements or rejections, to facilitate downstream workflows and business rule validation. These responses are submitted using the same endpoint but distinguished using a type discriminator with APPLICATION_RESPONSE.
+
+      operationId: einvoicingDocumentSubmission
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/document'
+      x-codeSamples:
+        - lang: cURL
+          label: Invoice document submission
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "INV-10001",
+                "type": "INVOICE",
+                "issue_date": "2025-04-02",
+                "tax_date": "2025-04-02",
+                "currency_code": "EUR",
+                "due_date": "2025-04-30",
+                "amount": 114.0,
+                "note": "Payment due in 28 days.",
+                "accounting_supplier_party": {
+                  "name": "Example Seller GmbH",
+                  "address": {
+                    "line_1": "Hauptstr. 456",
+                    "line_2": "Suite 5",
+                    "zip": "50667",
+                    "city": "Cologne",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE987654321"
+                    }
+                  ]
+                },
+                "accounting_customer_party": {
+                  "name": "Example Buyer GmbH",
+                  "address": {
+                    "line_1": "Berliner Str. 123",
+                    "line_2": "2nd Floor",
+                    "zip": "10115",
+                    "city": "Berlin",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE123456789"
+                    }
+                  ]
+                },
+                "payment_means": [
+                  {
+                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "payment_id": "PAY-2024-00987",
+                    "card_account": {
+                      "primary_account_number_id": "4111********1111",
+                      "card_holder_name": "Jane Smith",
+                      "network_id": "MASTERCARD"
+                    }
+                  }
+                ],
+                "lines": [
+                  {
+                    "id": "1",
+                    "description": "Consulting Services - April",
+                    "quantity": 1,
+                    "unit_price": 100.0,
+                    "amount": 100.0,
+                    "item_code": "CONS-APRIL",
+                    "classified_tax_category": [
+                      {
+                        "percentage": 14,
+                        "category": "VAT",
+                        "country": "DE"
+                      }
+                    ]
+                  }
+                ],
+                "tax_total": {
+                  "tax_amount": 14.0,
+                  "tax_sub_totals": [
+                    {
+                      "taxable_amount": 100.0,
+                      "tax_amount": 14.0,
+                      "percentage": 14,
+                      "country": "DE",
+                      "category": "VAT"
+                    }
+                  ]
+                }
+              }'
+
+        - lang: cURL
+          label: Invoice document submission with overrides
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "INV-20221607",
+                "type": "INVOICE",
+                "issue_date": "2025-04-02",
+                "tax_date": "2025-04-02",
+                "currency_code": "EUR",
+                "due_date": "2025-04-30",
+                "amount": 114.0,
+                "note": "Payment due in 28 days.",
+                "accounting_supplier_party": {
+                  "name": "Example Seller GmbH",
+                  "address": {
+                    "line_1": "Hauptstr. 456",
+                    "line_2": "Suite 5",
+                    "zip": "50667",
+                    "city": "Cologne",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE987654321"
+                    }
+                  ]
+                },
+                "accounting_customer_party": {
+                  "name": "Example Buyer GmbH",
+                  "address": {
+                    "line_1": "Berliner Str. 123",
+                    "line_2": "2nd Floor",
+                    "zip": "10115",
+                    "city": "Berlin",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE123456789"
+                    }
+                  ]
+                },
+                "payment_means": [
+                  {
+                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "payment_id": "PAY-2024-00987",
+                    "card_account": {
+                      "primary_account_number_id": "4111********1111",
+                      "card_holder_name": "Jane Smith",
+                      "network_id": "MASTERCARD"
+                    }
+                  }
+                ],
+                "lines": [
+                  {
+                    "id": "1",
+                    "description": "Consulting Services - April",
+                    "quantity": 1,
+                    "unit_price": 100.0,
+                    "amount": 100.0,
+                    "item_code": "CONS-APRIL",
+                    "classified_tax_category": [
+                      {
+                        "percentage": 14,
+                        "category": "VAT",
+                        "country": "DE"
+                      }
+                    ]
+                  }
+                ],
+                "tax_total": {
+                  "tax_amount": 14.0,
+                  "tax_sub_totals": [
+                    {
+                      "taxable_amount": 100.0,
+                      "tax_amount": 14.0,
+                      "percentage": 14,
+                      "country": "DE",
+                      "category": "VAT"
+                    }
+                  ]
+                },
+                "overrides": {
+                  "country": "DE", 
+                  "transaction_type": "B2B",
+                  "model": "PEPPOL",
+                  "document_type": "ubl-invoice",
+                  "field_mapping": [
+                    {
+                      "target": "Invoice.cbc:ID",
+                      "source": "invoice.id"
+                    },
+                    {
+                      "target": "Invoice.cbc:IssueDate",
+                      "source": "invoice.issue_date"
+                    },
+                    {
+                      "target": "Invoice.cbc:InvoiceTypeCode",
+                      "fixed_value": "380"
+                    },
+                    {
+                      "target": "Invoice.cbc:DocumentCurrencyCode",
+                      "source": "invoice.currency_code"
+                    },
+                    {
+                      "target": "Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
+                      "source": "business.address.country"
+                    },
+                    {
+                      "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
+                      "source": "customer.billing_address.country"
+                    },
+                    {
+                      "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\"",
+                      "source": "customer.cf_einvoice_scheme_id"
+                    },
+                    {
+                      "target": "Invoice.cac:TaxTotal.cbc:TaxAmount",
+                      "source": "invoice.tax_total"
+                    },
+                    {
+                      "target": "Invoice.cbc:Note",
+                      "source": "invoice.note"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cbc:ID",
+                      "source": "line_items[].id"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cbc:InvoicedQuantity",
+                      "source": "line_items[].quantity"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode",
+                      "source": "line_items[].unit_code"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount",
+                      "source": "line_items[].amount"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID",
+                      "source": "invoice.currency_code"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cac:Item.cbc:Name",
+                      "source": "line_items[].description"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID",
+                      "expr": "li.tax_rate > 0.0 && (!has(li.tax_exempt_reason) || li.tax_exempt_reason == '') ? 'S' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'ZERO_RATED' ? 'Z' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'EXEMPT' ? 'E' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'REVERSE_CHARGE' ? 'AE' 
+                          :li.tax_rate == 0.0 && li.tax_exempt_reason == 'OUTSIDE_SCOPE' ? 'O' :\n''"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID",
+                      "source": "line_items[].classified_tax_category[].category"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount",
+                      "source": "line_items[].unit_price"
+                    },
+                    {
+                      "target": "Invoice.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID",
+                      "source": "invoice.currency_code"
+                    },
+                    {
+                      "target": "Invoice.cbc:Note",
+                      "source": "invoice.note"
+                    }
+                  ],
+                  "values": {
+                    "invoice.id": "INV-10001",
+                    "invoice.issue_date": "2025-04-02",
+                    "invoice.tax_date": "2025-04-02",
+                    "invoice.currency_code": "EUR",
+                    "invoice.due_date": "2025-04-30",
+                    "invoice.amount": 114.0,
+                    "invoice.note": "Payment due in 28 days.",
+                    "business.address.country": "DE",
+                    "customer.billing_address.country": "DE",
+                    "invoice.tax_total": 14.0,
+                    "line_items": [
+                      {
+                        "id": "1",
+                        "description": "Consulting Services - April",
+                        "quantity": 1,
+                        "unit_price": 100.0,
+                        "amount": 100.0,
+                        "item_code": "CONS-APRIL",
+                        "tax_rate" : "14",
+                        "classified_tax_category": {
+                          "percentage": 14,
+                          "category": "VAT",
+                          "country": "DE"
+                        }
+                      },
+                      {
+                        "id": "2",
+                        "description": "TEST Consulting Services - April",
+                        "quantity": 130,
+                        "unit_price": 1000.0,
+                        "amount": 1005.0,
+                        "item_code": "CONS-APRIL",
+                        "tax_rate" : "30",
+                        "classified_tax_category": {
+                          "percentage": 30,
+                          "category": "EU VAT",
+                          "country": "DE"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }'
+
+        - lang: cURL
+          label: Credit note document submission
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "CN-20002",
+                "type": "CREDIT_NOTE",
+                "issue_date": "2025-04-10",
+                "tax_date": "2025-04-10",
+                "currency_code": "EUR",
+                "due_date": "2025-04-30",
+                "amount": 50.0,
+                "note": "Credit issued for April billing adjustment.",
+                "billing_reference": [
+                  "INV-10001"
+                ],
+                "accounting_supplier_party": {
+                  "name": "Example Seller GmbH",
+                  "address": {
+                    "line_1": "Hauptstr. 456",
+                    "line_2": "Suite 5",
+                    "zip": "50667",
+                    "city": "Cologne",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE987654321"
+                    }
+                  ]
+                },
+                "accounting_customer_party": {
+                  "name": "Example Buyer GmbH",
+                  "address": {
+                    "line_1": "Berliner Str. 123",
+                    "line_2": "2nd Floor",
+                    "zip": "10115",
+                    "city": "Berlin",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE123456789"
+                    }
+                  ]
+                },
+                "payment_means": [
+                  {
+                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "payment_id": "PAY-2024-01002",
+                    "card_account": {
+                      "primary_account_number_id": "4111********2222",
+                      "card_holder_name": "John Doe",
+                      "network_id": "VISA"
+                    }
+                  }
+                ],
+                "lines": [
+                  {
+                    "id": "1",
+                    "description": "Refund for overcharge in April",
+                    "quantity": 1,
+                    "unit_price": 50.0,
+                    "amount": 50.0,
+                    "item_code": "APRIL-REFUND",
+                    "classified_tax_category": [
+                      {
+                        "percentage": 14,
+                        "category": "VAT",
+                        "country": "DE"
+                      }
+                    ]
+                  }
+                ],
+                "tax_total": {
+                  "tax_amount": 7.0,
+                  "tax_sub_totals": [
+                    {
+                      "taxable_amount": 50.0,
+                      "tax_amount": 7.0,
+                      "percentage": 14,
+                      "country": "DE",
+                      "category": "VAT"
+                    }
+                  ]
+                }
+              }'
+
+        - lang: cURL
+          label: Credit note document submission with overrides
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "CN-20002",
+                "type": "CREDIT_NOTE",
+                "issue_date": "2025-04-10",
+                "tax_date": "2025-04-10",
+                "currency_code": "EUR",
+                "due_date": "2025-04-30",
+                "amount": 50.0,
+                "note": "Credit issued for April billing adjustment.",
+                "billing_reference": [
+                  "INV-10001"
+                ],
+                "accounting_supplier_party": {
+                  "name": "Example Seller GmbH",
+                  "address": {
+                    "line_1": "Hauptstr. 456",
+                    "line_2": "Suite 5",
+                    "zip": "50667",
+                    "city": "Cologne",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE987654321"
+                    }
+                  ]
+                },
+                "accounting_customer_party": {
+                  "name": "Example Buyer GmbH",
+                  "address": {
+                    "line_1": "Berliner Str. 123",
+                    "line_2": "2nd Floor",
+                    "zip": "10115",
+                    "city": "Berlin",
+                    "country": "DE"
+                  },
+                  "tax_scheme": [
+                    {
+                      "scheme": "VAT",
+                      "id": "DE123456789"
+                    }
+                  ]
+                },
+                "payment_means": [
+                  {
+                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "payment_id": "PAY-2024-01002",
+                    "card_account": {
+                      "primary_account_number_id": "4111********2222",
+                      "card_holder_name": "John Doe",
+                      "network_id": "VISA"
+                    }
+                  }
+                ],
+                "lines": [
+                  {
+                    "id": "1",
+                    "description": "Refund for overcharge in April",
+                    "quantity": 1,
+                    "unit_price": 50.0,
+                    "amount": 50.0,
+                    "item_code": "APRIL-REFUND",
+                    "classified_tax_category": [
+                      {
+                        "percentage": 14,
+                        "category": "VAT",
+                        "country": "DE"
+                      }
+                    ]
+                  }
+                ],
+                "tax_total": {
+                  "tax_amount": 7.0,
+                  "tax_sub_totals": [
+                    {
+                      "taxable_amount": 50.0,
+                      "tax_amount": 7.0,
+                      "percentage": 14,
+                      "country": "DE",
+                      "category": "VAT"
+                    }
+                  ]
+                },
+                "overrides": {
+                  "country": "DE", 
+                  "transaction_type": "B2B",
+                  "model": "PEPPOL",
+                  "document_type": "ubl-creditnote",
+                  "field_mapping": [
+                    {
+                      "target": "Creditnote.cbc:ID",
+                      "source": "credit_note.id"
+                    },
+                    {
+                      "target": "Creditnote.cbc:IssueDate",
+                      "source": "credit_note.issue_date"
+                    },
+                    {
+                      "target": "Creditnote.cbc:CreditNoteTypeCode",
+                      "fixed_value": "396"
+                    },
+                    {
+                      "target": "Creditnote.cbc:DocumentCurrencyCode",
+                      "source": "credit_note.currency_code"
+                    },
+                    {
+                      "target": "Creditnote.cac:BillingReference",
+                      "expr": "invoiceResponse.events.exists(e, has(e.responseKey) && e.responseKey == 'Receipt Message ID') ? invoiceResponse.events.filter(e, has(e.responseKey) && e.responseKey == 'Receipt Message ID').map(e, e.responseValue)[0] : null"
+                    },
+                    {
+                      "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID",
+                      "source": "business.legal_entity.company_id"
+                    },
+                    {
+                      "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
+                      "source": "business.address.country"
+                    },
+                    {
+                      "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName",
+                      "source": "business.legal_entity.registration_name"
+                    },
+                    {
+                      "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID",
+                      "source": "customer.legal_entity.company_id"
+                    },
+                    {
+                      "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
+                      "source": "customer.billing_address.country"
+                    },
+                    {
+                      "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName",
+                      "source": "customer.legal_entity.registration_name"
+                    },
+                    {
+                      "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\"",
+                      "source": "customer.cf_einvoice_scheme_id"
+                    },
+                    {
+                      "target": "Creditnote.cac:TaxTotal.cbc:TaxAmount",
+                      "source": "credit_note.tax_total"
+                    },
+                    {
+                      "target": "Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID",
+                      "source": "credit_note.currency_code"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cbc:ID",
+                      "source": "line_items[].id"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity",
+                      "source": "line_items[].quantity"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cbc:InvoicedQuantity.@unitCode",
+                      "source": "line_items[].unit_code"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount",
+                      "source": "line_items[].amount"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cbc:LineExtensionAmount.@currencyID",
+                      "source": "credit_note.currency_code"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cac:Item.cbc:Name",
+                      "source": "line_items[].description"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cbc:ID",
+                      "source": "line_items[].classified_tax_category[].category"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cac:Item.cac:ClassifiedTaxCategory.cac:TaxScheme.cbc:ID",
+                      "source": "line_items[].classified_tax_category[].category"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount",
+                      "source": "line_items[].unit_price"
+                    },
+                    {
+                      "target": "Creditnote.cac:InvoiceLine.cac:Price.cbc:PriceAmount.@currencyID",
+                      "source": "credit_note.currency_code"
+                    },
+                    {
+                      "target": "Creditnote.cbc:Note",
+                      "expr: "credit_note.amount > 0 ? 'Partial refund issued' : credit_note.custom_fields.cf_credit_note_reason != null ? credit_note.custom_fields.cf_credit_note_reason : 'Credit note issued'"
+                    }
+                  ],
+                  "values": {
+                    "credit_note.id": "CN-20001",
+                    "credit_note.issue_date": "2025-04-05",
+                    "credit_note.tax_date": "2025-04-05",
+                    "credit_note.currency_code": "EUR",
+                    "credit_note.due_date": "2025-04-30",
+                    "credit_note.amount": 140.0,
+                    "credit_note.billing_reference": {
+                      "invoice_document_reference": {
+                        "id": "INV-10001",
+                        "issue_date": "2025-04-02"
+                      }
+                    },
+                    "credit_note.note": "Refund for April invoice",
+                    "business.address.country": "DE",
+                    "business.legal_entity.company_id": "987654321",
+                    "business.legal_entity.registration_name": "Example Seller GmbH",
+                    "customer.billing_address.country": "DE",
+                    "customer.legal_entity.company_id": "123456789",
+                    "customer.legal_entity.registration_name": "Example Buyer GmbH",
+                    "credit_note.tax_total": 40.0,
+                    "invoiceResponse": {
+                    "events": [
+                      {
+                        "responseKey": "Some Other Event",
+                        "responseValue": "Some Value"
+                      },
+                      {
+                        "responseKey": "Receipt Message ID",
+                        "responseValue": "RCPT123456"
+                      },
+                      {
+                        "responseKey": "Another Event",
+                        "responseValue": "Another Value"
+                      }
+                    ]
+                    },
+                    "line_items": [
+                      {
+                        "id": "1",
+                        "description": "Reversal of April service",
+                        "quantity": 1,
+                        "unit_price": 100.0,
+                        "amount": 100.0,
+                        "unit_code": "EA",
+                        "classified_tax_category": {
+                          "percentage": 14,
+                          "category": "VAT",
+                          "country": "DE"
+                        }
+                      },
+                      {
+                        "id": "2",
+                        "description": "Reversal of consulting charge",
+                        "quantity": 1,
+                        "unit_price": 40.0,
+                        "amount": 40.0,
+                        "unit_code": "EA",
+                        "classified_tax_category": {
+                          "percentage": 30,
+                          "category": "EU VAT",
+                          "country": "DE"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }'
+        - lang: cURL
+          label: Application response document submission
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "APPRESP-20250402-002",
+                "type": "APPLICATION_RESPONSE",
+                "issue_date": "2025-04-04",
+                "sender_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Sender GmbH",
+                    "company_id": "DE998877665"
+                  }
+                },
+                "receiver_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Receiver GmbH",
+                    "company_id": "DE112233445"
+                  }
+                },
+                "document_response": {
+                  "response": {
+                    "status": "Under query",
+                    "note": "Discrepancy in line item total"
+                  },
+                  "document_reference": {
+                    "id": "INV-20250401-789"
+                  }
+                }
+              }'
+
+        - lang: cURL
+          label: Application response document submission with overrides
+          source: |
+            curl --request POST \
+              --url https://partner.app.com/einvoicing/documents \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: {"api_key" : ... }' \
+              --data '{
+                "id": "APPRESP-20240401-001",
+                "type": "APPLICATION_RESPONSE",
+                "issue_date": "2025-04-03",
+                "sender_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Sender GmbH",
+                    "company_id": "DE123456789"
+                  }
+                },
+                "receiver_party": {
+                  "legal_entity": {
+                    "registration_name": "Example Receiver GmbH",
+                    "company_id": "DE987654321"
+                  }
+                },
+                "document_response": {
+                  "response": {
+                    "status": "Accepted",
+                    "note": "Invoice accepted without issues"
+                  },
+                  "document_reference": {
+                    "id": "INV-20240330-567"
+                  }
+                },
+                "overrides": {
+                  "country": "DE",
+                  "model": "PEPPOL",
+                  "transaction_type": "B2B",
+                  "document_type": "ubl-applicationresponse",
+                  "field_mapping": [
+                    {
+                      "target": "ApplicationResponse.cbc:ID",
+                      "source": "application_response.id"
+                    },
+                    {
+                      "target": "ApplicationResponse.cbc:IssueDate",
+                      "source": "application_response.issue_date"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:SenderParty.cac:PartyLegalEntity.cbc:RegistrationName",
+                      "source": "application_response.sender_party.legal_entity.registration_name"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:ReceiverParty.cac:PartyLegalEntity.cbc:RegistrationName",
+                      "source": "application_response.receiver_party.legal_entity.registration_name"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:DocumentResponse.cac:Response.cbc:ResponseCode",
+                      "source": "application_response.document_response.response.status"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:DocumentResponse.cac:Response.cbc:Description",
+                      "source": "application_response.document_response.response.note"
+                    },
+                    {
+                      "target": "ApplicationResponse.cac:DocumentResponse.cac:DocumentReference.cbc:ID",
+                      "source": "application_response.document_response.document_reference.id"
+                    }
+                  ],
+                  "values": {
+                    "application_response.id": "APPRESP-20240401-001",
+                    "application_response.issue_date": "2025-04-03",
+                    "application_response.sender_party.legal_entity.registration_name": "Example Sender GmbH",
+                    "application_response.receiver_party.legal_entity.registration_name": "Example Receiver GmbH",
+                    "application_response.document_response.response.status": "Accepted",
+                    "application_response.document_response.response.note": "Invoice accepted without issues",
+                    "application_response.document_response.document_reference.id": "INV-20240330-567"
+                  }
+                }
+              }'
+      responses:
+        '200':
+          description: Document submitted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/document_submission_response'
+              examples:
+                einvoice_document_submission_pending:
+                  summary: Document under processing
+                  description: A sample response indicating the document is under processing at the provider.
+                  value:
+                    document_id: DOC-20250402-0002
+                    status: ACCEPTED
+                    request_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error_response'
+              examples:
+                einvoice_document_submission_failed:
+                  summary: Bad request
+                  description: A sample response when the request is invalid or missing required data.
+                  value:
+                    errors:
+                      - code: MISSING_REQUIRED_DATA
+                        message: The request did not contain a required property 'taxAmount'
+                        help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Unexpected error while processing request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500_error_response'
+              examples:
+                unexpected_error:
+                  summary: Server error
+                  value:
+                    message: An unexpected error occurred while processing your request.
+  /api/v2/invoices/{document_id}/einvoice_status :
+    post:
+      tags:
+        - Callbacks
+      summary: Receive document status updates for an invoice
+      description: |
+        The adapter receives a webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+
+        Chargebee uses this callback to update internal document tracking states and trigger downstream workflows such as customer notifications or audit logs.
+
+        This endpoint is **idempotent**, repeated submissions with the same `document_id` and `status` will not result in duplicate processing.
+
+        Requires an OAuth 2.0 access token authorized via the merchant OAuth flow. The Chargebee merchant must authorize the e-invoicing app via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+      operationId: einvoicingDocumentStatusCallbackForInvoice
+      security:
+        - authorizationCode:
+            - einvoicing.status
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for invoice document status
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the submitted document.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/callback_document_status'
+              examples:
+                callback_document_status_success:
+                  $ref: '#/components/examples/callback_document_status_success_for_invoice'
+                callback_document_status_failed:
+                  $ref: '#/components/examples/callback_document_status_failed_for_invoice'
+      responses:
+        '200':
+          description: Callback payload received and validated successfully. No retry required.
+        '202':
+          description: Callback request accepted for asynchronous processing.
+        '400':
+          description: Invalid payload or required fields missing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_error'
+                  related_documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_related_document_status'
+        '401':
+          description: Unauthorized request. Signature validation failed or sender is not allowed.
+        '422':
+          description: Payload was well-formed but could not be processed (e.g., unknown document ID).
+        '500':
+          description: Internal server error. Retry may be attempted by the sender.
+      x-content-type: application/x-www-form-urlencoded
+      x-accepts: application/json
+      x-codeSamples:
+        - lang: cURL
+          label: Invoice document submission successful
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=ACCEPTED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+              --data-urlencode 'provider_response={
+                "source":"avalara",
+                "received_at":"2025-12-29T12:17:47.791Z",
+                "type":"polling",
+                "payload":{
+                  "id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
+                  "companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5",
+                  "status":"Complete",
+                  "events":[
+                    {"eventDateTime":"2025-12-29T12:17:47.791","message":"Document started processing"},
+                    {"eventDateTime":"2025-12-29T12:17:47.934","message":"Validations for the submitted document were successful"},
+                    {"eventDateTime":"2025-12-29T12:17:53.063","message":"The document was delivered to the recipient","responseKey":"Receipt Message ID","responseValue":"8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.avalara.io"}
+                  ]
+                }
+              }
+            }'
+
+        - lang: cURL
+          label: Invoice document submission failed
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=FAILED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
+              --data-urlencode 'errors[0][code]=MISSING_REQUIRED_DATA' \
+              --data-urlencode 'errors[0][message]=The request did not contain a required property taxAmount' \
+              --data-urlencode 'errors[0][help_url]=https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER'
+        - lang: cURL
+          label: Invoice rejected (includes related application response)
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/invoices/{document_id}/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=REJECTED' \
+              --data-urlencode 'timestamp=2025-09-04T08:17:30.112Z' \
+              --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
+              --data-urlencode 'related_documents[0][document_type]=ubl-applicationresponse' \
+              --data-urlencode 'related_documents[0][status]=SUCCESS' \
+              --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
+              --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+
+  /api/v2/credit_notes/{document_id}/einvoice_status :
+    post:
+      tags:
+        - Callbacks
+      summary: Receive document status updates for a credit note
+      description: |
+        The adapter receives a webhook from the provider, transforms the payload into Chargebee’s standardized schema, and forwards the final document status to this endpoint.
+
+        Chargebee uses this callback to update internal document tracking states and trigger downstream workflows such as customer notifications or audit logs.
+
+        This endpoint is **idempotent**, repeated submissions with the same `document_id` and `status` will not result in duplicate processing.
+
+        Requires an OAuth 2.0 access token authorized via the merchant OAuth flow. The Chargebee merchant must authorize the e-invoicing app via the OAuth flow to allow it to make authenticated POST calls to this endpoint.
+      operationId: einvoicingDocumentStatusCallbackForCreditNote
+      security:
+        - authorizationCode:
+            - write_access
+      servers:
+        - url: https://{domain}.chargebee.com
+          description: Callback server for invoice document status
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier of the submitted document.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/callback_document_status'
+              examples:
+                callback_document_status_success:
+                  $ref: '#/components/examples/callback_document_status_success_for_credit_note'
+                callback_document_status_failed:
+                  $ref: '#/components/examples/callback_document_status_failed_for_credit_note'
+      responses:
+        '200':
+          description: Callback payload received and validated successfully. No retry required.
+        '202':
+          description: Callback request accepted for asynchronous processing.
+        '400':
+          description: Invalid payload or required fields missing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_error'
+                  related_documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/callback_related_document_status'
+        '401':
+          description: Unauthorized request. Signature validation failed or sender is not allowed.
+        '422':
+          description: Payload was well-formed but could not be processed (e.g., unknown document ID).
+        '500':
+          description: Internal server error. Retry may be attempted by the sender.
+      x-content-type: application/x-www-form-urlencoded
+      x-accepts: application/json
+      x-codeSamples:
+        - lang: cURL
+          label: Credit note document submission successful
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/credit_notes/CN20250205/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=ACCEPTED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+
+        - lang: cURL
+          label: Credit note document submission failed
+          source: |
+            curl --request POST \
+              --url https://{domain}.chargebee.com/api/v2/credit_notes/CN20250205/einvoice_status \
+              --header 'Authorization: Bearer <token>' \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data-urlencode 'einvoicing_provider_id=avalara' \
+              --data-urlencode 'status=FAILED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
+              --data-urlencode 'errors[0][code]=MISSING_REQUIRED_DATA' \
+              --data-urlencode 'errors[0][message]=An Invoice shall at least have one VAT breakdown group' \
+              --data-urlencode 'errors[0][help_url]=https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER'
+
+  /einvoicing/documents/{document_id}/status:
+    get:
+      tags:
+        - Documents
+      summary: Get Document Status
+      description: >
+        Retrieves the current processing status of a document previously
+        submitted to the connected e-invoicing provider.
+
+
+        The status provides insights into whether the document has been successfully
+        processed, is still under validation, has failed, or has been rejected by
+        tax authorities or intermediaries.
+
+
+        In Chargebee, this endpoint is periodically called to retrieve the latest
+        processing status of the e-invoicing document. While Chargebee primarily relies
+        on the callback listener to receive status updates, this endpoint serves as
+        a fallback mechanism to ensure status synchronization.
+
+        '
+      operationId: einvoicingDocumentStatus
+      parameters:
+        - name: document_id
+          in: path
+          description: The unique identifier assigned to the submitted document by the e‑invoicing provider.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/document_status'
+              examples:
+                successful_einvoice_document_submission_response:
+                  summary: Successful document status
+                  description: A sample response indicating successful e-invoice document status.
+                  value:
+                    document_id: DOC-20250402-0001
+                    status: SUCCESS
+                    submission_date: '2025-04-02T07:39:31.815Z'
+                    provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+                failed_einvoice_document_submission_response:
+                  summary: Failed validation at provider
+                  description: A sample failed document status response due to unregistered VAT number.
+                  value:
+                    document_id: DOC-20250402-0001
+                    status: FAILED
+                    processing_details:
+                      errors:
+                        - code: INVALID_DATA
+                          message: The VAT number provided is not registered with the tax authority.
+                          help_url: https://docs.example.com/errors#INVALID_DATA
+
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+        '500':
+          description: Unexpected error while processing request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500_error_response'
+  /einvoicing/documents/{document_id}/download:
+    get:
+      tags:
+        - Documents
+      summary: Download Document
+      description: |
+        Retrieves the document content associated with the provided documentId from the connected e-invoicing provider.
+        
+        A document_id by itself is not always sufficient for the provider to determine which document formats or variants to return. Chargebee includes additional query parameters — such as country, transaction_type, and model — so the adapter can accurately identify and fetch the correct document representations.
+        
+        If the mime_type query parameter is not provided, the adapter MUST retrieve all available document representations for the specified document_id. When a specific mime_type is supplied, the adapter MUST return only the matching representation(s).
+        
+        The document may be returned either as a pre-signed URL or as a direct binary stream (such as a PDF or XML file), depending on the provider’s capabilities and the SPI implementation.
+        
+        In Chargebee, this endpoint is called after the document has been successfully processed either to send it via email to the end customer or when the merchant initiates a download from the Chargebee UI.
+        
+        Implementing this endpoint is MANDATORY to support document retrieval operations.
+      operationId: einvoicingDocumentDownload
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mime_type
+          in: query
+          required: false
+          description: |
+            Optional MIME type filter for the document representation to download.
+
+            When provided, the adapter MUST return only the document(s) matching this MIME type
+            (for example, `application/xml`, `application/pdf`, or a country-specific UBL MIME type).
+
+            When omitted, the adapter MUST attempt to retrieve and return all available representations 
+            for the given document_id from the underlying e-invoicing provider.
+          schema:
+            type: string
+            example: "application/xml"
+        - name: country
+          in: query
+          required: true
+          description: |
+            The ISO 3166-1 alpha-2 country code representing the country for which the e-invoicing data input fields need to be retrieved. Different countries may have varying e-invoicing requirements.
+          schema:
+            type: string
+            example: "DE"
+        - name: transaction_type
+          in: query
+          required: true
+          description: >
+            The transaction type for which the data input fields need to be retrieved. Required fields may vary depending on the type: B2B (Business to Business), B2C (Business to Consumer), or B2G (Business to Government).
+          schema:
+            type: string
+            enum: [B2B, B2C, B2G]
+            example: "B2B"
+        - name: model
+          in: query
+          required: true
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+          schema:
+            type: string
+            enum:
+              - PEPPOL
+              - EINVOICE
+              - CLEARANCE
+              - REPORTING
+              - ZUGFERD
+              - CTC
+              - NEMHANDEL
+              - FACE
+              - VERIFACTU
+            example: "PEPPOL"
+        - name: document_type
+          in: query
+          required: true
+          description: Type of business document.
+          schema:
+            type: string
+            example: "ubl-invoice"
+      responses:
+        '200':
+          description: Document downloaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/download_document_response'
+              examples:
+                einvoice_document_download_url_response:
+                  summary: Download via pre-signed URL
+                  description: A sample response with pre-signed S3 URL for document download.
+                  value:
+                    document_id: DOC-20250402-0001
+                    request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+                    documents:
+                      - mime_type: "application/xml"
+                        document_url: https://your-bucket.s3.amazonaws.com/invoice-20250402.xml?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=EXAMPLE
+                        expires_at: '2025-03-28T09:24:29Z'
+                    model: PEPPOL
+                einvoice_document_download_stream_response:
+                  summary: Download via embedded Base64 content
+                  description: A sample response with Base64-encoded XML and PDF document content.
+                  value:
+                    document_id: DOC-20250402-0001
+                    request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+                    documents:
+                      - mime_type: "application/xml"
+                        document_content: PHh...Q0w+  # Base64-encoded XML content (truncated)
+                        expires_at: '2025-03-28T09:24:29Z'
+                      - mime_type: "application/pdf"
+                        document_content: JVBERi0xLjQKJ...CiUlRU9GCg==  # Base64-encoded PDF content (truncated)
+                        expires_at: '2025-03-28T09:24:29Z'
+                    model: PEPPOL
+        '400':
+          description: Bad Request – The request is invalid or malformed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error_response'
+              example:
+                errors:
+                  - code: INVALID_OPERATION
+                    message: The provided mime_type is not supported for this document.
+                    help_url: https://docs.example.com/errors#INVALID_OPERATION
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error_response'
+        '500':
+          description: Unexpected error while processing request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/500_error_response'
+  /einvoicing/webhooks/documents/status:
+    post:
+      tags:
+        - Webhooks
+      summary: Receive document status webhook from e-invoicing provider
+      description: |
+        This endpoint is intended **only for Chargebee-internal hosted adapters**.
+
+        When the e-invoicing provider (e.g., Avalara) sends a webhook to Chargebee, the Chargebee app forwards the payload *as-is* to this endpoint on the hosted adapter.
+
+        The adapter is expected to parse and transform the incoming schema according to the provider’s contract and then POST the transformed document status to the callback endpoint
+
+        Chargebee includes the authorization token in the `X-CB-Authorization` header for the adapter to use while calling back.
+
+        This keeps the adapter logic stateless and focused on schema transformation.
+
+      operationId: documentStatusWebhookForwarded
+      security:
+        - ApiKeyAuth: []
+        - CBAuth: []
+      requestBody:
+        description: Raw webhook payload received from the e-invoicing provider.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: |
+                Arbitrary payload forwarded by Chargebee as received from the e-invoicing provider.
+                Each provider may have its own structure. The adapter must handle the schema transformation.
+              additionalProperties: true
+            example:
+              id: "8dd0013d-ac06-4793-94fc-945249f1547c"
+              invocationTimestamp: "2025-09-04T08:17:25.504429841"
+              items:
+                - tenantId: "67379e869f31e4e90dfdda27"
+                  systemCode: "DES"
+                  eventName: "statusChange"
+                  message:
+                    id: "f12386ed-77ee-4b57-ac2e-a2905b1d22f4"
+                    companyId: "bfc169c9-4793-4962-9a3e-24e9b4625168"
+                    processDateTime: "2025-09-04T08:17:23.380Z"
+                    status: "Pending"
+                    documentNumber: "PEPPOL-EU-690"
+                    documentType: "ubl-invoice"
+                    documentVersion: "2.1"
+                    documentDate: "2025-07-01T00:00:00"
+                    flow: "out"
+                    countryCode: "DE"
+                    countryMandate: "DE-B2B-PEPPOL"
+                    supplierName: "Chargebee Germany"
+                    customerName: "Avalara Europe Ltd."
+                    interfaceName: ""
+                  signature:
+                    value: "4CPe+MK4rf2VIOBSPicH1T0/NeGAyOBURe3gNETVql8="
+                    algorithm: "SHA-256"
+
+      responses:
+        '200':
+          description: Webhook successfully accepted and forwarded.
+        '400':
+          description: Invalid payload format or missing required properties.
+        '401':
+          description: Unauthorized.
+        '500':
+          description: Adapter failed to process the webhook internally.
+  /health:
+    $ref: ./paths/health.yml
+components:
+  schemas:
+    activation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the activation
+        business_entity:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The unique identifier for the company
+            display_name:
+              type: string
+              description: The display name of the company
+        status:
+          type: object
+          properties:
+            code:
+              type: string
+              description: The current status of the activation as reported by the e-invoicing provider.
+              enum:
+                - COMPLETED
+                - FAILED
+                - PENDING
+            message:
+              type: string
+              description: A detailed message describing the activation status.
+
+        country_activations:
+          type: array
+          items:
+            $ref: '#/components/schemas/country_activation'
+    country_activation:
+      type: object
+      properties:
+        model:
+          type: string
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+          enum:
+            - PEPPOL
+            - EINVOICE
+            - CLEARANCE
+            - REPORTING
+            - ZUGFERD
+            - CTC
+            - NEMHANDEL
+            - FACE
+            - VERIFACTU
+          example: "PEPPOL"
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code where the e-invoicing activation
+            is applicable.
+        einvoicing_type:
+          type: string
+          description: Specifies the type of business transaction for which e-invoicing
+            is applied.
+          enum:
+            - B2B
+            - B2C
+            - B2G
+        supported_document_types:
+          type: array
+          description: |
+            The types of business documents that are supported for this country activation.
+          items:
+            type: string
+          example:
+            - "ubl-invoice" 
+            - "ubl-creditnote"
+            - "ubl-applicationresponse"
+    activations_response:
+      type: object
+      properties:
+        activations:
+          type: array
+          items:
+            $ref: '#/components/schemas/activation'
+    business_entities_response:
+      type: object
+      properties:
+        business_entities:
+          type: array
+          description: List of business_entities retrieved from the e-invoicing provider.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The unique identifier of the business entity.
+                example: "595e13fd-68b0-40c2-ade3-9780ce339d97"
+              display_name:
+                type: string
+                description: The display name of the business entity.
+                example: "Acme BE"
+    data_input_fields_response:
+      type: object
+      properties:
+        country:
+          type: string
+          description: The ISO country code for the scenario.
+          example: "DE"
+        transaction_type:
+          type: string
+          description: The type of transaction (B2B, B2C, B2G).
+          enum: [B2B, B2C, B2G]
+          example: "B2B"
+        model:
+          type: string
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+          enum:
+            - PEPPOL
+            - EINVOICE
+            - CLEARANCE
+            - REPORTING
+            - ZUGFERD
+            - CTC
+            - NEMHANDEL
+            - FACE
+            - VERIFACTU
+          example: "PEPPOL"
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-invoice"
+        fields:
+          type: array
+          description: List of input fields with inclusion metadata.
+          items:
+            type: object
+            required:
+              - path
+              - data_type
+              - field_name
+              - inclusion_type
+            properties:
+              path:
+                type: string
+                description: Path of the field in the final XML/UBL or JSON structure (as per provider specification).
+                example: "Invoice.cbc:ID"
+              field_name:
+                type: string
+                description: Canonical or local name of the field.
+                example: "cbc:ID"
+              description:
+                type: string
+                description: Description of what the field represents.
+                example: "Unique identifier for the invoice."
+              data_type:
+                type: string
+                description: Type of data expected.
+                enum:
+                  - string
+                  - number
+                  - date
+                  - boolean
+              documentation_link:
+                type: string
+                description: External documentation reference for the field (if available).
+                example: "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-ID"
+              accepted_values:
+                type: array
+                items:
+                  type: string
+                description: Enumerated or acceptable values for the field (if applicable).
+                example: []
+              default_value:
+                type: string
+                description: Default value to use if none is provided.
+                example: ""
+              example:
+                type: string
+                description: Example value for the field.
+                example: "INV-1001"
+              inclusion_type:
+                type: string
+                enum:
+                  - Mandatory
+                  - Optional
+                  - Conditional
+                description: |
+                  Denotes whether this field is required, optional, or conditional.
+                  - `Mandatory`: Must be provided
+                  - `Optional`: Can be skipped without affecting processing
+                  - `Conditional`: Required under specific conditions
+              condition:
+                type: object
+                description: Optional condition object for Conditional fields.
+      example:
+        country: "DE"
+        transaction_type: "B2B"
+        model: "PEPPOL"
+        document_type: "ubl-invoice"
+        fields:
+          - path: "Invoice.cbc:ID"
+            field_name: "cbc:ID"
+            description: "Unique identifier for the invoice"
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "INV-1001"
+            inclusion_type: "Mandatory"
+
+          - path: "Invoice.cbc:Note"
+            field_name: "cbc:Note"
+            description: "Optional description or remarks"
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "B2B Transaction"
+            inclusion_type: "Optional"
+
+          - path: "Invoice/cbc:BuyerReference"
+            field_name: "cbc:BuyerReference"
+            description: >
+              Buyer Reference: An identifier assigned by the Buyer used for internal routing purposes.
+              An invoice must have buyer reference or purchase order reference.
+            data_type: "string"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: "abs1234"
+            inclusion_type: "Conditional"
+            condition:
+
+          - path: "Invoice.cac:InvoiceLine.cbc:LineExtensionAmount"
+            field_name: "cbc:LineExtensionAmount"
+            description: >
+              Invoice line net amount — The total amount of the Invoice line. This amount is net (without VAT),
+              and must be rounded to a maximum of 2 decimals.
+            data_type: "number"
+            documentation_link: ""
+            accepted_values: []
+            default_value: ""
+            example: 2145
+            inclusion_type: "Conditional"
+            condition:
+    document:
+      type: object
+      oneOf:
+        - $ref: '#/components/schemas/main_document'
+        - $ref: '#/components/schemas/application_response_document'
+      discriminator:
+        propertyName: type
+        mapping:
+          INVOICE: '#/components/schemas/main_document'
+          CREDIT_NOTE: '#/components/schemas/main_document'
+          APPLICATION_RESPONSE: '#/components/schemas/application_response_document'
+    main_document:
+      type: object
+      description: Represents an invoice or credit note document to be validated and submitted via the e-invoicing provider.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for the document being submitted. This typically represents the invoice number or credit note number
+            generated by Chargebee.
+        type:
+          type: string
+          enum:
+            - INVOICE
+            - CREDIT_NOTE
+          description: Type of document, either an invoice or a credit note.
+        issue_date:
+          type: string
+          format: date
+          description: The date when the document was issued. Format "YYYY-MM-DD"
+        tax_date:
+          type: string
+          format: date
+          description: The date used to determine tax. Format "YYYY-MM-DD"
+        currency_code:
+          type: string
+          description: The currency code [ISO 4217 format](https://en.wikipedia.org/wiki/ISO_4217) for the document.
+        due_date:
+          type: string
+          format: date
+          description: The date when the payment is due. Format "YYYY-MM-DD".
+        amount:
+          type: number
+          description: Total payable amount for the document, including taxes.
+        note:
+          type: string
+          description: A textual note that gives unstructured information that is
+            relevant to the Document as a whole. Such as the reason for any correction
+            or assignment note in case the document has been factored.
+        billing_reference:
+          type: array
+          description: A group of business terms providing information on one or more preceding invoices. This enhances traceability in workflows where a document is linked to earlier billing records. For credit notes this is essential as they must reference the original invoice they amend.
+          items:
+            type: object
+            properties:
+              invoice_document_reference:
+                type: object
+                description: A group of business terms providing information on one
+                  or more preceding Invoices.
+                properties:
+                  id:
+                    type: string
+                    description: Identifier of the referenced invoice.
+                  issue_date:
+                    type: string
+                    format: date
+                    description: Issue date of the referenced invoice.
+                required:
+                  - id
+          required:
+            - invoice_document_reference
+        accounting_supplier_party:
+          type: object
+          description: Party responsible for issuing the document (that is, the supplier). This represents the legal entity or business that creates the invoice and bears responsibility for delivering goods or services.
+          properties:
+            name:
+              type: string
+              description: Name of the supplier party.
+            address:
+              description: Address of the Supplier party.
+              $ref: '#/components/schemas/address'
+            tax_scheme:
+              type: array
+              description: List of tax identifiers associated with the supplier.
+              items:
+                $ref: '#/components/schemas/tax_scheme'
+            legal_entity:
+              description: Legal entity of the supplier party.
+              $ref: '#/components/schemas/party_legal_entity'
+          required:
+            - address
+            - taxScheme
+            - legalEntity
+        accounting_customer_party:
+          type: object
+          description: Party responsible for receiving the invoice (i.e., the customer).
+          properties:
+            name:
+              type: string
+              description: Name of the customer party.
+            address:
+              description: Address of the customer party.
+              $ref: '#/components/schemas/address'
+            tax_scheme:
+              type: array
+              description: List of tax identifiers associated.
+              items:
+                $ref: '#/components/schemas/tax_scheme'
+            legal_entity:
+              description: Legal entity of the customer party.
+              $ref: '#/components/schemas/party_legal_entity'
+          required:
+            - address
+            - taxScheme
+            - legalEntity
+        payment_means:
+          type: array
+          description: A list of payment methods with corresponding payment details.
+          items:
+            $ref: '#/components/schemas/payment_means'
+        lines:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: A unique identifier for the individual line within the
+                  document.
+              description:
+                type: string
+                description: A textual note that gives unstructured information that
+                  is relevant to the document.
+              quantity:
+                type: integer
+                description: The quantity of items (goods or services) that is charged.
+              unit_price:
+                type: number
+                description: The unit price for this line.
+              amount:
+                type: number
+                description: The total amount of the line without tax.
+              discount:
+                type: number
+                description: The discount applied to the line.
+              item_code:
+                type: string
+                description: The unique identifier (in Chargebee) of the product corresponding
+                  to the line.
+              classified_tax_category:
+                type: array
+                description: List of tax categories applicable to the invoice line,
+                  such as VAT or other indirect taxes.
+                items:
+                  type: object
+                  properties:
+                    percentage:
+                      type: number
+                      description: The tax rate percentage applicable to this tax
+                        category (e.g., 19 for 19% VAT).
+                    category:
+                      type: string
+                      description: A code or label identifying the type of tax category.
+                    country:
+                      type: string
+                      description: The ISO 3166-1 alpha-2 country code where the tax
+                        category is applicable (e.g., DE for Germany).
+            required:
+              - id
+              - description
+              - amount
+              - quantity
+              - name
+              - classifiedTaxCategory
+        tax_total:
+          type: object
+          description: Represents the total tax details for the document.
+          properties:
+            tax_amount:
+              type: number
+              description: The total tax amount for the document.
+              format: double
+            tax_sub_totals:
+              type: array
+              items:
+                type: object
+                properties:
+                  taxable_amount:
+                    type: number
+                    format: double
+                    description: Total taxable amount for the category.
+                  tax_amount:
+                    type: number
+                    format: double
+                    description: Total Tax amount for the category
+                  percentage:
+                    type: number
+                    format: double
+                    description: The tax rate percentage applied to the taxable amount.
+                  country:
+                    type: string
+                    description: The country code where the tax applies.
+                  category:
+                    type: string
+                    description: The category of tax applied (e.g., VAT).
+        overrides:
+          $ref: '#/components/schemas/overrides'
+      required:
+        - id
+        - type
+        - issue_date
+        - tax_date
+        - currency_code
+        - amount
+        - dueDate
+        - lines
+        - accounting_customer_party
+        - accounting_supplier_party
+        - tax_total
+    application_response_document:
+      type: object
+      description: Represents an application response document to be validated and submitted via the e-invoicing provider.
+      required:
+        - id
+        - type
+        - issue_date
+        - sender_party
+        - receiver_party
+        - document_response
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - APPLICATION_RESPONSE
+          description: The document type discriminator indicating this is an application response.
+
+        issue_date:
+          type: string
+          format: date
+        sender_party:
+          type: object
+          required:
+            - legal_entity
+          properties:
+            legal_entity:
+              $ref: '#/components/schemas/party_legal_entity'
+        receiver_party:
+          type: object
+          required:
+            - legal_entity
+          properties:
+            legal_entity:
+              $ref: '#/components/schemas/party_legal_entity'
+        document_response:
+          type: object
+          required:
+            - response
+            - document_reference
+          properties:
+            response:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - REJECTED
+                    - MESSAGE_ACKNOWLEDGEMENT
+                    - ACCEPTED
+                    - IN_PROCESS
+                    - UNDER_QUERY
+                    - CONDITIONALLY_ACCEPTED
+                    - PAID
+                note:
+                  type: string
+            document_reference:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: string
+        overrides:
+          $ref: '#/components/schemas/overrides'
+    overrides:
+      type: object
+      description: |
+        Optional structure used to override the standard Chargebee SPI document model fields with a flexible field-value-based approach.
+
+        This is **typically used by adapters where field mapping is configured manually by the merchant** in the Chargebee UI, instead of relying on pre-defined mappings managed by the provider or Chargebee.
+
+        When present, the `overrides` object allows the adapter to **entirely ignore** the standard document payload and instead:
+        - Use `field_mapping` to determine where values go in the provider's schema
+        - Use `values` to retrieve the corresponding input data using dot-paths or array-style paths
+
+        ---
+        - `field_mapping`:
+        A list of mapping rules that define how Chargebee parameter paths (keys from `values`) should be translated to the corresponding field paths in the provider schema. Includes custom fields too which are defined by merchant in chargebee.
+
+          Each item must include:
+          - `target`: The field path in the e-invoicing provider schema (e.g. `Invoice.cbc:ID`)
+          -  One of the below
+            - `source`: A dot-notated field path or array path from the `values` section (e.g. `invoice.id`, `line_items[].tax_category`)
+            - `fixed_value` (optional): Used if the field always has a constant value (e.g. `380` for `InvoiceTypeCode`)
+            - `expr`: An inline expression evaluated against the values object to compute the target field’s value. This is used when the value depends on conditional logic, tax scenarios, payment methods, or other derived rules.
+
+        - `values`:
+        Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
+
+            - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+              ```json
+              {
+                "invoice.id": "INV-10001",
+                "invoice.issue_date": "2025-04-02",
+                "invoice.currency_code": "EUR"
+              }
+              ```
+
+            - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+              ```json
+              {
+                "line_items": [
+                  { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                  { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+                ]
+              }
+              ```
+
+        This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
+
+      properties:
+        country:
+          type: string
+          description: The ISO country code for the scenario.
+          example: "DE"
+        transaction_type:
+          type: string
+          description: The type of transaction (B2B, B2C, B2G).
+          enum: [ B2B, B2C, B2G ]
+          example: "B2B"
+        model:
+          type: string
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+          enum:
+            - PEPPOL
+            - EINVOICE
+            - CLEARANCE
+            - REPORTING
+            - ZUGFERD
+            - CTC
+            - NEMHANDEL
+            - FACE
+            - VERIFACTU
+          example: "PEPPOL"
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-invoice"
+        field_mapping:
+          type: array
+          items:
+            type: object
+            properties:
+              target:
+                type: string
+                description: Path in the provider schema where the value should be mapped
+                example: Invoice.cbc:ID
+              source:
+                type: string
+                description: Dot-path pointing to a field in `values`
+                example: invoice.id
+              fixed_value:
+                type: string
+                description: Static value if applicable
+                example: "380"
+              expr:
+                type: string
+                description: CEL expression evaluated against `values`
+            required:
+              - target
+        values:
+          type: object
+          description: |
+            Flattened key-value representation of the data to be mapped using `field_mapping`. 
+
+            Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
+
+            - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
+            ```json
+            {
+              "invoice.id": "INV-10001",
+              "invoice.issue_date": "2025-04-02",
+              "invoice.currency_code": "EUR"
+            }
+            ```
+
+            - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
+            ```json
+            {
+              "line_items": [
+                { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
+                { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
+              ]
+            }
+            ```
+    payment_means:
+      type: object
+      description: Defines the method and details for payment.
+      properties:
+        code:
+          type: string
+          description: The means, expressed as code, for how a payment is expected
+            to be or has been settled.
+          enum:
+            - CREDIT_TRANSFER
+            - ONLINE_PAYMENT_SERVICE
+            - DIRECT_DEBIT
+        payment_id:
+          type: string
+          description: A textual value used to establish a link between the payment
+            and the Invoice, issued by the Seller. Used for creditor's critical reconciliation
+            information. This information element helps the Seller to assign an incoming
+            payment to the relevant payment process.
+        payee_financial_account:
+          type: object
+          description: A group of business terms to specify credit transfer payments.
+          properties:
+            id:
+              type: string
+              description: A unique identifier of the financial payment account, at
+                a payment service provider, to which payment should be made. Such
+                as IBAN or BBAN (e.g., IBAN).
+          required:
+            - id
+        payment_mandate:
+          type: object
+          description: A group of business terms to specify a direct debit.
+          properties:
+            id:
+              type: string
+              description: Unique identifier assigned by the Payee for referencing
+                the direct debit mandate.
+            mandate_type:
+              type: string
+              description: Type of mandate (e.g., SEPA, national DD agreement).
+        card_account:
+          type: object
+          description: A group of business terms providing information about card
+            used for payment contemporaneous with invoice issuance.
+          properties:
+            primary_account_number_i_d:
+              type: string
+              description: The Primary Account Number (PAN) of the card used for payment.
+            card_holder_name:
+              type: string
+              description: The name of the payment card holder.
+            network_id:
+              type: string
+              description: The identifier of the card network. (e.g., VISA, MasterCard).
+    document_submission_response:
+      type: object
+      properties:
+        document_id:
+          type: string
+          description: The unique identifier assigned to the document by the e-invoicing
+            provider. This identifier must be used for subsequent operations such
+            as retrieving the document status and downloading the document.
+        status:
+          type: string
+          description: The current status of the submitted document.
+          enum:
+            - ACCEPTED
+            - FAILED
+            - SUCCESS
+        request_id:
+          type: string
+          description: A unique identifier assigned to the request for tracking and
+            correlation purposes across systems and logs.
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
+      required:
+        - document_id
+        - status
+    document_status:
+      type: object
+      properties:
+        document_id:
+          type: string
+          description: The unique identifier assigned to the document by the e-invoicing
+            provider.
+        status:
+          type: string
+          description: The current status of the document submission.
+          enum:
+            - ACCEPTED
+            - FAILED
+            - SUCCESS
+            - IN_PROGRESS
+            - REJECTED
+            - MESSAGE_ACKNOWLEDGEMENT
+            - IN_PROCESS
+            - UNDER_QUERY
+            - CONDITIONALLY_ACCEPTED
+            - PAID
+        submission_date:
+          type: string
+          format: date-time
+          description: Date and time when the document was submitted.
+        processing_details:
+          $ref: '#/components/schemas/bad_request_error_response'
+        provider_response:
+          type: string
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_references:
+          type: string
+          description: |
+            Optional JSON array of key-value pairs from the e-invoicing provider (e.g. Receipt Message ID, Response Message ID).
+            Format: [{"key": "string", "value": "string"}, ...]
+          example: '[{"key":"Receipt Message ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.provider.io"},{"key":"Response Message ID","value":"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.provider.io"}]'
+      example:
+        document_id: DOC-20250402-0001
+        status: SUCCESS
+        submission_date: 2025-04-02T07:39:31.815Z
+        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+      required:
+        - document_id
+        - status
+    download_document_response:
+      type: object
+      required:
+        - document_id
+        - documents
+      properties:
+        document_id:
+          type: string
+        request_id:
+          type: string
+        documents:
+          type: array
+          items:
+            type: object
+            required:
+              - mime_type
+            properties:
+              mime_type:
+                type: string
+                description: The MIME type of the document.
+              document_url:
+                type: string
+                format: uri
+                description: Presigned URL to access the document. This param will
+                  be preferred if found over document_content.
+              document_content:
+                type: string
+                format: byte
+                description: Base64-encoded document content if URL is not available.
+              expires_at:
+                type: string
+                format: date-time
+                description: The time until which the document URL is valid.
+                example: 2025-03-28T09:24:29Z
+        model:
+          description: |
+            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
+            Different countries adopt different models based on legal, technical, and administrative mandates.
+            Supported values:
+              - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+              - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+              - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+              - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+              - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+              - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+              - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+              - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+              - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+              schema:
+                type: string
+                enum:
+                  - PEPPOL
+                  - EINVOICE
+                  - CLEARANCE
+                  - REPORTING
+                  - ZUGFERD
+                  - CTC
+                  - NEMHANDEL
+                  - FACE
+                  - VERIFACTU
+                example: "PEPPOL"
+      example:
+        request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
+        documents:
+          - mime_type: "application/xml"
+            document_url: https://provider.com/downloads/invoice-20250402.xml
+            expires_at: '2025-03-28T09:24:29Z'
+        model: peppol
+    bad_request_error_response:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                description: The error codes classify the type of exception that occurred
+                  during processing the request.
+                enum:
+                  - INVALID_OPERATION
+                  - SERVICE_EXCEPTION
+                  - SERVICE_UNAVAILABLE
+                  - SERVICE_LIMIT_EXCEEDED
+                  - MISSING_REQUIRED_DATA
+                  - INVALID_DATA
+              message:
+                type: string
+                description: A short message describing the reason for the error.
+              help_url:
+                type: string
+                format: uri
+                description: The link to the documentation for more information about
+                  the error and the corrective action.
+            required:
+              - message
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
+      example:
+        errors:
+          - code: MISSING_REQUIRED_DATA
+            message: The request did not contain a required property 'taxAmount'
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    not_found_error_response:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: A list of errors explaining why the requested resource was not found.
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+                description: Application-specific error code
+                enum:
+                  - NOT_FOUND
+              message:
+                type: string
+                description: A short message describing the reason for the error.
+              help_url:
+                type: string
+                format: uri
+                description: The link to the documentation for more information about
+                  the error and the corrective action.
+            required:
+              - code
+              - message
+      required:
+        - errors
+      example:
+        errors:
+          - code: NOT_FOUND
+            message: The requested document is not found.
+            help_url: https://docs.example.com/errors#INVALID_OPERATION
+    address:
+      type: object
+      properties:
+        line_1:
+          type: string
+          description: First line of the address.
+        line_2:
+          type: string
+          description: Second line of the address.
+        line_3:
+          type: string
+          description: Third line of the address.
+        zip:
+          type: string
+          description: Postal or ZIP code.
+        city:
+          type: string
+          description: City name.
+        division:
+          type: string
+          description: Division name.
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code.
+    tax_scheme:
+      type: object
+      properties:
+        scheme:
+          type: string
+          description: A code identifying the tax regime under which this party is registered—such as VAT, GST, or a region-specific tax scheme. This enables the adapter or e‑invoicing provider to apply the correct tax logic or reporting rules.
+        id:
+          type: string
+          description: The tax identification number assigned to the party by the relevant authority (for example, VAT number or legal registration ID). It is used for official identification and compliance in the e‑invoicing process.
+      required:
+        - scheme
+        - id
+    party_legal_entity:
+      type: object
+      description: Legal entity information of the party.
+      properties:
+        registration_name:
+          type: string
+          description: The full formal name by which the party is registered.
+        company_id:
+          type: string
+          description: An identifier issued by an official registrar that identifies
+            the party as a legal entity or person.
+      required:
+        - registrationName
+    callback_document_status:
+      type: object
+      properties:
+        einvoicing_provider_id:
+          type: string
+          description: Identifier of the e‑invoicing provider
+        status:
+          type: string
+          enum:
+            - SUCCESS
+            - IN_PROGRESS
+            - FAILED
+            - ACCEPTED
+            - REJECTED
+            - MESSAGE_ACKNOWLEDGEMENT
+            - IN_PROCESS
+            - UNDER_QUERY
+            - CONDITIONALLY_ACCEPTED
+            - PAID
+          description: Current status of the document after processing by the provider.
+        timestamp:
+          type: string
+          description: Timestamp (UTC) in seconds indicating when the status was determined.
+        provider_response:
+          type: string
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_references:
+          type: string
+          description: |
+            Optional JSON array of key-value pairs returned by the e-invoicing provider (e.g. Receipt Message ID, Response Message ID, Receiver ID).
+            Chargebee stores this in einvoice properties and appends entries on each callback, similar to provider_response.
+            Format: [{"key": "string", "value": "string"}, ...]
+          example: '[{"key":"Receipt Message ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.avalara.io"},{"key":"Response Message ID","value":"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.avalara.io"},{"key":"Receiver ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@sbx.avalara.io"}]'
+        errors:
+          type: array
+          description: |
+            Optional list of errors (if any) returned by the provider if status is FAILED.
+            Encoded using Chargebee's form-urlencoded bracket notation, e.g. `errors[0][code]`.
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/callback_error'
+        related_documents:
+          type: array
+          description: |
+            Optional list of related (secondary) document status objects, encoded using Chargebee's
+            form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
+            
+            Use this to include secondary documents such as `ubl-applicationresponse` that influenced the
+            primary document outcome. Chargebee may store this for diagnostics; it does not change the
+            primary idempotency key.
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/callback_related_document_status'
+      required:
+        - status
+        - timestamp
+    callback_error:
+      type: object
+      description: Error details returned by the provider.
+      required:
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifying the type of error.
+          maxLength: 100
+          example: MISSING_REQUIRED_DATA
+        message:
+          type: string
+          description: Human-readable error message describing what went wrong.
+          maxLength: 500
+          example: The request did not contain a required property
+        help_url:
+          type: string
+          format: uri
+          description: Optional URL to documentation or help resources for this error.
+          maxLength: 500
+          example: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    callback_related_document_status:
+      type: object
+      description: Related/secondary document status details.
+      required:
+        - document_id
+        - document_type
+        - status
+        - flow
+        - timestamp
+      properties:
+        document_id:
+          type: string
+          description: Unique identifier of the related submitted document in Chargebee tracking.
+          maxLength: 100
+
+        document_type:
+          type: string
+          description: Document type of the related document (e.g., ubl-applicationresponse).
+          maxLength: 100
+          example: ubl-applicationresponse
+
+        status:
+          type: string
+          enum:
+            - SUCCESS
+            - IN_PROGRESS
+            - FAILED
+          description: Current status of the related document.
+        flow:
+          type: string
+          enum:
+            - INBOUND
+            - OUTBOUND
+          description: The direction flow of the related document.
+        timestamp:
+          type: string
+          description: Timestamp (UTC) in seconds indicating when the related document status was determined.
+
+        provider_response:
+          type: string
+          description: |
+            JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
+            The JSON should be an array of objects with the following structure:
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+          example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_references:
+          type: string
+          description: |
+            Optional JSON array of key-value pairs for this related document (e.g. Receipt Message ID, Response Message ID).
+            Chargebee stores this in the artifact properties and appends entries on each callback, similar to provider_response.
+            Format: [{"key": "string", "value": "string"}, ...]
+          example: '[{"key":"Receipt Message ID","value":"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.avalara.io"},{"key":"Response Message ID","value":"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.avalara.io"}]'
+        errors:
+          type: string
+          description: |
+            Provider errors for the related document (stringified JSON array).
+            Present when `status=FAILED`.
+          example: >
+            [{"code":"AR_VALIDATION_FAILED","message":"Invalid response code"}]
+    500_error_response:
+      description: An unexpected error occurred while processing your request.
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the unexpected error encountered.
+          example: An unexpected error occurred while processing your request.
+        provider_interaction:
+          type: object
+          description: |
+            Captures the interaction between the adapter and the external e-invoicing provider.
+            Includes both the outbound request details and the inbound response received from the provider.
+            Intended for internally hosted adapters for audit and traceability of SPI transactions.
+          properties:
+            request:
+              type: object
+              description: Details of the HTTP request sent by the adapter to the external provider.
+              properties:
+                body:
+                  type: object
+                  description: |
+                    The request payload sent to the provider API, typically serialized as JSON.
+                    This should exclude any sensitive or personally identifiable information.
+            response:
+              type: object
+              description: Details of the HTTP response received from the external provider.
+              properties:
+                status_code:
+                  type: integer
+                  description: The HTTP status code returned by the provider.
+                body:
+                  type: object
+                  description: |
+                    The response body returned by the provider.
+          required:
+            - request
+            - response
+      required:
+        - message
+  examples:
+    callback_document_status_success_for_invoice:
+      description: A sample callback notification indicating successful document submission.
+      value:
+        einvoicing_provider_id: avalara
+        status: ACCEPTED
+        timestamp: '2025-05-23T13:22:50.519Z'
+        provider_response: >
+            {
+              "source": "avalara",
+              "received_at": "2025-12-29T12:17:47.791Z",
+              "type": "polling",
+              "payload": {
+                "id": "ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
+                "companyId": "304382fd-1268-4e7b-86db-a8d51ff309d5",
+                "status": "Complete",
+                "events": [
+                  {
+                    "eventDateTime": "2025-12-29T12:17:47.791",
+                    "message": "Document started processing"
+                  },
+                  {
+                    "eventDateTime": "2025-12-29T12:17:47.934",
+                    "message": "Validations for the submitted document were successful"
+                  },
+                  {
+                    "eventDateTime": "2025-12-29T12:17:53.063",
+                    "message": "The document was delivered to the recipient",
+                    "responseKey": "Receipt Message ID",
+                    "responseValue": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.avalara.io"
+                  }
+                ]
+              }
+            }
+        provider_references: >
+            [
+              {"key": "Receipt Message ID", "value": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.provider.io"},
+              {"key": "Response Message ID", "value": "8b1d6857-d133-4713-9e4e-ca4291e82d7a@einvoicing.sbx.provider.io"},
+              {"key": "Receiver ID", "value": "3ed9530e-f2e8-4733-ace8-f868a5e077eb@sbx.provider.io"}
+            ]
+
+    callback_document_status_success_for_credit_note:
+      description: A sample callback notification indicating successful document submission.
+      value:
+        einvoicing_provider_id: avalara
+        status: ACCEPTED
+        timestamp: '2025-05-23T13:22:50.519Z'
+    callback_document_status_failed_for_invoice:
+      description: A sample callback notification indicating document submission failure.
+      value:
+        einvoicing_provider_id: avalara
+        status: FAILED
+        timestamp: '2025-05-23T13:22:50.519Z'
+        errors:
+          - code: MISSING_REQUIRED_DATA
+            message: The request did not contain a required property 'taxAmount'
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+    callback_document_status_failed_for_credit_note:
+      description: A sample callback notification indicating document submission failure.
+      value:
+        einvoicing_provider_id: avalara
+        status: FAILED
+        timestamp: '2025-05-23T13:22:50.519Z'
+        errors:
+          - code: MISSING_REQUIRED_DATA
+            message: An Invoice shall at least have one VAT breakdown group
+            help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+    CBAuth:
+      type: apiKey
+      in: header
+      name: X-CB-Authorization
+    authorizationCode:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://app.chargebee.com/oauth2/authorize
+          tokenUrl: https://app.chargebee.com/oauth2/token
+          scopes:
+            write_access: "Post e-invoicing document status to Chargebee"
