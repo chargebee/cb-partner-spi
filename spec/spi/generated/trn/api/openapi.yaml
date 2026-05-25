@@ -46,8 +46,7 @@ servers:
 - description: Sandbox SPI server.
   url: https://sandbox.taxes.provider.com/api/v1
 security:
-- bearerAuth: []
-- apiKey: []
+- Authorization: []
 tags:
 - description: Endpoints to validate the credentials used for calling the Service
     Provider.
@@ -63,6 +62,19 @@ paths:
       description: This endpoint is used to fetch the health status of the Service
         Provider.
       operationId: fetchHealth
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           content:
@@ -123,8 +135,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/HealthCheckResponse'
           description: Service is unhealthy.
-      security:
-      - {}
       summary: Fetch the health status of the Service Provider.
       tags:
       - Health
@@ -134,6 +144,19 @@ paths:
       description: This endpoint is used to validate the credentials used to call
         the Service Provider.
       operationId: validateCredentials
+      parameters:
+      - description: Merchant's domain name will be sent by Chargebee
+        in: header
+        name: merchant_id
+        required: false
+        schema:
+          type: string
+      - description: Unique id of the request will be sent by Chargebee
+        in: header
+        name: trace_id
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           content:
@@ -675,6 +698,20 @@ components:
       schema:
         type: string
       style: simple
+    MerchantId:
+      description: Merchant's domain name will be sent by Chargebee
+      in: header
+      name: merchant_id
+      required: false
+      schema:
+        type: string
+    TraceId:
+      description: Unique id of the request will be sent by Chargebee
+      in: header
+      name: trace_id
+      required: false
+      schema:
+        type: string
     BatchIdPathParam:
       description: The unique batch request identifier.
       in: path
@@ -1182,12 +1219,10 @@ components:
       - message
       type: object
   securitySchemes:
-    bearerAuth:
-      scheme: bearer
-      type: http
-    apiKey:
-      description: Bearer token based authentication.
+    Authorization:
+      description: The json of all the parameters specified in authentication configuration
+        of tax app will be sent by Chargebee.
       in: header
-      name: bearer
+      name: Authorization
       type: apiKey
 

@@ -3,10 +3,13 @@
   "theme": "mint",
   "name": "Chargebee Partner docs",
   "api": {
-    "request": {
-      "example": {
-        "languages": ["curl"]
-      }
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": ["curl"],
+      "defaults": "required",
+      "prefill": true
     }
   },
   "logo": {
@@ -22,12 +25,14 @@
   "background": {
     "style": "gradient"
   },
-  "topbarLinks": [
-    {
-      "label": "Support",
-      "href": "mailto:support@chargebee.com"
-    }
-  ],
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@chargebee.com"
+      }
+    ]
+  },
   "navigation": {
     "tabs": [
       {
@@ -120,6 +125,55 @@
             ]
           },
           {
+            "group": "Einvoicing SPI",
+            "pages": [
+              "api-reference/einvoicing-spi/docs/overview",
+              {
+                "group": "Authorization",
+                "pages": [
+                  "api-reference/einvoicing-spi/docs/authorization/overview",
+                  "api-reference/einvoicing-spi/docs/authorization/chargebee_to_adapter",
+                  "api-reference/einvoicing-spi/docs/authorization/adapter_to_chargebee"
+                ]
+              },
+              {
+                "group": "Activations",
+                "pages": [
+                  "api-reference/einvoicing-spi/endpoints/v1/activations/retrieve-a-list-of-activations",
+                  "api-reference/einvoicing-spi/endpoints/v1/activations/retrieves-data-input-fields"
+                ]
+              },
+              {
+                "group": "Documents",
+                "pages": [
+                  "api-reference/einvoicing-spi/endpoints/v1/documents/submit-a-document",
+                  "api-reference/einvoicing-spi/endpoints/v1/documents/get-document-status",
+                  "api-reference/einvoicing-spi/endpoints/v1/documents/download-document"
+                ]
+              },
+              {
+                "group": "Callbacks",
+                "pages": [
+                  "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-invoice",
+                  "api-reference/einvoicing-spi/endpoints/v1/callbacks/receive-document-status-updates-for-credit-note"
+                ]
+              },
+              {
+                "group": "Authentication",
+                "pages": [
+                  "api-reference/common/validate-credentials"
+                ]
+              },
+              {
+                "group": "Health",
+                "pages": [
+                  "api-reference/common/fetch-the-health-status-of-the-service-provider"
+                ]
+              },
+              "api-reference/einvoicing-spi/docs/testing-with-postman"
+            ]
+          },
+          {
             "group": "Troubleshooting",
             "pages": [
               "api-reference/troubleshooting"
@@ -146,4 +200,3 @@
     }
   }
 }
-
