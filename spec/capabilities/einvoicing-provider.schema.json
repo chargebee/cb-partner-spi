@@ -315,28 +315,88 @@
             ],
             "retrieve_activation_supported": true,
             "retrieve_einvoice_status_supported": true,
-            "customer_identifiers": [
-                {
-                "external_id": "vat_number",
-                "display_name": "Vat Number",
-                "is_mandatory": true,
-                "is_default": false,
-                "field_type": "text",
-                "applicable_countries": [
-                    "DE", "AT", "FR", "IT", "ES"
+            "customer_identifiers": {
+                "FR": [
+                    {
+                        "id": "buyer_reference",
+                        "display_name": "Buyer Reference",
+                        "description": "Reference provided by the buyer for invoice routing or matching.",
+                        "value_type": "string",
+                        "is_mandatory": true,
+                        "is_checkout_collectable": true,
+                        "is_visible_in_admin_ui": true,
+                        "validation": {
+                            "min_length": 1,
+                            "max_length": 100,
+                            "pattern": "^[A-Za-z0-9._\\- ]+$",
+                            "error_message": "Buyer Reference must be alphanumeric and may contain spaces, dots, underscores, or hyphens."
+                        }
+                    },
+                    {
+                        "id": "party_identifiers",
+                        "display_name": "Party Identifiers",
+                        "description": "Customer legal, tax, endpoint, or routing identifiers.",
+                        "value_type": "array",
+                        "is_mandatory": false,
+                        "is_checkout_collectable": false,
+                        "is_visible_in_admin_ui": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "required": ["type", "value"],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "display_name": "Identifier Type",
+                                        "is_mandatory": true,
+                                        "validation": {
+                                            "allowed_values": ["LEGAL", "VAT", "SIREN", "SIRET", "ENDPOINT", "OTHER"]
+                                        }
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "display_name": "Identifier Value",
+                                        "is_mandatory": true,
+                                        "validation": {
+                                            "min_length": 1,
+                                            "max_length": 100
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "DE": [
+                    {
+                        "id": "vat_number",
+                        "display_name": "VAT Number",
+                        "value_type": "string",
+                        "is_mandatory": true,
+                        "is_checkout_collectable": true,
+                        "is_visible_in_admin_ui": true,
+                        "validation": {
+                            "pattern": "^DE[0-9]{9}$",
+                            "error_message": "German VAT number must start with 'DE' followed by 9 digits."
+                        }
+                    }
+                ],
+                "EU": [
+                    {
+                        "id": "buyer_reference",
+                        "display_name": "Buyer Reference",
+                        "value_type": "string",
+                        "is_mandatory": true,
+                        "is_checkout_collectable": true,
+                        "is_visible_in_admin_ui": true,
+                        "validation": {
+                            "min_length": 1,
+                            "max_length": 100
+                        }
+                    }
                 ]
-                },
-              {
-                "external_id": "gln_number",
-                "display_name": "GLN",
-                "is_mandatory": false,
-                "is_default": false,
-                "field_type": "text",
-                "applicable_countries": [
-                    "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
-                ]
-              }
-            ],
+            },
             "document_download": {
                 "is_supported": true,
                 "failed_document_mime_types": [
@@ -349,74 +409,348 @@
       "title": "Capabilities"
     },
     "CustomerIdentifiers": {
-      "type": "array",
-      "description": "Specifies the customer identifiers required for E-invoicing in different countries.",
-      "items": {
-        "$ref": "#/definitions/CustomerIdentifier"
-      }
-    },
-    "CustomerIdentifier": {
       "type": "object",
-      "description": "Specifies the e-invoicing identifier for the customer and the countries where it is required.",
+      "description": "Specifies the customer identifiers required for E-invoicing as a map keyed by ISO 3166-1 alpha-2 country code (or a 2-letter region code such as 'EU'). The value for each country/region is the ordered list of identifier fields the provider expects for customers in that jurisdiction.",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[A-Z]{2}$",
+        "description": "Two-letter uppercase country code (ISO 3166-1 alpha-2) or a 2-letter region code such as 'EU'."
+      },
+      "additionalProperties": {
+        "type": "array",
+        "description": "The list of customer identifier field definitions that apply to the given country/region key.",
+        "minItems": 1,
+        "items": {
+          "$ref": "#/definitions/CustomerIdentifierField"
+        }
+      },
+      "title": "CustomerIdentifiers"
+    },
+    "CustomerIdentifierField": {
+      "type": "object",
+      "description": "Defines a single customer identifier field including its data type, UI surfacing flags and optional value-level validation rules.",
       "additionalProperties": false,
+      "required": [
+        "id",
+        "display_name",
+        "value_type",
+        "is_mandatory",
+        "is_checkout_collectable",
+        "is_visible_in_admin_ui"
+      ],
       "properties": {
-        "external_id": {
+        "id": {
           "type": "string",
-          "description": "Specifies the parameter name the E-invoicing provider expects.",
+          "description": "Machine identifier of the field. Must start with a lowercase letter and contain only lowercase letters, digits and underscores.",
+          "pattern": "^[a-z][a-z0-9_]*$",
           "examples": [
+            "buyer_reference",
             "vat_number"
           ]
         },
         "display_name": {
           "type": "string",
-          "description": "Specifies the name of the parameter to be displayed in Chargebee platform.",
+          "description": "Human-readable label shown in the Chargebee UI.",
+          "minLength": 1,
+          "maxLength": 100,
           "examples": [
-            "Vat Number"
+            "Buyer Reference"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional help text describing what the field is used for.",
+          "maxLength": 500
+        },
+        "value_type": {
+          "type": "string",
+          "description": "Logical data type of the field. Use 'object' or 'array' for structured values, in which case a 'schema' must also be provided.",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "date",
+            "datetime",
+            "object",
+            "array"
           ]
         },
         "is_mandatory": {
           "type": "boolean",
-          "description": "Specifies if the parameter is mandatory."
+          "description": "Whether the field must be supplied on the customer record."
         },
-        "is_default": {
+        "is_checkout_collectable": {
           "type": "boolean",
-          "deprecated": true,
-          "description": "Specifies if the parameter has a default value."
+          "description": "Whether the field should be collected from the buyer during hosted checkout."
         },
-        "field_type": {
-          "type": "string"
+        "is_visible_in_admin_ui": {
+          "type": "boolean",
+          "description": "Whether the field should be shown on the customer details page in the Chargebee admin UI."
         },
-        "applicable_countries": {
+        "validation": {
+          "$ref": "#/definitions/CustomerIdentifierValidation",
+          "description": "Optional value-level constraints applied to the field (length, pattern, allowed values, etc.)."
+        },
+        "schema": {
+          "$ref": "#/definitions/CustomerIdentifierValueSchema",
+          "description": "Required when value_type is 'object' or 'array'. Describes the structure of the value."
+        }
+      },
+      "oneOf": [
+        {
+          "description": "Structured values (object/array) MUST declare a 'schema'.",
+          "properties": {
+            "value_type": {
+              "enum": [
+                "object",
+                "array"
+              ]
+            }
+          },
+          "required": [
+            "schema"
+          ]
+        },
+        {
+          "description": "Scalar values MUST NOT declare a 'schema'.",
+          "properties": {
+            "value_type": {
+              "enum": [
+                "string",
+                "number",
+                "integer",
+                "boolean",
+                "date",
+                "datetime"
+              ]
+            }
+          },
+          "not": {
+            "required": [
+              "schema"
+            ]
+          }
+        }
+      ],
+      "title": "CustomerIdentifierField"
+    },
+    "CustomerIdentifierValidation": {
+      "type": "object",
+      "description": "Value-level constraints applied to a customer identifier field.",
+      "additionalProperties": false,
+      "properties": {
+        "min_length": {
+          "type": "integer",
+          "description": "Minimum string length. Applies to value_type 'string'.",
+          "minimum": 0
+        },
+        "max_length": {
+          "type": "integer",
+          "description": "Maximum string length. Applies to value_type 'string'.",
+          "minimum": 1
+        },
+        "minimum": {
+          "type": "number",
+          "description": "Inclusive lower bound. Applies to value_type 'number' or 'integer'."
+        },
+        "maximum": {
+          "type": "number",
+          "description": "Inclusive upper bound. Applies to value_type 'number' or 'integer'."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regular expression the string value must match."
+        },
+        "format": {
+          "type": "string",
+          "description": "Semantic format hint for the value.",
+          "enum": [
+            "email",
+            "uri",
+            "date",
+            "datetime"
+          ]
+        },
+        "allowed_values": {
           "type": "array",
-          "description": "Specifies the countries(ISO 3166 alpha-2 country code format) which require this identifier",
+          "description": "Closed set of allowed values for the field.",
+          "items": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "error_message": {
+          "type": "string",
+          "description": "Optional override error message shown when validation fails."
+        }
+      },
+      "title": "CustomerIdentifierValidation"
+    },
+    "CustomerIdentifierValueSchema": {
+      "type": "object",
+      "description": "Structural schema for a field whose value_type is 'object' or 'array'.",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "object",
+            "array"
+          ]
+        },
+        "required": {
+          "type": "array",
+          "description": "Names of required properties when type is 'object'.",
           "items": {
             "type": "string"
           },
-          "examples": [
-            "DE"
-          ]
+          "uniqueItems": true
+        },
+        "properties": {
+          "type": "object",
+          "description": "Property name to nested-field definition map. Required when type is 'object'.",
+          "additionalProperties": {
+            "$ref": "#/definitions/CustomerIdentifierNestedField"
+          }
+        },
+        "items": {
+          "$ref": "#/definitions/CustomerIdentifierNestedField",
+          "description": "Element schema. Required when type is 'array'."
         }
       },
-      "required": [
-        "display_name",
-        "external_id",
-        "field_type",
-        "applicable_countries"
-      ],
-      "examples": [
+      "oneOf": [
         {
-          "external_id": "vat_number",
-          "display_name": "Vat Number",
-          "is_mandatory": true,
-          "is_default": false,
-          "field_type": "text",
-          "applicable_countries": [
-            "DE",
-            "AT"
+          "description": "When type is 'object', 'properties' MUST be provided.",
+          "properties": {
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "properties"
+          ]
+        },
+        {
+          "description": "When type is 'array', 'items' MUST be provided.",
+          "properties": {
+            "type": {
+              "const": "array"
+            }
+          },
+          "required": [
+            "items"
           ]
         }
       ],
-      "title": "CustomerIdentifier"
+      "title": "CustomerIdentifierValueSchema"
+    },
+    "CustomerIdentifierNestedField": {
+      "type": "object",
+      "description": "A nested field appearing inside CustomerIdentifierValueSchema.properties or CustomerIdentifierValueSchema.items.",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "date",
+            "datetime",
+            "object",
+            "array"
+          ]
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "is_mandatory": {
+          "type": "boolean"
+        },
+        "is_checkout_collectable": {
+          "type": "boolean"
+        },
+        "is_visible_in_admin_ui": {
+          "type": "boolean"
+        },
+        "validation": {
+          "$ref": "#/definitions/CustomerIdentifierValidation"
+        },
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/CustomerIdentifierNestedField"
+          }
+        },
+        "items": {
+          "$ref": "#/definitions/CustomerIdentifierNestedField"
+        }
+      },
+      "oneOf": [
+        {
+          "description": "Nested object MUST declare 'properties'.",
+          "properties": {
+            "type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "properties"
+          ]
+        },
+        {
+          "description": "Nested array MUST declare 'items'.",
+          "properties": {
+            "type": {
+              "const": "array"
+            }
+          },
+          "required": [
+            "items"
+          ]
+        },
+        {
+          "description": "Scalar nested fields have no further structural requirements.",
+          "properties": {
+            "type": {
+              "enum": [
+                "string",
+                "number",
+                "integer",
+                "boolean",
+                "date",
+                "datetime"
+              ]
+            }
+          }
+        }
+      ],
+      "title": "CustomerIdentifierNestedField"
     },
     "DocumentDownload": {
       "type": "object",
