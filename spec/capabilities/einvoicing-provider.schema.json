@@ -333,6 +333,119 @@
                         }
                     },
                     {
+                        "id": "payer_details",
+                        "display_name": "Payer Details",
+                        "description": "Details of the payer when payer is different from buyer.",
+                        "value_type": "object",
+                        "is_mandatory": false,
+                        "is_checkout_collectable": false,
+                        "is_visible_in_admin_ui": true,
+                        "schema": {
+                            "required": ["legal_name", "postal_address"],
+                            "properties": {
+                                "legal_name": {
+                                    "id": "legal_name",
+                                    "display_name": "Payer Legal Name",
+                                    "value_type": "string",
+                                    "is_mandatory": true,
+                                    "is_checkout_collectable": false,
+                                    "is_visible_in_admin_ui": true,
+                                    "validation": {
+                                        "min_length": 1,
+                                        "max_length": 200,
+                                        "error_message": "Payer legal name is required."
+                                    }
+                                },
+                                "postal_address": {
+                                    "id": "postal_address",
+                                    "display_name": "Payer Postal Address",
+                                    "value_type": "object",
+                                    "is_mandatory": true,
+                                    "is_checkout_collectable": false,
+                                    "is_visible_in_admin_ui": true,
+                                    "schema": {
+                                        "required": ["city", "country_code"],
+                                        "properties": {
+                                            "city": {
+                                                "id": "city",
+                                                "display_name": "City",
+                                                "value_type": "string",
+                                                "is_mandatory": true,
+                                                "is_checkout_collectable": false,
+                                                "is_visible_in_admin_ui": true,
+                                                "validation": {
+                                                    "min_length": 1,
+                                                    "max_length": 80
+                                                }
+                                            },
+                                            "country_code": {
+                                                "id": "country_code",
+                                                "display_name": "Country Code",
+                                                "value_type": "string",
+                                                "is_mandatory": true,
+                                                "is_checkout_collectable": false,
+                                                "is_visible_in_admin_ui": true,
+                                                "validation": {
+                                                    "pattern": "^[A-Z]{2}$",
+                                                    "allowed_values": ["FR"],
+                                                    "error_message": "Country code must be FR."
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "identifiers": {
+                                    "id": "identifiers",
+                                    "display_name": "Payer Identifiers",
+                                    "description": "Legal or tax identifiers for the payer.",
+                                    "value_type": "array",
+                                    "is_mandatory": false,
+                                    "is_checkout_collectable": false,
+                                    "is_visible_in_admin_ui": true,
+                                    "schema": {
+                                        "items": {
+                                            "id": "payer_identifier",
+                                            "display_name": "Payer Identifier",
+                                            "value_type": "object",
+                                            "is_mandatory": true,
+                                            "is_checkout_collectable": false,
+                                            "is_visible_in_admin_ui": true,
+                                            "schema": {
+                                                "required": ["scheme", "value"],
+                                                "properties": {
+                                                    "scheme": {
+                                                        "id": "scheme",
+                                                        "display_name": "Scheme",
+                                                        "value_type": "string",
+                                                        "is_mandatory": true,
+                                                        "is_checkout_collectable": false,
+                                                        "is_visible_in_admin_ui": true,
+                                                        "validation": {
+                                                            "allowed_values": ["SIREN", "SIRET", "VAT", "GLN", "OTHER"],
+                                                            "max_length": 20
+                                                        }
+                                                    },
+                                                    "value": {
+                                                        "id": "value",
+                                                        "display_name": "Identifier Value",
+                                                        "value_type": "string",
+                                                        "is_mandatory": true,
+                                                        "is_checkout_collectable": false,
+                                                        "is_visible_in_admin_ui": true,
+                                                        "validation": {
+                                                            "min_length": 1,
+                                                            "max_length": 100
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
                         "id": "party_identifiers",
                         "display_name": "Party Identifiers",
                         "description": "Customer legal, tax, endpoint, or routing identifiers.",
@@ -341,26 +454,49 @@
                         "is_checkout_collectable": false,
                         "is_visible_in_admin_ui": true,
                         "schema": {
-                            "type": "array",
                             "items": {
-                                "type": "object",
-                                "required": ["type", "value"],
-                                "properties": {
-                                    "type": {
-                                        "type": "string",
-                                        "display_name": "Identifier Type",
-                                        "is_mandatory": true,
-                                        "validation": {
-                                            "allowed_values": ["LEGAL", "VAT", "SIREN", "SIRET", "ENDPOINT", "OTHER"]
-                                        }
-                                    },
-                                    "value": {
-                                        "type": "string",
-                                        "display_name": "Identifier Value",
-                                        "is_mandatory": true,
-                                        "validation": {
-                                            "min_length": 1,
-                                            "max_length": 100
+                                "id": "party_identifier",
+                                "display_name": "Party Identifier",
+                                "value_type": "object",
+                                "is_mandatory": true,
+                                "is_checkout_collectable": false,
+                                "is_visible_in_admin_ui": true,
+                                "schema": {
+                                    "required": ["type", "value"],
+                                    "properties": {
+                                        "type": {
+                                            "id": "type",
+                                            "display_name": "Identifier Type",
+                                            "value_type": "string",
+                                            "is_mandatory": true,
+                                            "is_checkout_collectable": false,
+                                            "is_visible_in_admin_ui": true,
+                                            "validation": {
+                                                "allowed_values": ["LEGAL", "VAT", "SIREN", "SIRET", "ENDPOINT", "OTHER"]
+                                            }
+                                        },
+                                        "scheme": {
+                                            "id": "scheme",
+                                            "display_name": "Scheme",
+                                            "value_type": "string",
+                                            "is_mandatory": false,
+                                            "is_checkout_collectable": false,
+                                            "is_visible_in_admin_ui": true,
+                                            "validation": {
+                                                "max_length": 20
+                                            }
+                                        },
+                                        "value": {
+                                            "id": "value",
+                                            "display_name": "Identifier Value",
+                                            "value_type": "string",
+                                            "is_mandatory": true,
+                                            "is_checkout_collectable": false,
+                                            "is_visible_in_admin_ui": true,
+                                            "validation": {
+                                                "min_length": 1,
+                                                "max_length": 100
+                                            }
                                         }
                                     }
                                 }
@@ -428,7 +564,7 @@
     },
     "CustomerIdentifierField": {
       "type": "object",
-      "description": "Defines a single customer identifier field including its data type, UI surfacing flags and optional value-level validation rules.",
+      "description": "Defines a customer identifier field at any depth. Top-level entries appear in customer_identifiers.<country>[]. Nested entries appear in a parent field's schema.properties or schema.items. Every node uses the same shape.",
       "additionalProperties": false,
       "required": [
         "id",
@@ -441,11 +577,13 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Machine identifier of the field. Must start with a lowercase letter and contain only lowercase letters, digits and underscores.",
+          "description": "Machine identifier of the field. Must start with a lowercase letter and contain only lowercase letters, digits and underscores. When nested inside schema.properties, id MUST match the property key.",
           "pattern": "^[a-z][a-z0-9_]*$",
           "examples": [
             "buyer_reference",
-            "vat_number"
+            "vat_number",
+            "legal_name",
+            "payer_identifier"
           ]
         },
         "display_name": {
@@ -490,26 +628,56 @@
         },
         "validation": {
           "$ref": "#/definitions/CustomerIdentifierValidation",
-          "description": "Optional value-level constraints applied to the field (length, pattern, allowed values, etc.)."
+          "description": "Optional value-level constraints applied to scalar fields (length, pattern, allowed values, etc.)."
         },
         "schema": {
-          "$ref": "#/definitions/CustomerIdentifierValueSchema",
+          "$ref": "#/definitions/CustomerIdentifierFieldSchema",
           "description": "Required when value_type is 'object' or 'array'. Describes the structure of the value."
         }
       },
       "oneOf": [
         {
-          "description": "Structured values (object/array) MUST declare a 'schema'.",
+          "description": "Object fields MUST declare schema with properties.",
           "properties": {
             "value_type": {
-              "enum": [
-                "object",
-                "array"
-              ]
+              "const": "object"
             }
           },
           "required": [
             "schema"
+          ],
+          "allOf": [
+            {
+              "properties": {
+                "schema": {
+                  "required": [
+                    "properties"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "description": "Array fields MUST declare schema with items.",
+          "properties": {
+            "value_type": {
+              "const": "array"
+            }
+          },
+          "required": [
+            "schema"
+          ],
+          "allOf": [
+            {
+              "properties": {
+                "schema": {
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
           ]
         },
         {
@@ -537,7 +705,7 @@
     },
     "CustomerIdentifierValidation": {
       "type": "object",
-      "description": "Value-level constraints applied to a customer identifier field.",
+      "description": "Value-level constraints applied to a scalar customer identifier field.",
       "additionalProperties": false,
       "properties": {
         "min_length": {
@@ -591,166 +759,34 @@
       },
       "title": "CustomerIdentifierValidation"
     },
-    "CustomerIdentifierValueSchema": {
+    "CustomerIdentifierFieldSchema": {
       "type": "object",
-      "description": "Structural schema for a field whose value_type is 'object' or 'array'.",
+      "description": "Structural schema for a field whose value_type is 'object' or 'array'. Nested nodes are full CustomerIdentifierField instances.",
       "additionalProperties": false,
-      "required": [
-        "type"
-      ],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "object",
-            "array"
-          ]
-        },
         "required": {
           "type": "array",
-          "description": "Names of required properties when type is 'object'.",
+          "description": "Ids of required child properties when the parent value_type is 'object'. Each entry MUST match a key in properties.",
           "items": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
           },
           "uniqueItems": true
         },
         "properties": {
           "type": "object",
-          "description": "Property name to nested-field definition map. Required when type is 'object'.",
+          "description": "Property name to CustomerIdentifierField map. Required when parent value_type is 'object'.",
+          "minProperties": 1,
           "additionalProperties": {
-            "$ref": "#/definitions/CustomerIdentifierNestedField"
+            "$ref": "#/definitions/CustomerIdentifierField"
           }
         },
         "items": {
-          "$ref": "#/definitions/CustomerIdentifierNestedField",
-          "description": "Element schema. Required when type is 'array'."
+          "$ref": "#/definitions/CustomerIdentifierField",
+          "description": "Element field definition. Required when parent value_type is 'array'."
         }
       },
-      "oneOf": [
-        {
-          "description": "When type is 'object', 'properties' MUST be provided.",
-          "properties": {
-            "type": {
-              "const": "object"
-            }
-          },
-          "required": [
-            "properties"
-          ]
-        },
-        {
-          "description": "When type is 'array', 'items' MUST be provided.",
-          "properties": {
-            "type": {
-              "const": "array"
-            }
-          },
-          "required": [
-            "items"
-          ]
-        }
-      ],
-      "title": "CustomerIdentifierValueSchema"
-    },
-    "CustomerIdentifierNestedField": {
-      "type": "object",
-      "description": "A nested field appearing inside CustomerIdentifierValueSchema.properties or CustomerIdentifierValueSchema.items.",
-      "additionalProperties": false,
-      "required": [
-        "type"
-      ],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "string",
-            "number",
-            "integer",
-            "boolean",
-            "date",
-            "datetime",
-            "object",
-            "array"
-          ]
-        },
-        "display_name": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 100
-        },
-        "description": {
-          "type": "string",
-          "maxLength": 500
-        },
-        "is_mandatory": {
-          "type": "boolean"
-        },
-        "is_checkout_collectable": {
-          "type": "boolean"
-        },
-        "is_visible_in_admin_ui": {
-          "type": "boolean"
-        },
-        "validation": {
-          "$ref": "#/definitions/CustomerIdentifierValidation"
-        },
-        "required": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "uniqueItems": true
-        },
-        "properties": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/CustomerIdentifierNestedField"
-          }
-        },
-        "items": {
-          "$ref": "#/definitions/CustomerIdentifierNestedField"
-        }
-      },
-      "oneOf": [
-        {
-          "description": "Nested object MUST declare 'properties'.",
-          "properties": {
-            "type": {
-              "const": "object"
-            }
-          },
-          "required": [
-            "properties"
-          ]
-        },
-        {
-          "description": "Nested array MUST declare 'items'.",
-          "properties": {
-            "type": {
-              "const": "array"
-            }
-          },
-          "required": [
-            "items"
-          ]
-        },
-        {
-          "description": "Scalar nested fields have no further structural requirements.",
-          "properties": {
-            "type": {
-              "enum": [
-                "string",
-                "number",
-                "integer",
-                "boolean",
-                "date",
-                "datetime"
-              ]
-            }
-          }
-        }
-      ],
-      "title": "CustomerIdentifierNestedField"
+      "title": "CustomerIdentifierFieldSchema"
     },
     "DocumentDownload": {
       "type": "object",
