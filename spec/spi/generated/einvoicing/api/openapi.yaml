@@ -505,6 +505,9 @@ paths:
             --data '{
               "id": "INV-10001",
               "type": "INVOICE",
+              "country": "DE",
+              "transaction_type": "B2B",
+              "model": "PEPPOL",
               "issue_date": "2025-04-02",
               "tax_date": "2025-04-02",
               "currency_code": "EUR",
@@ -589,45 +592,46 @@ paths:
         source: "curl --request POST \\\n  --url https://partner.app.com/einvoicing/documents\
           \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization:\
           \ {\"api_key\" : ... }' \\\n  --data '{\n    \"id\": \"INV-20221607\",\n\
-          \    \"type\": \"INVOICE\",\n    \"issue_date\": \"2025-04-02\",\n    \"\
-          tax_date\": \"2025-04-02\",\n    \"currency_code\": \"EUR\",\n    \"due_date\"\
-          : \"2025-04-30\",\n    \"amount\": 114.0,\n    \"note\": \"Payment due in\
-          \ 28 days.\",\n    \"accounting_supplier_party\": {\n      \"name\": \"\
-          Example Seller GmbH\",\n      \"address\": {\n        \"line_1\": \"Hauptstr.\
-          \ 456\",\n        \"line_2\": \"Suite 5\",\n        \"zip\": \"50667\",\n\
-          \        \"city\": \"Cologne\",\n        \"country\": \"DE\"\n      },\n\
-          \      \"tax_scheme\": [\n        {\n          \"scheme\": \"VAT\",\n  \
-          \        \"id\": \"DE987654321\"\n        }\n      ]\n    },\n    \"accounting_customer_party\"\
-          : {\n      \"name\": \"Example Buyer GmbH\",\n      \"address\": {\n   \
-          \     \"line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\"\
-          ,\n        \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"\
-          country\": \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n      \
-          \    \"scheme\": \"VAT\",\n          \"id\": \"DE123456789\"\n        }\n\
-          \      ]\n    },\n    \"payment_means\": [\n      {\n        \"code\": \"\
-          ONLINE_PAYMENT_SERVICE\",\n        \"payment_id\": \"PAY-2024-00987\",\n\
-          \        \"card_account\": {\n          \"primary_account_number_id\": \"\
-          4111********1111\",\n          \"card_holder_name\": \"Jane Smith\",\n \
-          \         \"network_id\": \"MASTERCARD\"\n        }\n      }\n    ],\n \
-          \   \"lines\": [\n      {\n        \"id\": \"1\",\n        \"description\"\
-          : \"Consulting Services - April\",\n        \"quantity\": 1,\n        \"\
-          unit_price\": 100.0,\n        \"amount\": 100.0,\n        \"item_code\"\
-          : \"CONS-APRIL\",\n        \"classified_tax_category\": [\n          {\n\
-          \            \"percentage\": 14,\n            \"category\": \"VAT\",\n \
-          \           \"country\": \"DE\"\n          }\n        ]\n      }\n    ],\n\
-          \    \"tax_total\": {\n      \"tax_amount\": 14.0,\n      \"tax_sub_totals\"\
-          : [\n        {\n          \"taxable_amount\": 100.0,\n          \"tax_amount\"\
-          : 14.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
-          \          \"category\": \"VAT\"\n        }\n      ]\n    },\n    \"overrides\"\
-          : {\n      \"country\": \"DE\", \n      \"transaction_type\": \"B2B\",\n\
-          \      \"model\": \"PEPPOL\",\n      \"document_type\": \"ubl-invoice\"\
-          ,\n      \"field_mapping\": [\n        {\n          \"target\": \"Invoice.cbc:ID\"\
-          ,\n          \"source\": \"invoice.id\"\n        },\n        {\n       \
-          \   \"target\": \"Invoice.cbc:IssueDate\",\n          \"source\": \"invoice.issue_date\"\
-          \n        },\n        {\n          \"target\": \"Invoice.cbc:InvoiceTypeCode\"\
-          ,\n          \"fixed_value\": \"380\"\n        },\n        {\n         \
-          \ \"target\": \"Invoice.cbc:DocumentCurrencyCode\",\n          \"source\"\
-          : \"invoice.currency_code\"\n        },\n        {\n          \"target\"\
-          : \"Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          \    \"type\": \"INVOICE\",\n    \"country\": \"DE\",\n    \"transaction_type\"\
+          : \"B2B\",\n    \"model\": \"PEPPOL\",\n    \"issue_date\": \"2025-04-02\"\
+          ,\n    \"tax_date\": \"2025-04-02\",\n    \"currency_code\": \"EUR\",\n\
+          \    \"due_date\": \"2025-04-30\",\n    \"amount\": 114.0,\n    \"note\"\
+          : \"Payment due in 28 days.\",\n    \"accounting_supplier_party\": {\n \
+          \     \"name\": \"Example Seller GmbH\",\n      \"address\": {\n       \
+          \ \"line_1\": \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n   \
+          \     \"zip\": \"50667\",\n        \"city\": \"Cologne\",\n        \"country\"\
+          : \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n          \"scheme\"\
+          : \"VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
+          \    \"accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\"\
+          ,\n      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n  \
+          \      \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n       \
+          \ \"city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n      \"\
+          tax_scheme\": [\n        {\n          \"scheme\": \"VAT\",\n          \"\
+          id\": \"DE123456789\"\n        }\n      ]\n    },\n    \"payment_means\"\
+          : [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"\
+          payment_id\": \"PAY-2024-00987\",\n        \"card_account\": {\n       \
+          \   \"primary_account_number_id\": \"4111********1111\",\n          \"card_holder_name\"\
+          : \"Jane Smith\",\n          \"network_id\": \"MASTERCARD\"\n        }\n\
+          \      }\n    ],\n    \"lines\": [\n      {\n        \"id\": \"1\",\n  \
+          \      \"description\": \"Consulting Services - April\",\n        \"quantity\"\
+          : 1,\n        \"unit_price\": 100.0,\n        \"amount\": 100.0,\n     \
+          \   \"item_code\": \"CONS-APRIL\",\n        \"classified_tax_category\"\
+          : [\n          {\n            \"percentage\": 14,\n            \"category\"\
+          : \"VAT\",\n            \"country\": \"DE\"\n          }\n        ]\n  \
+          \    }\n    ],\n    \"tax_total\": {\n      \"tax_amount\": 14.0,\n    \
+          \  \"tax_sub_totals\": [\n        {\n          \"taxable_amount\": 100.0,\n\
+          \          \"tax_amount\": 14.0,\n          \"percentage\": 14,\n      \
+          \    \"country\": \"DE\",\n          \"category\": \"VAT\"\n        }\n\
+          \      ]\n    },\n    \"overrides\": {\n      \"country\": \"DE\", \n  \
+          \    \"transaction_type\": \"B2B\",\n      \"model\": \"PEPPOL\",\n    \
+          \  \"document_type\": \"ubl-invoice\",\n      \"field_mapping\": [\n   \
+          \     {\n          \"target\": \"Invoice.cbc:ID\",\n          \"source\"\
+          : \"invoice.id\"\n        },\n        {\n          \"target\": \"Invoice.cbc:IssueDate\"\
+          ,\n          \"source\": \"invoice.issue_date\"\n        },\n        {\n\
+          \          \"target\": \"Invoice.cbc:InvoiceTypeCode\",\n          \"fixed_value\"\
+          : \"380\"\n        },\n        {\n          \"target\": \"Invoice.cbc:DocumentCurrencyCode\"\
+          ,\n          \"source\": \"invoice.currency_code\"\n        },\n       \
+          \ {\n          \"target\": \"Invoice.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"business.address.country\"\n        },\n    \
           \    {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"customer.billing_address.country\"\n        },\n\
@@ -693,6 +697,9 @@ paths:
             --data '{
               "id": "CN-20002",
               "type": "CREDIT_NOTE",
+              "country": "DE",
+              "transaction_type": "B2B",
+              "model": "PEPPOL",
               "issue_date": "2025-04-10",
               "tax_date": "2025-04-10",
               "currency_code": "EUR",
@@ -780,16 +787,17 @@ paths:
         source: "curl --request POST \\\n  --url https://partner.app.com/einvoicing/documents\
           \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization:\
           \ {\"api_key\" : ... }' \\\n  --data '{\n    \"id\": \"CN-20002\",\n   \
-          \ \"type\": \"CREDIT_NOTE\",\n    \"issue_date\": \"2025-04-10\",\n    \"\
-          tax_date\": \"2025-04-10\",\n    \"currency_code\": \"EUR\",\n    \"due_date\"\
-          : \"2025-04-30\",\n    \"amount\": 50.0,\n    \"note\": \"Credit issued\
-          \ for April billing adjustment.\",\n    \"billing_reference\": [\n     \
-          \ \"INV-10001\"\n    ],\n    \"accounting_supplier_party\": {\n      \"\
-          name\": \"Example Seller GmbH\",\n      \"address\": {\n        \"line_1\"\
-          : \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n        \"zip\"\
-          : \"50667\",\n        \"city\": \"Cologne\",\n        \"country\": \"DE\"\
-          \n      },\n      \"tax_scheme\": [\n        {\n          \"scheme\": \"\
-          VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
+          \ \"type\": \"CREDIT_NOTE\",\n    \"country\": \"DE\",\n    \"transaction_type\"\
+          : \"B2B\",\n    \"model\": \"PEPPOL\",\n    \"issue_date\": \"2025-04-10\"\
+          ,\n    \"tax_date\": \"2025-04-10\",\n    \"currency_code\": \"EUR\",\n\
+          \    \"due_date\": \"2025-04-30\",\n    \"amount\": 50.0,\n    \"note\"\
+          : \"Credit issued for April billing adjustment.\",\n    \"billing_reference\"\
+          : [\n      \"INV-10001\"\n    ],\n    \"accounting_supplier_party\": {\n\
+          \      \"name\": \"Example Seller GmbH\",\n      \"address\": {\n      \
+          \  \"line_1\": \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n  \
+          \      \"zip\": \"50667\",\n        \"city\": \"Cologne\",\n        \"country\"\
+          : \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n          \"scheme\"\
+          : \"VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
           \    \"accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\"\
           ,\n      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n  \
           \      \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n       \
@@ -907,6 +915,9 @@ paths:
             --data '{
               "id": "APPRESP-20250402-002",
               "type": "APPLICATION_RESPONSE",
+              "country": "DE",
+              "transaction_type": "B2B",
+              "model": "PEPPOL",
               "issue_date": "2025-04-04",
               "sender_party": {
                 "legal_entity": {
@@ -940,6 +951,9 @@ paths:
             --data '{
               "id": "APPRESP-20240401-001",
               "type": "APPLICATION_RESPONSE",
+              "country": "DE",
+              "transaction_type": "B2B",
+              "model": "PEPPOL",
               "issue_date": "2025-04-03",
               "sender_party": {
                 "legal_entity": {
@@ -1925,6 +1939,49 @@ components:
           - INVOICE
           - CREDIT_NOTE
           type: string
+        country:
+          description: The ISO country code for the scenario.
+          example: DE
+          type: string
+        transaction_type:
+          description: "The type of transaction (B2B, B2C, B2G)."
+          enum:
+          - B2B
+          - B2C
+          - B2G
+          example: B2B
+          type: string
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
+            \ eInvoicing format used in Germany combining PDF and XML for human and\
+            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
+            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
+            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
+            \ and reporting sales invoices directly to the tax agency.\n"
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
         issue_date:
           description: The date when the document was issued. Format "YYYY-MM-DD"
           format: date
@@ -1980,6 +2037,7 @@ components:
       - accounting_customer_party
       - accounting_supplier_party
       - amount
+      - country
       - currency_code
       - dueDate
       - id
@@ -2001,6 +2059,49 @@ components:
           enum:
           - APPLICATION_RESPONSE
           type: string
+        country:
+          description: The ISO country code for the scenario.
+          example: DE
+          type: string
+        transaction_type:
+          description: "The type of transaction (B2B, B2C, B2G)."
+          enum:
+          - B2B
+          - B2C
+          - B2G
+          example: B2B
+          type: string
+        model:
+          description: "Indicates the eInvoicing flow model that governs the document\
+            \ exchange and processing mechanism. \nDifferent countries adopt different\
+            \ models based on legal, technical, and administrative mandates.\nSupported\
+            \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+            \ cross-border electronic document exchange between businesses and governments.\n\
+            - EINVOICE: Traditional eInvoicing model where invoices are digitally\
+            \ exchanged between businesses and sometimes stored.\n- CLEARANCE: Invoices\
+            \ must be pre-approved by a tax authority before they are sent to the\
+            \ buyer.\n- REPORTING: Invoices are shared with tax authorities after\
+            \ issuance, usually for compliance and audit purposes.\n- ZUGFERD: A hybrid\
+            \ eInvoicing format used in Germany combining PDF and XML for human and\
+            \ machine readability.\n- CTC: Continuous Transaction Controls involve\
+            \ real-time or near-real-time invoice validation and transmission to tax\
+            \ authorities.\n- NEMHANDEL: Denmark’s national infrastructure for eInvoicing\
+            \ that supports secure delivery via specific formats like OIOUBL.\n- FACE:\
+            \ Spain’s centralized system (FACe/FACeB2B) for routing invoices to government\
+            \ or private recipients.\n- VERIFACTU: Spain’s mechanism for validating\
+            \ and reporting sales invoices directly to the tax agency.\n"
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
         issue_date:
           format: date
           type: string
@@ -2013,6 +2114,7 @@ components:
         overrides:
           $ref: '#/components/schemas/overrides'
       required:
+      - country
       - document_response
       - id
       - issue_date
