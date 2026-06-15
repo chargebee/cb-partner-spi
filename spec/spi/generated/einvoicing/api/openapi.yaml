@@ -508,6 +508,7 @@ paths:
               "country": "DE",
               "transaction_type": "B2B",
               "model": "PEPPOL",
+              "document_type": "ubl-invoice",
               "issue_date": "2025-04-02",
               "tax_date": "2025-04-02",
               "currency_code": "EUR",
@@ -593,39 +594,39 @@ paths:
           \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization:\
           \ {\"api_key\" : ... }' \\\n  --data '{\n    \"id\": \"INV-20221607\",\n\
           \    \"type\": \"INVOICE\",\n    \"country\": \"DE\",\n    \"transaction_type\"\
-          : \"B2B\",\n    \"model\": \"PEPPOL\",\n    \"issue_date\": \"2025-04-02\"\
-          ,\n    \"tax_date\": \"2025-04-02\",\n    \"currency_code\": \"EUR\",\n\
-          \    \"due_date\": \"2025-04-30\",\n    \"amount\": 114.0,\n    \"note\"\
-          : \"Payment due in 28 days.\",\n    \"accounting_supplier_party\": {\n \
-          \     \"name\": \"Example Seller GmbH\",\n      \"address\": {\n       \
-          \ \"line_1\": \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n   \
-          \     \"zip\": \"50667\",\n        \"city\": \"Cologne\",\n        \"country\"\
+          : \"B2B\",\n    \"model\": \"PEPPOL\",\n    \"document_type\": \"ubl-invoice\"\
+          ,\n    \"issue_date\": \"2025-04-02\",\n    \"tax_date\": \"2025-04-02\"\
+          ,\n    \"currency_code\": \"EUR\",\n    \"due_date\": \"2025-04-30\",\n\
+          \    \"amount\": 114.0,\n    \"note\": \"Payment due in 28 days.\",\n  \
+          \  \"accounting_supplier_party\": {\n      \"name\": \"Example Seller GmbH\"\
+          ,\n      \"address\": {\n        \"line_1\": \"Hauptstr. 456\",\n      \
+          \  \"line_2\": \"Suite 5\",\n        \"zip\": \"50667\",\n        \"city\"\
+          : \"Cologne\",\n        \"country\": \"DE\"\n      },\n      \"tax_scheme\"\
+          : [\n        {\n          \"scheme\": \"VAT\",\n          \"id\": \"DE987654321\"\
+          \n        }\n      ]\n    },\n    \"accounting_customer_party\": {\n   \
+          \   \"name\": \"Example Buyer GmbH\",\n      \"address\": {\n        \"\
+          line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\",\n \
+          \       \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"country\"\
           : \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n          \"scheme\"\
-          : \"VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
-          \    \"accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\"\
-          ,\n      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n  \
-          \      \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n       \
-          \ \"city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n      \"\
-          tax_scheme\": [\n        {\n          \"scheme\": \"VAT\",\n          \"\
-          id\": \"DE123456789\"\n        }\n      ]\n    },\n    \"payment_means\"\
-          : [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"\
-          payment_id\": \"PAY-2024-00987\",\n        \"card_account\": {\n       \
-          \   \"primary_account_number_id\": \"4111********1111\",\n          \"card_holder_name\"\
-          : \"Jane Smith\",\n          \"network_id\": \"MASTERCARD\"\n        }\n\
-          \      }\n    ],\n    \"lines\": [\n      {\n        \"id\": \"1\",\n  \
-          \      \"description\": \"Consulting Services - April\",\n        \"quantity\"\
-          : 1,\n        \"unit_price\": 100.0,\n        \"amount\": 100.0,\n     \
-          \   \"item_code\": \"CONS-APRIL\",\n        \"classified_tax_category\"\
-          : [\n          {\n            \"percentage\": 14,\n            \"category\"\
-          : \"VAT\",\n            \"country\": \"DE\"\n          }\n        ]\n  \
-          \    }\n    ],\n    \"tax_total\": {\n      \"tax_amount\": 14.0,\n    \
-          \  \"tax_sub_totals\": [\n        {\n          \"taxable_amount\": 100.0,\n\
-          \          \"tax_amount\": 14.0,\n          \"percentage\": 14,\n      \
-          \    \"country\": \"DE\",\n          \"category\": \"VAT\"\n        }\n\
-          \      ]\n    },\n    \"overrides\": {\n      \"country\": \"DE\", \n  \
-          \    \"transaction_type\": \"B2B\",\n      \"model\": \"PEPPOL\",\n    \
-          \  \"document_type\": \"ubl-invoice\",\n      \"field_mapping\": [\n   \
-          \     {\n          \"target\": \"Invoice.cbc:ID\",\n          \"source\"\
+          : \"VAT\",\n          \"id\": \"DE123456789\"\n        }\n      ]\n    },\n\
+          \    \"payment_means\": [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\"\
+          ,\n        \"payment_id\": \"PAY-2024-00987\",\n        \"card_account\"\
+          : {\n          \"primary_account_number_id\": \"4111********1111\",\n  \
+          \        \"card_holder_name\": \"Jane Smith\",\n          \"network_id\"\
+          : \"MASTERCARD\"\n        }\n      }\n    ],\n    \"lines\": [\n      {\n\
+          \        \"id\": \"1\",\n        \"description\": \"Consulting Services\
+          \ - April\",\n        \"quantity\": 1,\n        \"unit_price\": 100.0,\n\
+          \        \"amount\": 100.0,\n        \"item_code\": \"CONS-APRIL\",\n  \
+          \      \"classified_tax_category\": [\n          {\n            \"percentage\"\
+          : 14,\n            \"category\": \"VAT\",\n            \"country\": \"DE\"\
+          \n          }\n        ]\n      }\n    ],\n    \"tax_total\": {\n      \"\
+          tax_amount\": 14.0,\n      \"tax_sub_totals\": [\n        {\n          \"\
+          taxable_amount\": 100.0,\n          \"tax_amount\": 14.0,\n          \"\
+          percentage\": 14,\n          \"country\": \"DE\",\n          \"category\"\
+          : \"VAT\"\n        }\n      ]\n    },\n    \"overrides\": {\n      \"country\"\
+          : \"DE\", \n      \"transaction_type\": \"B2B\",\n      \"model\": \"PEPPOL\"\
+          ,\n      \"document_type\": \"ubl-invoice\",\n      \"field_mapping\": [\n\
+          \        {\n          \"target\": \"Invoice.cbc:ID\",\n          \"source\"\
           : \"invoice.id\"\n        },\n        {\n          \"target\": \"Invoice.cbc:IssueDate\"\
           ,\n          \"source\": \"invoice.issue_date\"\n        },\n        {\n\
           \          \"target\": \"Invoice.cbc:InvoiceTypeCode\",\n          \"fixed_value\"\
@@ -700,6 +701,7 @@ paths:
               "country": "DE",
               "transaction_type": "B2B",
               "model": "PEPPOL",
+              "document_type": "ubl-creditnote",
               "issue_date": "2025-04-10",
               "tax_date": "2025-04-10",
               "currency_code": "EUR",
@@ -788,48 +790,48 @@ paths:
           \ \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization:\
           \ {\"api_key\" : ... }' \\\n  --data '{\n    \"id\": \"CN-20002\",\n   \
           \ \"type\": \"CREDIT_NOTE\",\n    \"country\": \"DE\",\n    \"transaction_type\"\
-          : \"B2B\",\n    \"model\": \"PEPPOL\",\n    \"issue_date\": \"2025-04-10\"\
-          ,\n    \"tax_date\": \"2025-04-10\",\n    \"currency_code\": \"EUR\",\n\
-          \    \"due_date\": \"2025-04-30\",\n    \"amount\": 50.0,\n    \"note\"\
-          : \"Credit issued for April billing adjustment.\",\n    \"billing_reference\"\
-          : [\n      \"INV-10001\"\n    ],\n    \"accounting_supplier_party\": {\n\
-          \      \"name\": \"Example Seller GmbH\",\n      \"address\": {\n      \
-          \  \"line_1\": \"Hauptstr. 456\",\n        \"line_2\": \"Suite 5\",\n  \
-          \      \"zip\": \"50667\",\n        \"city\": \"Cologne\",\n        \"country\"\
-          : \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n          \"scheme\"\
-          : \"VAT\",\n          \"id\": \"DE987654321\"\n        }\n      ]\n    },\n\
-          \    \"accounting_customer_party\": {\n      \"name\": \"Example Buyer GmbH\"\
-          ,\n      \"address\": {\n        \"line_1\": \"Berliner Str. 123\",\n  \
-          \      \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\",\n       \
-          \ \"city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n      \"\
+          : \"B2B\",\n    \"model\": \"PEPPOL\",\n    \"document_type\": \"ubl-creditnote\"\
+          ,\n    \"issue_date\": \"2025-04-10\",\n    \"tax_date\": \"2025-04-10\"\
+          ,\n    \"currency_code\": \"EUR\",\n    \"due_date\": \"2025-04-30\",\n\
+          \    \"amount\": 50.0,\n    \"note\": \"Credit issued for April billing\
+          \ adjustment.\",\n    \"billing_reference\": [\n      \"INV-10001\"\n  \
+          \  ],\n    \"accounting_supplier_party\": {\n      \"name\": \"Example Seller\
+          \ GmbH\",\n      \"address\": {\n        \"line_1\": \"Hauptstr. 456\",\n\
+          \        \"line_2\": \"Suite 5\",\n        \"zip\": \"50667\",\n       \
+          \ \"city\": \"Cologne\",\n        \"country\": \"DE\"\n      },\n      \"\
           tax_scheme\": [\n        {\n          \"scheme\": \"VAT\",\n          \"\
-          id\": \"DE123456789\"\n        }\n      ]\n    },\n    \"payment_means\"\
-          : [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"\
-          payment_id\": \"PAY-2024-01002\",\n        \"card_account\": {\n       \
-          \   \"primary_account_number_id\": \"4111********2222\",\n          \"card_holder_name\"\
-          : \"John Doe\",\n          \"network_id\": \"VISA\"\n        }\n      }\n\
-          \    ],\n    \"lines\": [\n      {\n        \"id\": \"1\",\n        \"description\"\
-          : \"Refund for overcharge in April\",\n        \"quantity\": 1,\n      \
-          \  \"unit_price\": 50.0,\n        \"amount\": 50.0,\n        \"item_code\"\
-          : \"APRIL-REFUND\",\n        \"classified_tax_category\": [\n          {\n\
-          \            \"percentage\": 14,\n            \"category\": \"VAT\",\n \
-          \           \"country\": \"DE\"\n          }\n        ]\n      }\n    ],\n\
-          \    \"tax_total\": {\n      \"tax_amount\": 7.0,\n      \"tax_sub_totals\"\
-          : [\n        {\n          \"taxable_amount\": 50.0,\n          \"tax_amount\"\
-          : 7.0,\n          \"percentage\": 14,\n          \"country\": \"DE\",\n\
-          \          \"category\": \"VAT\"\n        }\n      ]\n    },\n    \"overrides\"\
-          : {\n      \"country\": \"DE\", \n      \"transaction_type\": \"B2B\",\n\
-          \      \"model\": \"PEPPOL\",\n      \"document_type\": \"ubl-creditnote\"\
-          ,\n      \"field_mapping\": [\n        {\n          \"target\": \"Creditnote.cbc:ID\"\
-          ,\n          \"source\": \"credit_note.id\"\n        },\n        {\n   \
-          \       \"target\": \"Creditnote.cbc:IssueDate\",\n          \"source\"\
-          : \"credit_note.issue_date\"\n        },\n        {\n          \"target\"\
-          : \"Creditnote.cbc:CreditNoteTypeCode\",\n          \"fixed_value\": \"\
-          396\"\n        },\n        {\n          \"target\": \"Creditnote.cbc:DocumentCurrencyCode\"\
-          ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
-          \     {\n          \"target\": \"Creditnote.cac:BillingReference\",\n  \
-          \        \"expr\": \"invoiceResponse.events.exists(e, has(e.responseKey)\
-          \ && e.responseKey == 'Receipt Message ID') ? invoiceResponse.events.filter(e,\
+          id\": \"DE987654321\"\n        }\n      ]\n    },\n    \"accounting_customer_party\"\
+          : {\n      \"name\": \"Example Buyer GmbH\",\n      \"address\": {\n   \
+          \     \"line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\"\
+          ,\n        \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"\
+          country\": \"DE\"\n      },\n      \"tax_scheme\": [\n        {\n      \
+          \    \"scheme\": \"VAT\",\n          \"id\": \"DE123456789\"\n        }\n\
+          \      ]\n    },\n    \"payment_means\": [\n      {\n        \"code\": \"\
+          ONLINE_PAYMENT_SERVICE\",\n        \"payment_id\": \"PAY-2024-01002\",\n\
+          \        \"card_account\": {\n          \"primary_account_number_id\": \"\
+          4111********2222\",\n          \"card_holder_name\": \"John Doe\",\n   \
+          \       \"network_id\": \"VISA\"\n        }\n      }\n    ],\n    \"lines\"\
+          : [\n      {\n        \"id\": \"1\",\n        \"description\": \"Refund\
+          \ for overcharge in April\",\n        \"quantity\": 1,\n        \"unit_price\"\
+          : 50.0,\n        \"amount\": 50.0,\n        \"item_code\": \"APRIL-REFUND\"\
+          ,\n        \"classified_tax_category\": [\n          {\n            \"percentage\"\
+          : 14,\n            \"category\": \"VAT\",\n            \"country\": \"DE\"\
+          \n          }\n        ]\n      }\n    ],\n    \"tax_total\": {\n      \"\
+          tax_amount\": 7.0,\n      \"tax_sub_totals\": [\n        {\n          \"\
+          taxable_amount\": 50.0,\n          \"tax_amount\": 7.0,\n          \"percentage\"\
+          : 14,\n          \"country\": \"DE\",\n          \"category\": \"VAT\"\n\
+          \        }\n      ]\n    },\n    \"overrides\": {\n      \"country\": \"\
+          DE\", \n      \"transaction_type\": \"B2B\",\n      \"model\": \"PEPPOL\"\
+          ,\n      \"document_type\": \"ubl-creditnote\",\n      \"field_mapping\"\
+          : [\n        {\n          \"target\": \"Creditnote.cbc:ID\",\n         \
+          \ \"source\": \"credit_note.id\"\n        },\n        {\n          \"target\"\
+          : \"Creditnote.cbc:IssueDate\",\n          \"source\": \"credit_note.issue_date\"\
+          \n        },\n        {\n          \"target\": \"Creditnote.cbc:CreditNoteTypeCode\"\
+          ,\n          \"fixed_value\": \"396\"\n        },\n        {\n         \
+          \ \"target\": \"Creditnote.cbc:DocumentCurrencyCode\",\n          \"source\"\
+          : \"credit_note.currency_code\"\n        },\n        {\n          \"target\"\
+          : \"Creditnote.cac:BillingReference\",\n          \"expr\": \"invoiceResponse.events.exists(e,\
+          \ has(e.responseKey) && e.responseKey == 'Receipt Message ID') ? invoiceResponse.events.filter(e,\
           \ has(e.responseKey) && e.responseKey == 'Receipt Message ID').map(e, e.responseValue)[0]\
           \ : null\"\n        },\n        {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID\"\
           ,\n          \"source\": \"business.legal_entity.company_id\"\n        },\n\
@@ -918,6 +920,7 @@ paths:
               "country": "DE",
               "transaction_type": "B2B",
               "model": "PEPPOL",
+              "document_type": "ubl-applicationresponse",
               "issue_date": "2025-04-04",
               "sender_party": {
                 "legal_entity": {
@@ -954,6 +957,7 @@ paths:
               "country": "DE",
               "transaction_type": "B2B",
               "model": "PEPPOL",
+              "document_type": "ubl-applicationresponse",
               "issue_date": "2025-04-03",
               "sender_party": {
                 "legal_entity": {
@@ -1982,6 +1986,10 @@ components:
           - VERIFACTU
           example: PEPPOL
           type: string
+        document_type:
+          description: Type of business document.
+          example: ubl-invoice
+          type: string
         issue_date:
           description: The date when the document was issued. Format "YYYY-MM-DD"
           format: date
@@ -2039,10 +2047,12 @@ components:
       - amount
       - country
       - currency_code
+      - document_type
       - dueDate
       - id
       - issue_date
       - lines
+      - model
       - tax_date
       - tax_total
       - type
@@ -2102,6 +2112,10 @@ components:
           - VERIFACTU
           example: PEPPOL
           type: string
+        document_type:
+          description: Type of business document.
+          example: ubl-applicationresponse
+          type: string
         issue_date:
           format: date
           type: string
@@ -2116,8 +2130,10 @@ components:
       required:
       - country
       - document_response
+      - document_type
       - id
       - issue_date
+      - model
       - receiver_party
       - sender_party
       - type

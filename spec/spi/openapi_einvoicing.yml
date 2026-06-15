@@ -368,6 +368,7 @@ paths:
                 "country": "DE",
                 "transaction_type": "B2B",
                 "model": "PEPPOL",
+                "document_type": "ubl-invoice",
                 "issue_date": "2025-04-02",
                 "tax_date": "2025-04-02",
                 "currency_code": "EUR",
@@ -461,6 +462,7 @@ paths:
                 "country": "DE",
                 "transaction_type": "B2B",
                 "model": "PEPPOL",
+                "document_type": "ubl-invoice",
                 "issue_date": "2025-04-02",
                 "tax_date": "2025-04-02",
                 "currency_code": "EUR",
@@ -688,6 +690,7 @@ paths:
                 "country": "DE",
                 "transaction_type": "B2B",
                 "model": "PEPPOL",
+                "document_type": "ubl-creditnote",
                 "issue_date": "2025-04-10",
                 "tax_date": "2025-04-10",
                 "currency_code": "EUR",
@@ -784,6 +787,7 @@ paths:
                 "country": "DE",
                 "transaction_type": "B2B",
                 "model": "PEPPOL",
+                "document_type": "ubl-creditnote",
                 "issue_date": "2025-04-10",
                 "tax_date": "2025-04-10",
                 "currency_code": "EUR",
@@ -1053,6 +1057,7 @@ paths:
                 "country": "DE",
                 "transaction_type": "B2B",
                 "model": "PEPPOL",
+                "document_type": "ubl-applicationresponse",
                 "issue_date": "2025-04-04",
                 "sender_party": {
                   "legal_entity": {
@@ -1090,6 +1095,7 @@ paths:
                 "country": "DE",
                 "transaction_type": "B2B",
                 "model": "PEPPOL",
+                "document_type": "ubl-applicationresponse",
                 "issue_date": "2025-04-03",
                 "sender_party": {
                   "legal_entity": {
@@ -2036,6 +2042,10 @@ components:
             - FACE
             - VERIFACTU
           example: "PEPPOL"
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-invoice"
         issue_date:
           type: string
           format: date
@@ -2221,6 +2231,8 @@ components:
         - id
         - type
         - country
+        - model
+        - document_type
         - issue_date
         - tax_date
         - currency_code
@@ -2237,6 +2249,8 @@ components:
         - id
         - type
         - country
+        - model
+        - document_type
         - issue_date
         - sender_party
         - receiver_party
@@ -2284,6 +2298,10 @@ components:
             - FACE
             - VERIFACTU
           example: "PEPPOL"
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-applicationresponse"
         issue_date:
           type: string
           format: date
