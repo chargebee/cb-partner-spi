@@ -282,7 +282,11 @@
         },
         "retrieve_activation_supported": {
           "type": "boolean",
-          "description": "Specifies if retrieving merchant activation info from E-invoicing provider portal via Chargebee is supported."
+          "description": "Specifies if retrieving merchant activation info from the E-invoicing provider portal via Chargebee is supported."
+        },
+        "retrieve_business_entities_supported": {
+          "type": "boolean",
+          "description": "Specifies if retrieving the list of business entities configured in the E-invoicing provider portal via Chargebee is supported."
         },
         "retrieve_input_fields_supported": {
           "type": "boolean",
@@ -305,6 +309,7 @@
         "supported_countries",
         "supported_currencies",
         "retrieve_activation_supported",
+        "retrieve_business_entities_supported",
         "retrieve_input_fields_supported",
         "retrieve_einvoice_status_supported",
         "customer_identifiers",
@@ -319,6 +324,7 @@
                 "USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CNY", "BRL", "MXN"
             ],
             "retrieve_activation_supported": true,
+            "retrieve_business_entities_supported": true,
             "retrieve_input_fields_supported": true,
             "retrieve_einvoice_status_supported": true,
             "customer_identifiers": [
