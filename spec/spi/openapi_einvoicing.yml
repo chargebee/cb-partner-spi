@@ -344,6 +344,8 @@ paths:
         The collected field mapping and the corresponding input values will be passed to the adapter via the `overrides` parameter.
 
         Note: When the `overrides` parameter is present, the adapter must rely exclusively on the `field_mapping` and `values` defined within it. All other standard schema fields should be ignored for transformation purposes.
+
+        Country-specific customer identifier values are sent as a single JSON object on the relevant party in `customer_fields`. Each key is the field `id` from `customer_identifiers.<country>[]` in the provider capability manifest; each value is the collected data for that field. For invoices and credit notes this is on `accounting_customer_party`; for application responses it is on `receiver_party`.
         
         Additionally, this endpoint supports submission of Application Response documents, such as invoice acknowledgements or rejections, to facilitate downstream workflows and business rule validation. These responses are submitted using the same endpoint but distinguished using a type discriminator with APPLICATION_RESPONSE.
 
@@ -401,7 +403,11 @@ paths:
                       "scheme": "VAT",
                       "id": "DE123456789"
                     }
-                  ]
+                  ],
+                  "customer_fields": {
+                    "vat_number": "DE123456789",
+                    "buyer_reference": "991-12345-67890"
+                  }
                 },
                 "payment_means": [
                   {
@@ -1049,6 +1055,9 @@ paths:
                   "legal_entity": {
                     "registration_name": "Example Receiver GmbH",
                     "company_id": "DE112233445"
+                  },
+                  "customer_fields": {
+                    "buyer_reference": "991-12345-67890"
                   }
                 },
                 "document_response": {
@@ -2068,6 +2077,17 @@ components:
             legal_entity:
               description: Legal entity of the customer party.
               $ref: '#/components/schemas/party_legal_entity'
+            customer_fields:
+              type: object
+              description: |
+                A single JSON object containing **all** country-specific customer identifier
+                values collected for this party. Keys MUST match the `id` from
+                `customer_identifiers.<country>[]` in the provider capability manifest.
+                Values are the collected runtime data (strings, objects, or arrays).
+              additionalProperties: true
+              example:
+                vat_number: "DE123456789"
+                buyer_reference: "991-12345-67890"
           required:
             - address
             - taxScheme
@@ -2212,6 +2232,16 @@ components:
           properties:
             legal_entity:
               $ref: '#/components/schemas/party_legal_entity'
+            customer_fields:
+              type: object
+              description: |
+                A single JSON object containing **all** country-specific customer identifier
+                values collected for this party. Keys MUST match the `id` from
+                `customer_identifiers.<country>[]` in the provider capability manifest.
+                Values are the collected runtime data (strings, objects, or arrays).
+              additionalProperties: true
+              example:
+                buyer_reference: "991-12345-67890"
         document_response:
           type: object
           required:
