@@ -306,7 +306,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/bad_request_error_response'
+                $ref: '#/components/schemas/error_response'
               example:
                 errors:
                   - code: MISSING_REQUIRED_DATA
@@ -319,7 +319,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/error_response'
               example:
                 errors:
                   - code: NOT_FOUND
@@ -1160,7 +1160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/bad_request_error_response'
+                $ref: '#/components/schemas/error_response'
               examples:
                 einvoice_document_submission_failed:
                   summary: Bad request
@@ -1466,7 +1466,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/error_response'
         '500':
           description: Unexpected error while processing request.
           content:
@@ -1602,7 +1602,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/bad_request_error_response'
+                $ref: '#/components/schemas/error_response'
               example:
                 errors:
                   - code: INVALID_OPERATION
@@ -1617,7 +1617,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/error_response'
         '500':
           description: Unexpected error while processing request.
           content:
@@ -2509,7 +2509,7 @@ components:
           format: date-time
           description: Date and time when the document was submitted.
         processing_details:
-          $ref: '#/components/schemas/bad_request_error_response'
+          $ref: '#/components/schemas/error_response'
         provider_response:
           type: string
           description: |
@@ -2599,7 +2599,7 @@ components:
             document_url: https://provider.com/downloads/invoice-20250402.xml
             expires_at: '2025-03-28T09:24:29Z'
         model: peppol
-    bad_request_error_response:
+    error_response:
       type: object
       properties:
         errors:
@@ -2618,6 +2618,7 @@ components:
                   - SERVICE_LIMIT_EXCEEDED
                   - MISSING_REQUIRED_DATA
                   - INVALID_DATA
+                  - NOT_FOUND
               message:
                 type: string
                 description: A short message describing the reason for the error.
