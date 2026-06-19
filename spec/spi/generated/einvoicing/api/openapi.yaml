@@ -2047,7 +2047,6 @@ components:
       - amount
       - country
       - currency_code
-      - document_type
       - dueDate
       - id
       - issue_date
@@ -2130,7 +2129,6 @@ components:
       required:
       - country
       - document_response
-      - document_type
       - id
       - issue_date
       - model

@@ -2232,7 +2232,6 @@ components:
         - type
         - country
         - model
-        - document_type
         - issue_date
         - tax_date
         - currency_code
@@ -2250,7 +2249,6 @@ components:
         - type
         - country
         - model
-        - document_type
         - issue_date
         - sender_party
         - receiver_party

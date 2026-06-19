@@ -156,9 +156,7 @@
       },
       "required": [
         "api_base_url",
-        "credential_configuration",
-        "chargebee_oauth",
-        "webhook_configuration"
+        "credential_configuration"
       ],
       "examples": [
         {
@@ -312,7 +310,6 @@
         "retrieve_business_entities_supported",
         "retrieve_input_fields_supported",
         "retrieve_einvoice_status_supported",
-        "customer_identifiers",
         "document_download"
       ],
       "examples": [
