@@ -2262,7 +2262,6 @@ components:
         - tax_total
         - status
         - taxable_amount
-        - total_discount
         - amount_due
     application_response_document:
       type: object
