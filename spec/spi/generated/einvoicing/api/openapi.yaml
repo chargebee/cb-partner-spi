@@ -2062,15 +2062,19 @@ components:
       - accounting_customer_party
       - accounting_supplier_party
       - amount
+      - amount_due
       - country
       - currency_code
-      - dueDate
+      - due_date
       - id
       - issue_date
       - lines
       - model
+      - status
       - tax_date
       - tax_total
+      - taxable_amount
+      - total_discount
       - type
       type: object
     application_response_document:

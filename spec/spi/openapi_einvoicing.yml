@@ -2255,11 +2255,15 @@ components:
         - tax_date
         - currency_code
         - amount
-        - dueDate
+        - due_date
         - lines
         - accounting_customer_party
         - accounting_supplier_party
         - tax_total
+        - status
+        - taxable_amount
+        - total_discount
+        - amount_due
     application_response_document:
       type: object
       description: Represents an application response document to be validated and submitted via the e-invoicing provider.
