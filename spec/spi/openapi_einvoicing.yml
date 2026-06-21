@@ -261,32 +261,8 @@ paths:
         - name: model
           in: query
           required: true
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
           schema:
-            type: string
-            enum:
-              - PEPPOL
-              - EINVOICE
-              - CLEARANCE
-              - REPORTING
-              - ZUGFERD
-              - CTC
-              - NEMHANDEL
-              - FACE
-              - VERIFACTU
-            example: "PEPPOL"
+            $ref: '#/components/schemas/model'
         - name: document_type
           in: query
           required: true
@@ -1555,32 +1531,8 @@ paths:
         - name: model
           in: query
           required: true
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
           schema:
-            type: string
-            enum:
-              - PEPPOL
-              - EINVOICE
-              - CLEARANCE
-              - REPORTING
-              - ZUGFERD
-              - CTC
-              - NEMHANDEL
-              - FACE
-              - VERIFACTU
-            example: "PEPPOL"
+            $ref: '#/components/schemas/model'
         - name: document_type
           in: query
           required: true
@@ -1718,6 +1670,32 @@ paths:
     $ref: ./paths/health.yml
 components:
   schemas:
+    model:
+      type: string
+      description: |
+        Indicates the eInvoicing flow model that governs the document exchange and processing mechanism.
+        Different countries adopt different models based on legal, technical, and administrative mandates.
+        Supported values:
+        - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+        - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+        - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+        - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+        - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+        - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+        - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+        - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+        - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+      enum:
+        - PEPPOL
+        - EINVOICE
+        - CLEARANCE
+        - REPORTING
+        - ZUGFERD
+        - CTC
+        - NEMHANDEL
+        - FACE
+        - VERIFACTU
+      example: "PEPPOL"
     activation:
       type: object
       properties:
@@ -1755,31 +1733,7 @@ components:
       type: object
       properties:
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code where the e-invoicing activation
@@ -1839,31 +1793,7 @@ components:
           enum: [B2B, B2C, B2G]
           example: "B2B"
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         document_type:
           type: string
           description: Type of business document.
@@ -2017,31 +1947,7 @@ components:
           enum: [ B2B, B2C, B2G ]
           example: "B2B"
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         document_type:
           type: string
           description: Type of business document.
@@ -2271,31 +2177,7 @@ components:
           enum: [ B2B, B2C, B2G ]
           example: "B2B"
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         document_type:
           type: string
           description: Type of business document.
@@ -2406,31 +2288,7 @@ components:
           enum: [ B2B, B2C, B2G ]
           example: "B2B"
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         document_type:
           type: string
           description: Type of business document.
@@ -2671,39 +2529,14 @@ components:
                 description: The time until which the document URL is valid.
                 example: 2025-03-28T09:24:29Z
         model:
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-              - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-              - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-              - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-              - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-              - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-              - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-              - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-              - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-              - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-              schema:
-                type: string
-                enum:
-                  - PEPPOL
-                  - EINVOICE
-                  - CLEARANCE
-                  - REPORTING
-                  - ZUGFERD
-                  - CTC
-                  - NEMHANDEL
-                  - FACE
-                  - VERIFACTU
-                example: "PEPPOL"
+          $ref: '#/components/schemas/model'
       example:
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
           - mime_type: "application/xml"
             document_url: https://provider.com/downloads/invoice-20250402.xml
             expires_at: '2025-03-28T09:24:29Z'
-        model: peppol
+        model: PEPPOL
     error_response:
       type: object
       properties:
