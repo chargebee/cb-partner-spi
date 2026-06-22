@@ -335,12 +335,41 @@ paths:
           example: B2B
           type: string
         style: form
-      - explode: true
+      - description: "Indicates the eInvoicing flow model that governs the document\
+          \ exchange and processing mechanism. \nDifferent countries adopt different\
+          \ models based on legal, technical, and administrative mandates.\nSupported\
+          \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+          \ cross-border electronic document exchange between businesses and governments.\n\
+          - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged\
+          \ between businesses and sometimes stored.\n- CLEARANCE: Invoices must be\
+          \ pre-approved by a tax authority before they are sent to the buyer.\n-\
+          \ REPORTING: Invoices are shared with tax authorities after issuance, usually\
+          \ for compliance and audit purposes.\n- ZUGFERD: A hybrid eInvoicing format\
+          \ used in Germany combining PDF and XML for human and machine readability.\n\
+          - CTC: Continuous Transaction Controls involve real-time or near-real-time\
+          \ invoice validation and transmission to tax authorities.\n- NEMHANDEL:\
+          \ Denmark’s national infrastructure for eInvoicing that supports secure\
+          \ delivery via specific formats like OIOUBL.\n- FACE: Spain’s centralized\
+          \ system (FACe/FACeB2B) for routing invoices to government or private recipients.\n\
+          - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices\
+          \ directly to the tax agency.\n"
+        explode: true
         in: query
         name: model
         required: true
         schema:
-          $ref: '#/components/schemas/model'
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
         style: form
       - description: Type of business document.
         explode: true
@@ -1326,12 +1355,41 @@ paths:
           example: B2B
           type: string
         style: form
-      - explode: true
+      - description: "Indicates the eInvoicing flow model that governs the document\
+          \ exchange and processing mechanism. \nDifferent countries adopt different\
+          \ models based on legal, technical, and administrative mandates.\nSupported\
+          \ values:\n- PEPPOL: A standardized, secure eInvoicing network enabling\
+          \ cross-border electronic document exchange between businesses and governments.\n\
+          - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged\
+          \ between businesses and sometimes stored.\n- CLEARANCE: Invoices must be\
+          \ pre-approved by a tax authority before they are sent to the buyer.\n-\
+          \ REPORTING: Invoices are shared with tax authorities after issuance, usually\
+          \ for compliance and audit purposes.\n- ZUGFERD: A hybrid eInvoicing format\
+          \ used in Germany combining PDF and XML for human and machine readability.\n\
+          - CTC: Continuous Transaction Controls involve real-time or near-real-time\
+          \ invoice validation and transmission to tax authorities.\n- NEMHANDEL:\
+          \ Denmark’s national infrastructure for eInvoicing that supports secure\
+          \ delivery via specific formats like OIOUBL.\n- FACE: Spain’s centralized\
+          \ system (FACe/FACeB2B) for routing invoices to government or private recipients.\n\
+          - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices\
+          \ directly to the tax agency.\n"
+        explode: true
         in: query
         name: model
         required: true
         schema:
-          $ref: '#/components/schemas/model'
+          enum:
+          - PEPPOL
+          - EINVOICE
+          - CLEARANCE
+          - REPORTING
+          - ZUGFERD
+          - CTC
+          - NEMHANDEL
+          - FACE
+          - VERIFACTU
+          example: PEPPOL
+          type: string
         style: form
       - description: Type of business document.
         explode: true
