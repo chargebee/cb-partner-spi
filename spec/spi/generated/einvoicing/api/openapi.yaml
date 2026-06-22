@@ -2188,7 +2188,7 @@ components:
         - mime_type: application/xml
           document_url: https://provider.com/downloads/invoice-20250402.xml
           expires_at: 2025-03-28T09:24:29Z
-        model: peppol
+        model: PEPPOL
       properties:
         document_id:
           type: string
