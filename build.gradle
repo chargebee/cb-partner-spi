@@ -7,6 +7,7 @@ plugins {
     id "java"
     id 'maven-publish'
     id 'signing'
+//    id "org.openapi.generator" version "6.6.0" //for java 8
     id "org.openapi.generator" version "7.0.1"
 }
 
@@ -22,6 +23,8 @@ repositories {
 }
 
 java {
+//     sourceCompatibility = "8" //for java 8
+//     targetCompatibility = "8" //for java 8
     sourceCompatibility = "17"
     targetCompatibility = "17"
     withJavadocJar()  // Enable Javadoc generation
@@ -212,6 +215,9 @@ signing {
 
 // Dependencies
 dependencies {
+    // implementation 'org.openapitools:jackson-databind-nullable:0.2.1' //for java 8
+    // implementation 'org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2' //for java 8
+    //comment off implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0' for java 8
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
     implementation 'com.google.code.gson:gson:2.10.1'

@@ -397,7 +397,7 @@ paths:
                   message: Missing required query parameters.
                   help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
               schema:
-                $ref: '#/components/schemas/bad_request_error_response'
+                $ref: '#/components/schemas/error_response'
           description: Bad Request – The request is malformed or missing required
             parameters.
         "401":
@@ -412,7 +412,7 @@ paths:
                     \ network, and transaction type."
                   help_url: https://docs.example.com/errors#NOT_FOUND
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/error_response'
           description: Not Found – The requested country or network does not exist
             or is not supported.
         "500":
@@ -474,7 +474,7 @@ paths:
                       message: The request did not contain a required property 'taxAmount'
                       help_url: https://docs.example.com/errors#MISSING_REQUIRED_PARAMETER
               schema:
-                $ref: '#/components/schemas/bad_request_error_response'
+                $ref: '#/components/schemas/error_response'
           description: Bad request
         "401":
           description: Unauthorized
@@ -1264,7 +1264,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/error_response'
           description: Not found
         "500":
           content:
@@ -1426,7 +1426,7 @@ paths:
                   message: The provided mime_type is not supported for this document.
                   help_url: https://docs.example.com/errors#INVALID_OPERATION
               schema:
-                $ref: '#/components/schemas/bad_request_error_response'
+                $ref: '#/components/schemas/error_response'
           description: Bad Request – The request is invalid or malformed.
         "401":
           description: Unauthorized
@@ -1436,7 +1436,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error_response'
+                $ref: '#/components/schemas/error_response'
           description: Not found
         "500":
           content:
@@ -2220,7 +2220,7 @@ components:
           format: date-time
           type: string
         processing_details:
-          $ref: '#/components/schemas/bad_request_error_response'
+          $ref: '#/components/schemas/error_response'
         provider_response:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
@@ -2286,7 +2286,7 @@ components:
       - document_id
       - documents
       type: object
-    bad_request_error_response:
+    error_response:
       example:
         errors:
         - code: MISSING_REQUIRED_DATA
@@ -2295,7 +2295,7 @@ components:
       properties:
         errors:
           items:
-            $ref: '#/components/schemas/bad_request_error_response_errors_inner'
+            $ref: '#/components/schemas/error_response_errors_inner'
           type: array
         provider_interaction:
           $ref: '#/components/schemas/document_submission_response_provider_interaction'
@@ -3098,7 +3098,7 @@ components:
       required:
       - mime_type
       type: object
-    bad_request_error_response_errors_inner:
+    error_response_errors_inner:
       properties:
         code:
           description: The error codes classify the type of exception that occurred
@@ -3110,6 +3110,7 @@ components:
           - SERVICE_LIMIT_EXCEEDED
           - MISSING_REQUIRED_DATA
           - INVALID_DATA
+          - NOT_FOUND
           type: string
         message:
           description: A short message describing the reason for the error.
