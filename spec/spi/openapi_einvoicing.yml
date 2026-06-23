@@ -374,6 +374,10 @@ paths:
                 "currency_code": "EUR",
                 "due_date": "2025-04-30",
                 "amount": 114.0,
+                "status": "PAYMENT_DUE",
+                "taxable_amount": 100.0,
+                "amount_due": 114.0,
+                "total_discount": 0.0,
                 "note": "Payment due in 28 days.",
                 "accounting_supplier_party": {
                   "name": "Example Seller GmbH",
@@ -468,6 +472,10 @@ paths:
                 "currency_code": "EUR",
                 "due_date": "2025-04-30",
                 "amount": 114.0,
+                "status": "PAYMENT_DUE",
+                "taxable_amount": 100.0,
+                "amount_due": 114.0,
+                "total_discount": 0.0,
                 "note": "Payment due in 28 days.",
                 "accounting_supplier_party": {
                   "name": "Example Seller GmbH",
@@ -2018,6 +2026,17 @@ components:
         amount:
           type: number
           description: Total payable amount for the document, including taxes.
+        status:
+          $ref: '#/components/schemas/document_billing_status'
+        taxable_amount:
+          type: number
+          description: Total document amount excluding tax (VAT).
+        amount_due:
+          type: number
+          description: Outstanding balance remaining on the document.
+        total_discount:
+          type: number
+          description: Sum of all discounts applied across line items on the document.
         note:
           type: string
           description: A textual note that gives unstructured information that is
@@ -2190,11 +2209,14 @@ components:
         - tax_date
         - currency_code
         - amount
-        - dueDate
+        - due_date
         - lines
         - accounting_customer_party
         - accounting_supplier_party
         - tax_total
+        - status
+        - taxable_amount
+        - amount_due
     application_response_document:
       type: object
       description: Represents an application response document to be validated and submitted via the e-invoicing provider.
@@ -2682,6 +2704,33 @@ components:
           - code: NOT_FOUND
             message: The requested document is not found.
             help_url: https://docs.example.com/errors#INVALID_OPERATION
+    document_billing_status:
+      type: string
+      description: |
+        Billing status of the invoice or credit note in Chargebee.
+
+        **Invoice statuses** (when `type` is `INVOICE`):
+        - `PAID` — Indicates a paid invoice.
+        - `POSTED` — Payment is not yet collected and will remain in this state until the due date to indicate the due period.
+        - `PAYMENT_DUE` — Payment is not yet collected and is being retried as per retry settings.
+        - `NOT_PAID` — Payment has not been made and all attempts to collect have failed.
+        - `VOIDED` — Indicates a voided invoice.
+
+        **Credit note statuses** (when `type` is `CREDIT_NOTE`):
+        - `ADJUSTED` — Indicates an adjustment credit note.
+        - `REFUNDED` — Indicates the credit note has been fully refunded.
+        - `REFUND_DUE` — Indicates a refund is due on the credit note.
+        - `VOIDED` — Indicates a voided credit note.
+      enum:
+        - PAID
+        - POSTED
+        - PAYMENT_DUE
+        - NOT_PAID
+        - VOIDED
+        - ADJUSTED
+        - REFUNDED
+        - REFUND_DUE
+      example: PAYMENT_DUE
     address:
       type: object
       properties:
