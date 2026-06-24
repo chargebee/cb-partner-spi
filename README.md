@@ -9,11 +9,13 @@ Currently, Chargebee offer SPI for the following capabilities:
 
 - [Tax](https://spidocs.chargebee.com/api-reference/partner-spi/overview)
 - [Tax Registration Number Validation](https://spidocs.chargebee.com/api-reference/partner-spi/overview)
+- [E-invoicing](https://spidocs.chargebee.com/api-reference/einvoicing-spi/docs/overview)
 
 SPI allow partners to build custom apps by implementing the SPI-defined endpoints. The detailed OpenAPI specifications for this SPI can be found in the spec/spi folder of the repository:
 
 - [Tax SPI](./spec/spi/openapi_tax.yml) 
 - [Tax Registration Number Validation SPI](./spec/spi/openapi_trn.yml)
+- [E-invoicing SPI](./spec/spi/openapi_einvoicing.yml)
 
 ## Integrate your App with Chargebee
 
@@ -88,7 +90,10 @@ public class Example {
 ```
 
 ## JSON Schema validation
-The capabilities of the built apps will be validated against a constantly updating JSON Schema, to validate the correctness and completeness of configurations. JSON Schema can be referenced [here](spec/capabilities/tax-provider.schema.json).
+The capabilities of the built apps will be validated against a constantly updating JSON Schema, to validate the correctness and completeness of configurations. JSON Schemas can be referenced here:
+
+- [Tax provider](./spec/capabilities/tax-provider.schema.json)
+- [E-invoicing provider](./spec/capabilities/einvoicing-provider.schema.json)
 
 
 Run the below script to perform json schema validation:
