@@ -36,10 +36,11 @@
   "contextual": {
     "options": [
       "cursor",
-      "add-mcp",
+      "vscode",
       "mcp",
       "copy"
-    ]
+    ],
+    "display": "toc"
   },
   "navigation": {
     "tabs": [
