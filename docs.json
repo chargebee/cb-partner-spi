@@ -33,6 +33,14 @@
       }
     ]
   },
+  "contextual": {
+    "options": [
+      "cursor",
+      "add-mcp",
+      "mcp",
+      "copy"
+    ]
+  }
   "navigation": {
     "tabs": [
       {
