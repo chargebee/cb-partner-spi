@@ -365,11 +365,19 @@ paths:
               --data '{
                 "id": "INV-10001",
                 "type": "INVOICE",
+                "country": "DE",
+                "transaction_type": "B2B",
+                "model": "PEPPOL",
+                "document_type": "ubl-invoice",
                 "issue_date": "2025-04-02",
                 "tax_date": "2025-04-02",
                 "currency_code": "EUR",
                 "due_date": "2025-04-30",
                 "amount": 114.0,
+                "status": "PAYMENT_DUE",
+                "taxable_amount": 100.0,
+                "amount_due": 114.0,
+                "total_discount": 0.0,
                 "note": "Payment due in 28 days.",
                 "accounting_supplier_party": {
                   "name": "Example Seller GmbH",
@@ -455,11 +463,19 @@ paths:
               --data '{
                 "id": "INV-20221607",
                 "type": "INVOICE",
+                "country": "DE",
+                "transaction_type": "B2B",
+                "model": "PEPPOL",
+                "document_type": "ubl-invoice",
                 "issue_date": "2025-04-02",
                 "tax_date": "2025-04-02",
                 "currency_code": "EUR",
                 "due_date": "2025-04-30",
                 "amount": 114.0,
+                "status": "PAYMENT_DUE",
+                "taxable_amount": 100.0,
+                "amount_due": 114.0,
+                "total_discount": 0.0,
                 "note": "Payment due in 28 days.",
                 "accounting_supplier_party": {
                   "name": "Example Seller GmbH",
@@ -679,6 +695,10 @@ paths:
               --data '{
                 "id": "CN-20002",
                 "type": "CREDIT_NOTE",
+                "country": "DE",
+                "transaction_type": "B2B",
+                "model": "PEPPOL",
+                "document_type": "ubl-creditnote",
                 "issue_date": "2025-04-10",
                 "tax_date": "2025-04-10",
                 "currency_code": "EUR",
@@ -772,6 +792,10 @@ paths:
               --data '{
                 "id": "CN-20002",
                 "type": "CREDIT_NOTE",
+                "country": "DE",
+                "transaction_type": "B2B",
+                "model": "PEPPOL",
+                "document_type": "ubl-creditnote",
                 "issue_date": "2025-04-10",
                 "tax_date": "2025-04-10",
                 "currency_code": "EUR",
@@ -1038,6 +1062,10 @@ paths:
               --data '{
                 "id": "APPRESP-20250402-002",
                 "type": "APPLICATION_RESPONSE",
+                "country": "DE",
+                "transaction_type": "B2B",
+                "model": "PEPPOL",
+                "document_type": "ubl-applicationresponse",
                 "issue_date": "2025-04-04",
                 "sender_party": {
                   "legal_entity": {
@@ -1072,6 +1100,10 @@ paths:
               --data '{
                 "id": "APPRESP-20240401-001",
                 "type": "APPLICATION_RESPONSE",
+                "country": "DE",
+                "transaction_type": "B2B",
+                "model": "PEPPOL",
+                "document_type": "ubl-applicationresponse",
                 "issue_date": "2025-04-03",
                 "sender_party": {
                   "legal_entity": {
@@ -1694,6 +1726,32 @@ paths:
     $ref: ./paths/health.yml
 components:
   schemas:
+    model:
+      type: string
+      description: |
+        Indicates the eInvoicing flow model that governs the document exchange and processing mechanism.
+        Different countries adopt different models based on legal, technical, and administrative mandates.
+        Supported values:
+        - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
+        - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
+        - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
+        - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
+        - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
+        - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
+        - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
+        - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
+        - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+      enum:
+        - PEPPOL
+        - EINVOICE
+        - CLEARANCE
+        - REPORTING
+        - ZUGFERD
+        - CTC
+        - NEMHANDEL
+        - FACE
+        - VERIFACTU
+      example: "PEPPOL"
     activation:
       type: object
       properties:
@@ -1731,31 +1789,7 @@ components:
       type: object
       properties:
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code where the e-invoicing activation
@@ -1815,31 +1849,7 @@ components:
           enum: [B2B, B2C, B2G]
           example: "B2B"
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         document_type:
           type: string
           description: Type of business document.
@@ -1983,6 +1993,21 @@ components:
             - INVOICE
             - CREDIT_NOTE
           description: Type of document, either an invoice or a credit note.
+        country:
+          type: string
+          description: The ISO country code for the scenario.
+          example: "DE"
+        transaction_type:
+          type: string
+          description: The type of transaction (B2B, B2C, B2G).
+          enum: [ B2B, B2C, B2G ]
+          example: "B2B"
+        model:
+          $ref: '#/components/schemas/model'
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-invoice"
         issue_date:
           type: string
           format: date
@@ -2001,6 +2026,17 @@ components:
         amount:
           type: number
           description: Total payable amount for the document, including taxes.
+        status:
+          $ref: '#/components/schemas/document_billing_status'
+        taxable_amount:
+          type: number
+          description: Total document amount excluding tax (VAT).
+        amount_due:
+          type: number
+          description: Outstanding balance remaining on the document.
+        total_discount:
+          type: number
+          description: Sum of all discounts applied across line items on the document.
         note:
           type: string
           description: A textual note that gives unstructured information that is
@@ -2167,21 +2203,28 @@ components:
       required:
         - id
         - type
+        - country
+        - model
         - issue_date
         - tax_date
         - currency_code
         - amount
-        - dueDate
+        - due_date
         - lines
         - accounting_customer_party
         - accounting_supplier_party
         - tax_total
+        - status
+        - taxable_amount
+        - amount_due
     application_response_document:
       type: object
       description: Represents an application response document to be validated and submitted via the e-invoicing provider.
       required:
         - id
         - type
+        - country
+        - model
         - issue_date
         - sender_party
         - receiver_party
@@ -2194,7 +2237,21 @@ components:
           enum:
             - APPLICATION_RESPONSE
           description: The document type discriminator indicating this is an application response.
-
+        country:
+          type: string
+          description: The ISO country code for the scenario.
+          example: "DE"
+        transaction_type:
+          type: string
+          description: The type of transaction (B2B, B2C, B2G).
+          enum: [ B2B, B2C, B2G ]
+          example: "B2B"
+        model:
+          $ref: '#/components/schemas/model'
+        document_type:
+          type: string
+          description: Type of business document.
+          example: "ubl-applicationresponse"
         issue_date:
           type: string
           format: date
@@ -2301,31 +2358,7 @@ components:
           enum: [ B2B, B2C, B2G ]
           example: "B2B"
         model:
-          type: string
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-            - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-            - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-            - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-            - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-            - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-            - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-            - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-            - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-            - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-          enum:
-            - PEPPOL
-            - EINVOICE
-            - CLEARANCE
-            - REPORTING
-            - ZUGFERD
-            - CTC
-            - NEMHANDEL
-            - FACE
-            - VERIFACTU
-          example: "PEPPOL"
+          $ref: '#/components/schemas/model'
         document_type:
           type: string
           description: Type of business document.
@@ -2566,39 +2599,14 @@ components:
                 description: The time until which the document URL is valid.
                 example: 2025-03-28T09:24:29Z
         model:
-          description: |
-            Indicates the eInvoicing flow model that governs the document exchange and processing mechanism. 
-            Different countries adopt different models based on legal, technical, and administrative mandates.
-            Supported values:
-              - PEPPOL: A standardized, secure eInvoicing network enabling cross-border electronic document exchange between businesses and governments.
-              - EINVOICE: Traditional eInvoicing model where invoices are digitally exchanged between businesses and sometimes stored.
-              - CLEARANCE: Invoices must be pre-approved by a tax authority before they are sent to the buyer.
-              - REPORTING: Invoices are shared with tax authorities after issuance, usually for compliance and audit purposes.
-              - ZUGFERD: A hybrid eInvoicing format used in Germany combining PDF and XML for human and machine readability.
-              - CTC: Continuous Transaction Controls involve real-time or near-real-time invoice validation and transmission to tax authorities.
-              - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
-              - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
-              - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
-              schema:
-                type: string
-                enum:
-                  - PEPPOL
-                  - EINVOICE
-                  - CLEARANCE
-                  - REPORTING
-                  - ZUGFERD
-                  - CTC
-                  - NEMHANDEL
-                  - FACE
-                  - VERIFACTU
-                example: "PEPPOL"
+          $ref: '#/components/schemas/model'
       example:
         request_id: a3d56940-2827-4b87-a229-00d8b95cbe77
         documents:
           - mime_type: "application/xml"
             document_url: https://provider.com/downloads/invoice-20250402.xml
             expires_at: '2025-03-28T09:24:29Z'
-        model: peppol
+        model: PEPPOL
     error_response:
       type: object
       properties:
@@ -2696,6 +2704,33 @@ components:
           - code: NOT_FOUND
             message: The requested document is not found.
             help_url: https://docs.example.com/errors#INVALID_OPERATION
+    document_billing_status:
+      type: string
+      description: |
+        Billing status of the invoice or credit note in Chargebee.
+
+        **Invoice statuses** (when `type` is `INVOICE`):
+        - `PAID` — Indicates a paid invoice.
+        - `POSTED` — Payment is not yet collected and will remain in this state until the due date to indicate the due period.
+        - `PAYMENT_DUE` — Payment is not yet collected and is being retried as per retry settings.
+        - `NOT_PAID` — Payment has not been made and all attempts to collect have failed.
+        - `VOIDED` — Indicates a voided invoice.
+
+        **Credit note statuses** (when `type` is `CREDIT_NOTE`):
+        - `ADJUSTED` — Indicates an adjustment credit note.
+        - `REFUNDED` — Indicates the credit note has been fully refunded.
+        - `REFUND_DUE` — Indicates a refund is due on the credit note.
+        - `VOIDED` — Indicates a voided credit note.
+      enum:
+        - PAID
+        - POSTED
+        - PAYMENT_DUE
+        - NOT_PAID
+        - VOIDED
+        - ADJUSTED
+        - REFUNDED
+        - REFUND_DUE
+      example: PAYMENT_DUE
     address:
       type: object
       properties:
