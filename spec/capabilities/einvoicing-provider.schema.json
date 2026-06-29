@@ -260,12 +260,12 @@
       "properties": {
         "supported_countries": {
           "type": "array",
-            "items": {
-                "type": "string"
-                },
-            "examples": [
-                "DE", "AT", "FR", "IT", "ES", "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
-            ],
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            "DE", "AT", "FR", "IT", "ES", "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
+          ],
           "description": "Specifies the countries(ISO 3166 alpha-2 country code format) supported by the E-invoicing provider."
         },
         "supported_currencies": {
@@ -310,122 +310,481 @@
         "retrieve_business_entities_supported",
         "retrieve_input_fields_supported",
         "retrieve_einvoice_status_supported",
+        "customer_identifiers",
         "document_download"
       ],
       "examples": [
         {
-            "supported_countries": [
-                "DE", "AT", "FR", "IT", "ES", "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
-            ],
-            "supported_currencies": [
-                "USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CNY", "BRL", "MXN"
-            ],
-            "retrieve_activation_supported": true,
-            "retrieve_business_entities_supported": true,
-            "retrieve_input_fields_supported": true,
-            "retrieve_einvoice_status_supported": true,
-            "customer_identifiers": [
-                {
-                "external_id": "vat_number",
-                "display_name": "Vat Number",
-                "is_mandatory": true,
-                "is_default": false,
-                "field_type": "text",
-                "applicable_countries": [
-                    "DE", "AT", "FR", "IT", "ES"
-                ]
-                },
+          "supported_countries": [
+            "DE", "AT", "FR", "IT", "ES", "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
+          ],
+          "supported_currencies": [
+            "USD", "EUR", "GBP", "AUD", "CAD", "JPY", "INR", "CNY", "BRL", "MXN"
+          ],
+          "retrieve_activation_supported": true,
+          "retrieve_business_entities_supported": true,
+          "retrieve_input_fields_supported": true,
+          "retrieve_einvoice_status_supported": true,
+          "customer_identifiers": {
+            "FR": [
               {
-                "external_id": "gln_number",
-                "display_name": "GLN",
+                "id": "buyer_reference",
+                "display_name": "Buyer Reference",
+                "description": "Reference provided by the buyer for invoice routing or matching.",
+                "value_type": "string",
+                "is_mandatory": true,
+                "is_checkout_collectable": true,
+                "is_visible_in_admin_ui": true,
+                "validation": {
+                  "min_length": 1,
+                  "max_length": 100,
+                  "pattern": "^[A-Za-z0-9._\\- ]+$",
+                  "error_message": "Buyer Reference must be alphanumeric and may contain spaces, dots, underscores, or hyphens."
+                }
+              },
+              {
+                "id": "payer_details",
+                "display_name": "Payer Details",
+                "description": "Details of the payer when payer is different from buyer.",
+                "value_type": "object",
                 "is_mandatory": false,
-                "is_default": false,
-                "field_type": "text",
-                "applicable_countries": [
-                    "NL", "PL", "PT", "SE", "FI", "NO", "DK", "BE"
-                ]
+                "is_checkout_collectable": false,
+                "is_visible_in_admin_ui": true,
+                "schema": {
+                  "properties": {
+                    "legal_name": {
+                      "id": "legal_name",
+                      "display_name": "Payer Legal Name",
+                      "value_type": "string",
+                      "is_mandatory": true,
+                      "is_checkout_collectable": false,
+                      "is_visible_in_admin_ui": true,
+                      "validation": {
+                        "min_length": 1,
+                        "max_length": 200,
+                        "error_message": "Payer legal name is required."
+                      }
+                    },
+                    "postal_address": {
+                      "id": "postal_address",
+                      "display_name": "Payer Postal Address",
+                      "value_type": "object",
+                      "is_mandatory": true,
+                      "is_checkout_collectable": false,
+                      "is_visible_in_admin_ui": true,
+                      "schema": {
+                        "properties": {
+                          "city": {
+                            "id": "city",
+                            "display_name": "City",
+                            "value_type": "string",
+                            "is_mandatory": true,
+                            "is_checkout_collectable": false,
+                            "is_visible_in_admin_ui": true,
+                            "validation": {
+                              "min_length": 1,
+                              "max_length": 80
+                            }
+                          },
+                          "country_code": {
+                            "id": "country_code",
+                            "display_name": "Country Code",
+                            "value_type": "string",
+                            "is_mandatory": true,
+                            "is_checkout_collectable": false,
+                            "is_visible_in_admin_ui": true,
+                            "validation": {
+                              "pattern": "^[A-Z]{2}$",
+                              "allowed_values": ["FR"],
+                              "error_message": "Country code must be FR."
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "identifiers": {
+                      "id": "identifiers",
+                      "display_name": "Payer Identifiers",
+                      "description": "Legal or tax identifiers for the payer.",
+                      "value_type": "array",
+                      "is_mandatory": false,
+                      "is_checkout_collectable": false,
+                      "is_visible_in_admin_ui": true,
+                      "schema": {
+                        "items": {
+                          "id": "payer_identifier",
+                          "display_name": "Payer Identifier",
+                          "value_type": "object",
+                          "is_mandatory": true,
+                          "is_checkout_collectable": false,
+                          "is_visible_in_admin_ui": true,
+                          "schema": {
+                            "required": ["scheme", "value"],
+                            "properties": {
+                              "scheme": {
+                                "id": "scheme",
+                                "display_name": "Scheme",
+                                "value_type": "string",
+                                "is_mandatory": true,
+                                "is_checkout_collectable": false,
+                                "is_visible_in_admin_ui": true,
+                                "validation": {
+                                  "allowed_values": ["SIREN", "SIRET", "VAT", "GLN", "OTHER"],
+                                  "max_length": 20
+                                }
+                              },
+                              "value": {
+                                "id": "value",
+                                "display_name": "Identifier Value",
+                                "value_type": "string",
+                                "is_mandatory": true,
+                                "is_checkout_collectable": false,
+                                "is_visible_in_admin_ui": true,
+                                "validation": {
+                                  "min_length": 1,
+                                  "max_length": 100
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "id": "party_identifiers",
+                "display_name": "Party Identifiers",
+                "description": "Customer legal, tax, endpoint, or routing identifiers.",
+                "value_type": "array",
+                "is_mandatory": false,
+                "is_checkout_collectable": false,
+                "is_visible_in_admin_ui": true,
+                "schema": {
+                  "items": {
+                    "id": "party_identifier",
+                    "display_name": "Party Identifier",
+                    "value_type": "object",
+                    "is_mandatory": true,
+                    "is_checkout_collectable": false,
+                    "is_visible_in_admin_ui": true,
+                    "schema": {
+                      "properties": {
+                        "type": {
+                          "id": "type",
+                          "display_name": "Identifier Type",
+                          "value_type": "string",
+                          "is_mandatory": true,
+                          "is_checkout_collectable": false,
+                          "is_visible_in_admin_ui": true,
+                          "validation": {
+                            "allowed_values": ["LEGAL", "VAT", "SIREN", "SIRET", "ENDPOINT", "OTHER"]
+                          }
+                        },
+                        "scheme": {
+                          "id": "scheme",
+                          "display_name": "Scheme",
+                          "value_type": "string",
+                          "is_mandatory": false,
+                          "is_checkout_collectable": false,
+                          "is_visible_in_admin_ui": true,
+                          "validation": {
+                            "max_length": 20
+                          }
+                        },
+                        "value": {
+                          "id": "value",
+                          "display_name": "Identifier Value",
+                          "value_type": "string",
+                          "is_mandatory": true,
+                          "is_checkout_collectable": false,
+                          "is_visible_in_admin_ui": true,
+                          "validation": {
+                            "min_length": 1,
+                            "max_length": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             ],
-            "document_download": {
-                "is_supported": true,
-                "failed_document_mime_types": [
-                    "application/vnd.oasis.ubl+xml",
-                    "application/xml"
-                ]
+            "DE": [
+              {
+                "id": "vat_number",
+                "display_name": "VAT Number",
+                "value_type": "string",
+                "is_mandatory": true,
+                "is_checkout_collectable": true,
+                "is_visible_in_admin_ui": true,
+                "validation": {
+                  "pattern": "^DE[0-9]{9}$",
+                  "error_message": "German VAT number must start with 'DE' followed by 9 digits."
+                }
               }
+            ],
+            "EU": [
+              {
+                "id": "buyer_reference",
+                "display_name": "Buyer Reference",
+                "value_type": "string",
+                "is_mandatory": true,
+                "is_checkout_collectable": true,
+                "is_visible_in_admin_ui": true,
+                "validation": {
+                  "min_length": 1,
+                  "max_length": 100
+                }
+              }
+            ]
+          },
+          "document_download": {
+            "is_supported": true,
+            "failed_document_mime_types": [
+              "application/vnd.oasis.ubl+xml",
+              "application/xml"
+            ]
           }
+        }
       ],
       "title": "Capabilities"
     },
     "CustomerIdentifiers": {
-      "type": "array",
-      "description": "Specifies the customer identifiers required for E-invoicing in different countries.",
-      "items": {
-        "$ref": "#/definitions/CustomerIdentifier"
-      }
-    },
-    "CustomerIdentifier": {
       "type": "object",
-      "description": "Specifies the e-invoicing identifier for the customer and the countries where it is required.",
+      "description": "Specifies the customer identifiers required for E-invoicing as a map keyed by ISO 3166-1 alpha-2 country code (or a 2-letter region code such as 'EU'). The value for each country/region is the ordered list of identifier fields the provider expects for customers in that jurisdiction.",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[A-Z]{2}$",
+        "description": "Two-letter uppercase country code (ISO 3166-1 alpha-2) or a 2-letter region code such as 'EU'."
+      },
+      "additionalProperties": {
+        "type": "array",
+        "description": "The list of customer identifier field definitions that apply to the given country/region key.",
+        "minItems": 1,
+        "items": {
+          "$ref": "#/definitions/CustomerIdentifierField"
+        }
+      },
+      "title": "CustomerIdentifiers"
+    },
+    "CustomerIdentifierField": {
+      "type": "object",
+      "description": "Defines a customer identifier field at any depth. Top-level entries appear in customer_identifiers.<country>[]. Nested entries appear in a parent field's schema.properties or schema.items. Every node uses the same shape.",
       "additionalProperties": false,
+      "required": [
+        "id",
+        "display_name",
+        "value_type",
+        "is_mandatory",
+        "is_checkout_collectable",
+        "is_visible_in_admin_ui"
+      ],
       "properties": {
-        "external_id": {
+        "id": {
           "type": "string",
-          "description": "Specifies the parameter name the E-invoicing provider expects.",
+          "description": "Machine identifier of the field. Must start with a lowercase letter and contain only lowercase letters, digits and underscores. When nested inside schema.properties, id MUST match the property key.",
+          "pattern": "^[a-z][a-z0-9_]*$",
           "examples": [
-            "vat_number"
+            "buyer_reference",
+            "vat_number",
+            "legal_name",
+            "payer_identifier"
           ]
         },
         "display_name": {
           "type": "string",
-          "description": "Specifies the name of the parameter to be displayed in Chargebee platform.",
+          "description": "Human-readable label shown in the Chargebee UI.",
+          "minLength": 1,
+          "maxLength": 100,
           "examples": [
-            "Vat Number"
+            "Buyer Reference"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional help text describing what the field is used for.",
+          "maxLength": 500
+        },
+        "value_type": {
+          "type": "string",
+          "description": "Logical data type of the field. Use 'object' or 'array' for structured values, in which case a 'schema' must also be provided.",
+          "enum": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "date",
+            "datetime",
+            "object",
+            "array"
           ]
         },
         "is_mandatory": {
           "type": "boolean",
-          "description": "Specifies if the parameter is mandatory."
+          "description": "Whether the field must be supplied on the customer record."
         },
-        "is_default": {
+        "is_checkout_collectable": {
           "type": "boolean",
-          "deprecated": true,
-          "description": "Specifies if the parameter has a default value."
+          "description": "Whether the field should be collected from the buyer during hosted checkout."
         },
-        "field_type": {
-          "type": "string"
+        "is_visible_in_admin_ui": {
+          "type": "boolean",
+          "description": "Whether the field should be shown on the customer details page in the Chargebee admin UI."
         },
-        "applicable_countries": {
-          "type": "array",
-          "description": "Specifies the countries(ISO 3166 alpha-2 country code format) which require this identifier",
-          "items": {
-            "type": "string"
-          },
-          "examples": [
-            "DE"
-          ]
+        "validation": {
+          "$ref": "#/definitions/CustomerIdentifierValidation",
+          "description": "Optional value-level constraints applied to scalar fields (length, pattern, allowed values, etc.)."
+        },
+        "schema": {
+          "$ref": "#/definitions/CustomerIdentifierFieldSchema",
+          "description": "Required when value_type is 'object' or 'array'. Describes the structure of the value."
         }
       },
-      "required": [
-        "display_name",
-        "external_id",
-        "field_type",
-        "applicable_countries"
-      ],
-      "examples": [
+      "oneOf": [
         {
-          "external_id": "vat_number",
-          "display_name": "Vat Number",
-          "is_mandatory": true,
-          "is_default": false,
-          "field_type": "text",
-          "applicable_countries": [
-            "DE",
-            "AT"
+          "description": "Object fields MUST declare schema with properties.",
+          "properties": {
+            "value_type": {
+              "const": "object"
+            }
+          },
+          "required": [
+            "schema"
+          ],
+          "allOf": [
+            {
+              "properties": {
+                "schema": {
+                  "required": [
+                    "properties"
+                  ]
+                }
+              }
+            }
           ]
+        },
+        {
+          "description": "Array fields MUST declare schema with items.",
+          "properties": {
+            "value_type": {
+              "const": "array"
+            }
+          },
+          "required": [
+            "schema"
+          ],
+          "allOf": [
+            {
+              "properties": {
+                "schema": {
+                  "required": [
+                    "items"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "description": "Scalar values MUST NOT declare a 'schema'.",
+          "properties": {
+            "value_type": {
+              "enum": [
+                "string",
+                "number",
+                "integer",
+                "boolean",
+                "date",
+                "datetime"
+              ]
+            }
+          },
+          "not": {
+            "required": [
+              "schema"
+            ]
+          }
         }
       ],
-      "title": "CustomerIdentifier"
+      "title": "CustomerIdentifierField"
+    },
+    "CustomerIdentifierValidation": {
+      "type": "object",
+      "description": "Value-level constraints applied to a scalar customer identifier field.",
+      "additionalProperties": false,
+      "properties": {
+        "min_length": {
+          "type": "integer",
+          "description": "Minimum string length. Applies to value_type 'string'.",
+          "minimum": 0
+        },
+        "max_length": {
+          "type": "integer",
+          "description": "Maximum string length. Applies to value_type 'string'.",
+          "minimum": 1
+        },
+        "minimum": {
+          "type": "number",
+          "description": "Inclusive lower bound. Applies to value_type 'number' or 'integer'."
+        },
+        "maximum": {
+          "type": "number",
+          "description": "Inclusive upper bound. Applies to value_type 'number' or 'integer'."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regular expression the string value must match."
+        },
+        "format": {
+          "type": "string",
+          "description": "Semantic format hint for the value.",
+          "enum": [
+            "email",
+            "uri",
+            "date",
+            "datetime"
+          ]
+        },
+        "allowed_values": {
+          "type": "array",
+          "description": "Closed set of allowed values for the field.",
+          "items": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "error_message": {
+          "type": "string",
+          "description": "Optional override error message shown when validation fails."
+        }
+      },
+      "title": "CustomerIdentifierValidation"
+    },
+    "CustomerIdentifierFieldSchema": {
+      "type": "object",
+      "description": "Structural schema for a field whose value_type is 'object' or 'array'. Nested nodes are full CustomerIdentifierField instances.",
+      "additionalProperties": false,
+      "properties": {
+        "properties": {
+          "type": "object",
+          "description": "Property name to CustomerIdentifierField map. Required when parent value_type is 'object'.",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/definitions/CustomerIdentifierField"
+          }
+        },
+        "items": {
+          "$ref": "#/definitions/CustomerIdentifierField",
+          "description": "Element field definition. Required when parent value_type is 'array'."
+        }
+      },
+      "title": "CustomerIdentifierFieldSchema"
     },
     "DocumentDownload": {
       "type": "object",
