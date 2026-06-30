@@ -1293,7 +1293,8 @@ paths:
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=ACCEPTED' \
-              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+              --data-urlencode 'business_status=Approved' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
               --data-urlencode 'provider_response={
                 "source":"avalara",
                 "received_at":"2025-12-29T12:17:47.791Z",
@@ -1302,6 +1303,7 @@ paths:
                   "id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
                   "companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5",
                   "status":"Complete",
+                  "businessStatus":"Approved",
                   "events":[
                     {"eventDateTime":"2025-12-29T12:17:47.791","message":"Document started processing"},
                     {"eventDateTime":"2025-12-29T12:17:47.934","message":"Validations for the submitted document were successful"},
@@ -1416,6 +1418,7 @@ paths:
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=ACCEPTED' \
+              --data-urlencode 'business_status=Approved' \
               --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
 
         - lang: cURL
@@ -1475,8 +1478,9 @@ paths:
                   value:
                     document_id: DOC-20250402-0001
                     status: SUCCESS
+                    business_status: Approved
                     submission_date: '2025-04-02T07:39:31.815Z'
-                    provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+                    provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete","businessStatus":"Approved"}}'
                 failed_einvoice_document_submission_response:
                   summary: Failed validation at provider
                   description: A sample failed document status response due to unregistered VAT number.
@@ -2537,6 +2541,8 @@ components:
             - UNDER_QUERY
             - CONDITIONALLY_ACCEPTED
             - PAID
+        business_status:
+          $ref: '#/components/schemas/document_business_status'
         submission_date:
           type: string
           format: date-time
@@ -2559,11 +2565,24 @@ components:
       example:
         document_id: DOC-20250402-0001
         status: SUCCESS
+        business_status: Approved
         submission_date: 2025-04-02T07:39:31.815Z
-        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete","businessStatus":"Approved"}}'
       required:
         - document_id
         - status
+    document_business_status:
+      type: string
+      description: |
+        Optional business lifecycle state of the document as reported by external actors
+        (such as a tax authority, PDP, or buyer ERP), distinct from the technical processing
+        `status`.
+
+        This reflects mandate-specific commercial outcomes—for example approval, rejection,
+        payment confirmation, or validation responses—received after the document has been
+        routed through the e-invoicing network. Values are provider- and mandate-specific;
+        when not supported, omit this field.
+      example: Approved
     download_document_response:
       type: object
       required:
@@ -2800,6 +2819,8 @@ components:
             - CONDITIONALLY_ACCEPTED
             - PAID
           description: Current status of the document after processing by the provider.
+        business_status:
+          $ref: '#/components/schemas/document_business_status'
         timestamp:
           type: string
           description: Timestamp (UTC) in seconds indicating when the status was determined.
@@ -2966,6 +2987,7 @@ components:
       value:
         einvoicing_provider_id: avalara
         status: ACCEPTED
+        business_status: Approved
         timestamp: '2025-05-23T13:22:50.519Z'
         provider_response: >
             {
@@ -2976,6 +2998,7 @@ components:
                 "id": "ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
                 "companyId": "304382fd-1268-4e7b-86db-a8d51ff309d5",
                 "status": "Complete",
+                "businessStatus": "Approved",
                 "events": [
                   {
                     "eventDateTime": "2025-12-29T12:17:47.791",
