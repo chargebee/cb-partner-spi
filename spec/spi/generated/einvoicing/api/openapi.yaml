@@ -1971,63 +1971,16 @@ components:
             or assignment note in case the document has been factored.
           type: string
         custom_fields:
-          additionalProperties:
-            type: string
-          description: |
-            Merchant-defined custom field values keyed by Chargebee API name
-            (for example, `cf_po_number`). Values are serialized as strings.
-
-            Used as:
-            - `main_document.custom_fields` — invoice / credit note fields
-            - `accounting_customer_party.custom_fields` — customer fields
-            - `main_document.subscription_custom_fields` — subscription fields when the
-              document has a single subscription (set once at document level)
-            - `lines[].subscription_custom_fields` — subscription fields when the
-              document is consolidated / multi-subscription (resolved per line by Chargebee)
-            - `lines[].product_custom_fields` — product / item-price fields for the
-              product on that line (always line-level)
-
-            Adapter guidance for subscription fields:
-            - Prefer `lines[].subscription_custom_fields` when present on a line
-            - Otherwise use `document.subscription_custom_fields`
-
-            Examples: `document.custom_fields.cf_invoice_reference`,
-            `document.subscription_custom_fields.cf_contract_id`,
-            `lines[].subscription_custom_fields.cf_contract_id`,
-            `lines[].product_custom_fields.cf_hs_code`.
-          example:
-            cf_po_number: PO-12345
-            cf_cost_center: CC-42
-          type: object
+          allOf:
+          - $ref: '#/components/schemas/custom_fields'
+          description: Invoice or credit note custom field values keyed by API name
+            (e.g. `cf_invoice_reference`).
         subscription_custom_fields:
-          additionalProperties:
-            type: string
+          allOf:
+          - $ref: '#/components/schemas/custom_fields'
           description: |
-            Merchant-defined custom field values keyed by Chargebee API name
-            (for example, `cf_po_number`). Values are serialized as strings.
-
-            Used as:
-            - `main_document.custom_fields` — invoice / credit note fields
-            - `accounting_customer_party.custom_fields` — customer fields
-            - `main_document.subscription_custom_fields` — subscription fields when the
-              document has a single subscription (set once at document level)
-            - `lines[].subscription_custom_fields` — subscription fields when the
-              document is consolidated / multi-subscription (resolved per line by Chargebee)
-            - `lines[].product_custom_fields` — product / item-price fields for the
-              product on that line (always line-level)
-
-            Adapter guidance for subscription fields:
-            - Prefer `lines[].subscription_custom_fields` when present on a line
-            - Otherwise use `document.subscription_custom_fields`
-
-            Examples: `document.custom_fields.cf_invoice_reference`,
-            `document.subscription_custom_fields.cf_contract_id`,
-            `lines[].subscription_custom_fields.cf_contract_id`,
-            `lines[].product_custom_fields.cf_hs_code`.
-          example:
-            cf_po_number: PO-12345
-            cf_cost_center: CC-42
-          type: object
+            Subscription custom fields for single-subscription documents (set once at document level).
+            For consolidated / multi-subscription documents, use `lines[].subscription_custom_fields` instead.
         billing_reference:
           description: A group of business terms providing information on one or more
             preceding invoices. This enhances traceability in workflows where a document
@@ -2458,25 +2411,6 @@ components:
       description: |
         Merchant-defined custom field values keyed by Chargebee API name
         (for example, `cf_po_number`). Values are serialized as strings.
-
-        Used as:
-        - `main_document.custom_fields` — invoice / credit note fields
-        - `accounting_customer_party.custom_fields` — customer fields
-        - `main_document.subscription_custom_fields` — subscription fields when the
-          document has a single subscription (set once at document level)
-        - `lines[].subscription_custom_fields` — subscription fields when the
-          document is consolidated / multi-subscription (resolved per line by Chargebee)
-        - `lines[].product_custom_fields` — product / item-price fields for the
-          product on that line (always line-level)
-
-        Adapter guidance for subscription fields:
-        - Prefer `lines[].subscription_custom_fields` when present on a line
-        - Otherwise use `document.subscription_custom_fields`
-
-        Examples: `document.custom_fields.cf_invoice_reference`,
-        `document.subscription_custom_fields.cf_contract_id`,
-        `lines[].subscription_custom_fields.cf_contract_id`,
-        `lines[].product_custom_fields.cf_hs_code`.
       example:
         cf_po_number: PO-12345
         cf_cost_center: CC-42
@@ -2953,34 +2887,9 @@ components:
         legal_entity:
           $ref: '#/components/schemas/party_legal_entity'
         custom_fields:
-          additionalProperties:
-            type: string
-          description: |
-            Merchant-defined custom field values keyed by Chargebee API name
-            (for example, `cf_po_number`). Values are serialized as strings.
-
-            Used as:
-            - `main_document.custom_fields` — invoice / credit note fields
-            - `accounting_customer_party.custom_fields` — customer fields
-            - `main_document.subscription_custom_fields` — subscription fields when the
-              document has a single subscription (set once at document level)
-            - `lines[].subscription_custom_fields` — subscription fields when the
-              document is consolidated / multi-subscription (resolved per line by Chargebee)
-            - `lines[].product_custom_fields` — product / item-price fields for the
-              product on that line (always line-level)
-
-            Adapter guidance for subscription fields:
-            - Prefer `lines[].subscription_custom_fields` when present on a line
-            - Otherwise use `document.subscription_custom_fields`
-
-            Examples: `document.custom_fields.cf_invoice_reference`,
-            `document.subscription_custom_fields.cf_contract_id`,
-            `lines[].subscription_custom_fields.cf_contract_id`,
-            `lines[].product_custom_fields.cf_hs_code`.
-          example:
-            cf_po_number: PO-12345
-            cf_cost_center: CC-42
-          type: object
+          allOf:
+          - $ref: '#/components/schemas/custom_fields'
+          description: Customer custom field values keyed by API name (e.g. `cf_tax_id`).
       required:
       - address
       - legalEntity
@@ -3026,63 +2935,17 @@ components:
             to the line.
           type: string
         subscription_custom_fields:
-          additionalProperties:
-            type: string
+          allOf:
+          - $ref: '#/components/schemas/custom_fields'
           description: |
-            Merchant-defined custom field values keyed by Chargebee API name
-            (for example, `cf_po_number`). Values are serialized as strings.
-
-            Used as:
-            - `main_document.custom_fields` — invoice / credit note fields
-            - `accounting_customer_party.custom_fields` — customer fields
-            - `main_document.subscription_custom_fields` — subscription fields when the
-              document has a single subscription (set once at document level)
-            - `lines[].subscription_custom_fields` — subscription fields when the
-              document is consolidated / multi-subscription (resolved per line by Chargebee)
-            - `lines[].product_custom_fields` — product / item-price fields for the
-              product on that line (always line-level)
-
-            Adapter guidance for subscription fields:
-            - Prefer `lines[].subscription_custom_fields` when present on a line
-            - Otherwise use `document.subscription_custom_fields`
-
-            Examples: `document.custom_fields.cf_invoice_reference`,
-            `document.subscription_custom_fields.cf_contract_id`,
-            `lines[].subscription_custom_fields.cf_contract_id`,
-            `lines[].product_custom_fields.cf_hs_code`.
-          example:
-            cf_po_number: PO-12345
-            cf_cost_center: CC-42
-          type: object
+            Subscription custom fields for this line's subscription.
+            Present on consolidated / multi-subscription documents.
+            For single-subscription documents, see `main_document.subscription_custom_fields`.
         product_custom_fields:
-          additionalProperties:
-            type: string
-          description: |
-            Merchant-defined custom field values keyed by Chargebee API name
-            (for example, `cf_po_number`). Values are serialized as strings.
-
-            Used as:
-            - `main_document.custom_fields` — invoice / credit note fields
-            - `accounting_customer_party.custom_fields` — customer fields
-            - `main_document.subscription_custom_fields` — subscription fields when the
-              document has a single subscription (set once at document level)
-            - `lines[].subscription_custom_fields` — subscription fields when the
-              document is consolidated / multi-subscription (resolved per line by Chargebee)
-            - `lines[].product_custom_fields` — product / item-price fields for the
-              product on that line (always line-level)
-
-            Adapter guidance for subscription fields:
-            - Prefer `lines[].subscription_custom_fields` when present on a line
-            - Otherwise use `document.subscription_custom_fields`
-
-            Examples: `document.custom_fields.cf_invoice_reference`,
-            `document.subscription_custom_fields.cf_contract_id`,
-            `lines[].subscription_custom_fields.cf_contract_id`,
-            `lines[].product_custom_fields.cf_hs_code`.
-          example:
-            cf_po_number: PO-12345
-            cf_cost_center: CC-42
-          type: object
+          allOf:
+          - $ref: '#/components/schemas/custom_fields'
+          description: Product / item-price custom field values for this line keyed
+            by API name (e.g. `cf_hs_code`).
         classified_tax_category:
           description: "List of tax categories applicable to the invoice line, such\
             \ as VAT or other indirect taxes."
