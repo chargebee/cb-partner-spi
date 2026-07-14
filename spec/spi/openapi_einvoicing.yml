@@ -2042,6 +2042,10 @@ components:
           description: A textual note that gives unstructured information that is
             relevant to the Document as a whole. Such as the reason for any correction
             or assignment note in case the document has been factored.
+        custom_fields:
+          $ref: '#/components/schemas/custom_fields'
+        subscription_custom_fields:
+          $ref: '#/components/schemas/custom_fields'
         billing_reference:
           type: array
           description: A group of business terms providing information on one or more preceding invoices. This enhances traceability in workflows where a document is linked to earlier billing records. For credit notes this is essential as they must reference the original invoice they amend.
@@ -2104,6 +2108,8 @@ components:
             legal_entity:
               description: Legal entity of the customer party.
               $ref: '#/components/schemas/party_legal_entity'
+            custom_fields:
+              $ref: '#/components/schemas/custom_fields'
           required:
             - address
             - taxScheme
@@ -2142,6 +2148,10 @@ components:
                 type: string
                 description: The unique identifier (in Chargebee) of the product corresponding
                   to the line.
+              subscription_custom_fields:
+                $ref: '#/components/schemas/custom_fields'
+              product_custom_fields:
+                $ref: '#/components/schemas/custom_fields'
               classified_tax_category:
                 type: array
                 description: List of tax categories applicable to the invoice line,
@@ -2780,6 +2790,35 @@ components:
             the party as a legal entity or person.
       required:
         - registrationName
+    custom_fields:
+      type: object
+      description: |
+        Merchant-defined custom field values keyed by Chargebee API name
+        (for example, `cf_po_number`). Values are serialized as strings.
+
+        Used as:
+        - `main_document.custom_fields` — invoice / credit note fields
+        - `accounting_customer_party.custom_fields` — customer fields
+        - `main_document.subscription_custom_fields` — subscription fields when the
+          document has a single subscription (set once at document level)
+        - `lines[].subscription_custom_fields` — subscription fields when the
+          document is consolidated / multi-subscription (resolved per line by Chargebee)
+        - `lines[].product_custom_fields` — product / item-price fields for the
+          product on that line (always line-level)
+
+        Adapter guidance for subscription fields:
+        - Prefer `lines[].subscription_custom_fields` when present on a line
+        - Otherwise use `document.subscription_custom_fields`
+
+        Examples: `document.custom_fields.cf_invoice_reference`,
+        `document.subscription_custom_fields.cf_contract_id`,
+        `lines[].subscription_custom_fields.cf_contract_id`,
+        `lines[].product_custom_fields.cf_hs_code`.
+      additionalProperties:
+        type: string
+      example:
+        cf_po_number: "PO-12345"
+        cf_cost_center: "CC-42"
     callback_document_status:
       type: object
       properties:
