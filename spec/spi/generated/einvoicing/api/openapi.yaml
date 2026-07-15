@@ -2028,9 +2028,9 @@ components:
           format: date
           type: string
         sender_party:
-          $ref: '#/components/schemas/application_response_document_sender_party'
+          $ref: '#/components/schemas/application_response_party'
         receiver_party:
-          $ref: '#/components/schemas/application_response_document_receiver_party'
+          $ref: '#/components/schemas/application_response_party'
         document_response:
           $ref: '#/components/schemas/application_response_document_document_response'
         overrides:
@@ -2318,6 +2318,18 @@ components:
       - REFUND_DUE
       example: PAYMENT_DUE
       type: string
+    application_response_party:
+      description: Party information for the sender or receiver of an application
+        response document.
+      properties:
+        name:
+          description: Name of the party.
+          type: string
+        tax_registration_number:
+          description: "Tax registration number of the party (for example VAT / GST\
+            \ number), when available."
+          type: string
+      type: object
     address:
       properties:
         line_1:
@@ -2919,26 +2931,6 @@ components:
           items:
             $ref: '#/components/schemas/main_document_tax_total_tax_sub_totals_inner'
           type: array
-      type: object
-    application_response_document_sender_party:
-      properties:
-        name:
-          description: Name of the sender party.
-          type: string
-        tax_registration_number:
-          description: "Tax registration number of the sender (for example VAT / GST\
-            \ number), when available."
-          type: string
-      type: object
-    application_response_document_receiver_party:
-      properties:
-        name:
-          description: Name of the receiver party.
-          type: string
-        tax_registration_number:
-          description: "Tax registration number of the receiver (for example VAT /\
-            \ GST number), when available."
-          type: string
       type: object
     application_response_document_document_response_response:
       properties:

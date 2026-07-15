@@ -2221,23 +2221,11 @@ components:
           type: string
           format: date
         sender_party:
-          type: object
-          properties:
-            name:
-              type: string
-              description: Name of the sender party.
-            tax_registration_number:
-              type: string
-              description: Tax registration number of the sender (for example VAT / GST number), when available.
+          description: Party that sends the application response.
+          $ref: '#/components/schemas/application_response_party'
         receiver_party:
-          type: object
-          properties:
-            name:
-              type: string
-              description: Name of the receiver party.
-            tax_registration_number:
-              type: string
-              description: Tax registration number of the receiver (for example VAT / GST number), when available.
+          description: Party that receives the application response.
+          $ref: '#/components/schemas/application_response_party'
         document_response:
           type: object
           required:
@@ -2700,6 +2688,16 @@ components:
         - REFUNDED
         - REFUND_DUE
       example: PAYMENT_DUE
+    application_response_party:
+      type: object
+      description: Party information for the sender or receiver of an application response document.
+      properties:
+        name:
+          type: string
+          description: Name of the party.
+        tax_registration_number:
+          type: string
+          description: Tax registration number of the party (for example VAT / GST number), when available.
     address:
       type: object
       properties:
