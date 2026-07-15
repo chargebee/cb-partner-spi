@@ -1996,6 +1996,16 @@ components:
           description: A textual note that gives unstructured information that is
             relevant to the Document as a whole. Such as the reason for any correction
             or assignment note in case the document has been factored.
+        custom_fields:
+          description: Invoice or credit note custom field values keyed by API name (e.g. `cf_invoice_reference`).
+          allOf:
+            - $ref: '#/components/schemas/custom_fields'
+        subscription_custom_fields:
+          description: |
+            Subscription custom fields for single-subscription documents (set once at document level).
+            For consolidated / multi-subscription documents, use `lines[].subscription_custom_fields` instead.
+          allOf:
+            - $ref: '#/components/schemas/custom_fields'
         billing_reference:
           type: array
           description: A group of business terms providing information on one or more preceding invoices. This enhances traceability in workflows where a document is linked to earlier billing records. For credit notes this is essential as they must reference the original invoice they amend.
@@ -2046,6 +2056,10 @@ components:
             tax_registration_number:
               type: string
               description: Tax registration number of the customer (for example VAT / GST number), when available.
+            custom_fields:
+              description: Customer custom field values keyed by API name (e.g. `cf_tax_id`).
+              allOf:
+                - $ref: '#/components/schemas/custom_fields'
           required:
             - address
         payment_means:
@@ -2082,6 +2096,17 @@ components:
                 type: string
                 description: The unique identifier (in Chargebee) of the product corresponding
                   to the line.
+              subscription_custom_fields:
+                description: |
+                  Subscription custom fields for this line's subscription.
+                  Present on consolidated / multi-subscription documents.
+                  For single-subscription documents, see `main_document.subscription_custom_fields`.
+                allOf:
+                  - $ref: '#/components/schemas/custom_fields'
+              product_custom_fields:
+                description: Product / item-price custom field values for this line keyed by API name (e.g. `cf_hs_code`).
+                allOf:
+                  - $ref: '#/components/schemas/custom_fields'
               classified_tax_category:
                 type: array
                 description: List of tax categories applicable to the invoice line,
@@ -2699,6 +2724,16 @@ components:
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code.
+    custom_fields:
+      type: object
+      description: |
+        Merchant-defined custom field values keyed by Chargebee API name
+        (for example, `cf_po_number`). Values are serialized as strings.
+      additionalProperties:
+        type: string
+      example:
+        cf_po_number: "PO-12345"
+        cf_cost_center: "CC-42"
     callback_document_status:
       type: object
       properties:
