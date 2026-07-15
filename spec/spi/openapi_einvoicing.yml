@@ -388,12 +388,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -404,12 +399,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -486,12 +476,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -502,12 +487,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -717,12 +697,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -733,12 +708,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -814,12 +784,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -830,12 +795,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -2074,18 +2034,11 @@ components:
             address:
               description: Address of the Supplier party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
-              type: array
-              description: List of tax identifiers associated with the supplier.
-              items:
-                $ref: '#/components/schemas/tax_scheme'
-            legal_entity:
-              description: Legal entity of the supplier party.
-              $ref: '#/components/schemas/party_legal_entity'
+            tax_registration_number:
+              type: string
+              description: Tax registration number of the supplier (for example VAT / GST number), when available.
           required:
             - address
-            - taxScheme
-            - legalEntity
         accounting_customer_party:
           type: object
           description: Party responsible for receiving the invoice (i.e., the customer).
@@ -2096,18 +2049,11 @@ components:
             address:
               description: Address of the customer party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
-              type: array
-              description: List of tax identifiers associated.
-              items:
-                $ref: '#/components/schemas/tax_scheme'
-            legal_entity:
-              description: Legal entity of the customer party.
-              $ref: '#/components/schemas/party_legal_entity'
+            tax_registration_number:
+              type: string
+              description: Tax registration number of the customer (for example VAT / GST number), when available.
           required:
             - address
-            - taxScheme
-            - legalEntity
         payment_means:
           type: array
           description: A list of payment methods with corresponding payment details.
@@ -2755,18 +2701,6 @@ components:
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code.
-    tax_scheme:
-      type: object
-      properties:
-        scheme:
-          type: string
-          description: A code identifying the tax regime under which this party is registered—such as VAT, GST, or a region-specific tax scheme. This enables the adapter or e‑invoicing provider to apply the correct tax logic or reporting rules.
-        id:
-          type: string
-          description: The tax identification number assigned to the party by the relevant authority (for example, VAT number or legal registration ID). It is used for official identification and compliance in the e‑invoicing process.
-      required:
-        - scheme
-        - id
     party_legal_entity:
       type: object
       description: Legal entity information of the party.
