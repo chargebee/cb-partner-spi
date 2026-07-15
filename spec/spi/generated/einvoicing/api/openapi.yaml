@@ -631,8 +631,8 @@ paths:
           \    {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"customer.billing_address.country\"\n        },\n\
           \        {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\\\
-          \"\",\n          \"source\": \"customer.cf_einvoice_scheme_id\"\n      \
-          \  },\n        {\n          \"target\": \"Invoice.cac:TaxTotal.cbc:TaxAmount\"\
+          \"\",\n          \"source\": \"custom_fields[cf_einvoice_scheme_id]\"\n\
+          \        },\n        {\n          \"target\": \"Invoice.cac:TaxTotal.cbc:TaxAmount\"\
           ,\n          \"source\": \"invoice.tax_total\"\n        },\n        {\n\
           \          \"target\": \"Invoice.cbc:Note\",\n          \"source\": \"invoice.note\"\
           \n        },\n        {\n          \"target\": \"Invoice.cac:InvoiceLine.cbc:ID\"\
@@ -667,21 +667,21 @@ paths:
           : \"EUR\",\n        \"invoice.due_date\": \"2025-04-30\",\n        \"invoice.amount\"\
           : 114.0,\n        \"invoice.note\": \"Payment due in 28 days.\",\n     \
           \   \"business.address.country\": \"DE\",\n        \"customer.billing_address.country\"\
-          : \"DE\",\n        \"invoice.tax_total\": 14.0,\n        \"line_items\"\
-          : [\n          {\n            \"id\": \"1\",\n            \"description\"\
-          : \"Consulting Services - April\",\n            \"quantity\": 1,\n     \
-          \       \"unit_price\": 100.0,\n            \"amount\": 100.0,\n       \
-          \     \"item_code\": \"CONS-APRIL\",\n            \"tax_rate\" : \"14\"\
+          : \"DE\",\n        \"custom_fields[cf_einvoice_scheme_id]\": \"9930\",\n\
+          \        \"invoice.tax_total\": 14.0,\n        \"line_items\": [\n     \
+          \     {\n            \"id\": \"1\",\n            \"description\": \"Consulting\
+          \ Services - April\",\n            \"quantity\": 1,\n            \"unit_price\"\
+          : 100.0,\n            \"amount\": 100.0,\n            \"item_code\": \"\
+          CONS-APRIL\",\n            \"tax_rate\" : \"14\",\n            \"classified_tax_category\"\
+          : {\n              \"percentage\": 14,\n              \"category\": \"VAT\"\
+          ,\n              \"country\": \"DE\"\n            }\n          },\n    \
+          \      {\n            \"id\": \"2\",\n            \"description\": \"TEST\
+          \ Consulting Services - April\",\n            \"quantity\": 130,\n     \
+          \       \"unit_price\": 1000.0,\n            \"amount\": 1005.0,\n     \
+          \       \"item_code\": \"CONS-APRIL\",\n            \"tax_rate\" : \"30\"\
           ,\n            \"classified_tax_category\": {\n              \"percentage\"\
-          : 14,\n              \"category\": \"VAT\",\n              \"country\":\
-          \ \"DE\"\n            }\n          },\n          {\n            \"id\":\
-          \ \"2\",\n            \"description\": \"TEST Consulting Services - April\"\
-          ,\n            \"quantity\": 130,\n            \"unit_price\": 1000.0,\n\
-          \            \"amount\": 1005.0,\n            \"item_code\": \"CONS-APRIL\"\
-          ,\n            \"tax_rate\" : \"30\",\n            \"classified_tax_category\"\
-          : {\n              \"percentage\": 30,\n              \"category\": \"EU\
-          \ VAT\",\n              \"country\": \"DE\"\n            }\n          }\n\
-          \        ]\n      }\n    }\n  }'\n"
+          : 30,\n              \"category\": \"EU VAT\",\n              \"country\"\
+          : \"DE\"\n            }\n          }\n        ]\n      }\n    }\n  }'\n"
       - lang: cURL
         label: Credit note document submission
         source: |
@@ -816,20 +816,20 @@ paths:
           \ has(e.responseKey) && e.responseKey == 'Receipt Message ID') ? invoiceResponse.events.filter(e,\
           \ has(e.responseKey) && e.responseKey == 'Receipt Message ID').map(e, e.responseValue)[0]\
           \ : null\"\n        },\n        {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID\"\
-          ,\n          \"source\": \"business.legal_entity.company_id\"\n        },\n\
-          \        {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          ,\n          \"source\": \"tax_reg_number\"\n        },\n        {\n   \
+          \       \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"business.address.country\"\n        },\n    \
           \    {\n          \"target\": \"Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName\"\
-          ,\n          \"source\": \"business.legal_entity.registration_name\"\n \
-          \       },\n        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID\"\
-          ,\n          \"source\": \"customer.legal_entity.company_id\"\n        },\n\
-          \        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
+          ,\n          \"source\": \"organization_details.organization_name\"\n  \
+          \      },\n        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID\"\
+          ,\n          \"source\": \"customer.vat_number\"\n        },\n        {\n\
+          \          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode\"\
           ,\n          \"source\": \"customer.billing_address.country\"\n        },\n\
           \        {\n          \"target\": \"Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName\"\
-          ,\n          \"source\": \"customer.legal_entity.registration_name\"\n \
-          \       },\n        {\n          \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\\\
-          \"\",\n          \"source\": \"customer.cf_einvoice_scheme_id\"\n      \
-          \  },\n        {\n          \"target\": \"Creditnote.cac:TaxTotal.cbc:TaxAmount\"\
+          ,\n          \"source\": \"customer.company\"\n        },\n        {\n \
+          \         \"target\": \"Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\\\
+          \"\",\n          \"source\": \"custom_fields[cf_einvoice_scheme_id]\"\n\
+          \        },\n        {\n          \"target\": \"Creditnote.cac:TaxTotal.cbc:TaxAmount\"\
           ,\n          \"source\": \"credit_note.tax_total\"\n        },\n       \
           \ {\n          \"target\": \"Creditnote.cac:TaxTotal.cbc:TaxAmount.@currencyID\"\
           ,\n          \"source\": \"credit_note.currency_code\"\n        },\n   \
@@ -864,12 +864,12 @@ paths:
           : {\n          \"invoice_document_reference\": {\n            \"id\": \"\
           INV-10001\",\n            \"issue_date\": \"2025-04-02\"\n          }\n\
           \        },\n        \"credit_note.note\": \"Refund for April invoice\"\
-          ,\n        \"business.address.country\": \"DE\",\n        \"business.legal_entity.company_id\"\
-          : \"987654321\",\n        \"business.legal_entity.registration_name\": \"\
-          Example Seller GmbH\",\n        \"customer.billing_address.country\": \"\
-          DE\",\n        \"customer.legal_entity.company_id\": \"123456789\",\n  \
-          \      \"customer.legal_entity.registration_name\": \"Example Buyer GmbH\"\
-          ,\n        \"credit_note.tax_total\": 40.0,\n        \"invoiceResponse\"\
+          ,\n        \"business.address.country\": \"DE\",\n        \"tax_reg_number\"\
+          : \"DE987654321\",\n        \"organization_details.organization_name\":\
+          \ \"Example Seller GmbH\",\n        \"customer.billing_address.country\"\
+          : \"DE\",\n        \"customer.vat_number\": \"DE123456789\",\n        \"\
+          customer.company\": \"Example Buyer GmbH\",\n        \"custom_fields[cf_einvoice_scheme_id]\"\
+          : \"9930\",\n        \"credit_note.tax_total\": 40.0,\n        \"invoiceResponse\"\
           : {\n        \"events\": [\n          {\n            \"responseKey\": \"\
           Some Other Event\",\n            \"responseValue\": \"Some Value\"\n   \
           \       },\n          {\n            \"responseKey\": \"Receipt Message\
@@ -905,16 +905,12 @@ paths:
               "document_type": "ubl-applicationresponse",
               "issue_date": "2025-04-04",
               "sender_party": {
-                "legal_entity": {
-                  "registration_name": "Example Sender GmbH",
-                  "company_id": "DE998877665"
-                }
+                "name": "Example Sender GmbH",
+                "tax_registration_number": "DE987654321"
               },
               "receiver_party": {
-                "legal_entity": {
-                  "registration_name": "Example Receiver GmbH",
-                  "company_id": "DE112233445"
-                }
+                "name": "Example Receiver GmbH",
+                "tax_registration_number": "DE123456789"
               },
               "document_response": {
                 "response": {
@@ -942,16 +938,12 @@ paths:
               "document_type": "ubl-applicationresponse",
               "issue_date": "2025-04-03",
               "sender_party": {
-                "legal_entity": {
-                  "registration_name": "Example Sender GmbH",
-                  "company_id": "DE123456789"
-                }
+                "name": "Example Sender GmbH",
+                "tax_registration_number": "DE987654321"
               },
               "receiver_party": {
-                "legal_entity": {
-                  "registration_name": "Example Receiver GmbH",
-                  "company_id": "DE987654321"
-                }
+                "name": "Example Receiver GmbH",
+                "tax_registration_number": "DE123456789"
               },
               "document_response": {
                 "response": {
@@ -978,11 +970,11 @@ paths:
                   },
                   {
                     "target": "ApplicationResponse.cac:SenderParty.cac:PartyLegalEntity.cbc:RegistrationName",
-                    "source": "application_response.sender_party.legal_entity.registration_name"
+                    "source": "application_response.sender_party.name"
                   },
                   {
                     "target": "ApplicationResponse.cac:ReceiverParty.cac:PartyLegalEntity.cbc:RegistrationName",
-                    "source": "application_response.receiver_party.legal_entity.registration_name"
+                    "source": "application_response.receiver_party.name"
                   },
                   {
                     "target": "ApplicationResponse.cac:DocumentResponse.cac:Response.cbc:ResponseCode",
@@ -1000,8 +992,8 @@ paths:
                 "values": {
                   "application_response.id": "APPRESP-20240401-001",
                   "application_response.issue_date": "2025-04-03",
-                  "application_response.sender_party.legal_entity.registration_name": "Example Sender GmbH",
-                  "application_response.receiver_party.legal_entity.registration_name": "Example Receiver GmbH",
+                  "application_response.sender_party.name": "Example Sender GmbH",
+                  "application_response.receiver_party.name": "Example Receiver GmbH",
                   "application_response.document_response.response.status": "Accepted",
                   "application_response.document_response.response.note": "Invoice accepted without issues",
                   "application_response.document_response.document_reference.id": "INV-20240330-567"
@@ -2027,7 +2019,7 @@ components:
         sender_party:
           $ref: '#/components/schemas/application_response_document_sender_party'
         receiver_party:
-          $ref: '#/components/schemas/application_response_document_sender_party'
+          $ref: '#/components/schemas/application_response_document_receiver_party'
         document_response:
           $ref: '#/components/schemas/application_response_document_document_response'
         overrides:
@@ -2338,19 +2330,6 @@ components:
         country:
           description: ISO 3166-1 alpha-2 country code.
           type: string
-      type: object
-    party_legal_entity:
-      description: Legal entity information of the party.
-      properties:
-        registration_name:
-          description: The full formal name by which the party is registered.
-          type: string
-        company_id:
-          description: An identifier issued by an official registrar that identifies
-            the party as a legal entity or person.
-          type: string
-      required:
-      - registrationName
       type: object
     callback_document_status:
       properties:
@@ -2906,10 +2885,23 @@ components:
       type: object
     application_response_document_sender_party:
       properties:
-        legal_entity:
-          $ref: '#/components/schemas/party_legal_entity'
-      required:
-      - legal_entity
+        name:
+          description: Name of the sender party.
+          type: string
+        tax_registration_number:
+          description: "Tax registration number of the sender (for example VAT / GST\
+            \ number), when available."
+          type: string
+      type: object
+    application_response_document_receiver_party:
+      properties:
+        name:
+          description: Name of the receiver party.
+          type: string
+        tax_registration_number:
+          description: "Tax registration number of the receiver (for example VAT /\
+            \ GST number), when available."
+          type: string
       type: object
     application_response_document_document_response_response:
       properties:
