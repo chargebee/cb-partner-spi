@@ -401,54 +401,6 @@
                           }
                         }
                       }
-                    },
-                    "identifiers": {
-                      "id": "identifiers",
-                      "display_name": "Payer Identifiers",
-                      "description": "Legal or tax identifiers for the payer.",
-                      "value_type": "array",
-                      "is_mandatory": false,
-                      "is_checkout_collectable": false,
-                      "is_visible_in_admin_ui": true,
-                      "schema": {
-                        "items": {
-                          "id": "payer_identifier",
-                          "display_name": "Payer Identifier",
-                          "value_type": "object",
-                          "is_mandatory": true,
-                          "is_checkout_collectable": false,
-                          "is_visible_in_admin_ui": true,
-                          "schema": {
-                            "required": ["scheme", "value"],
-                            "properties": {
-                              "scheme": {
-                                "id": "scheme",
-                                "display_name": "Scheme",
-                                "value_type": "string",
-                                "is_mandatory": true,
-                                "is_checkout_collectable": false,
-                                "is_visible_in_admin_ui": true,
-                                "validation": {
-                                  "allowed_values": ["SIREN", "SIRET", "VAT", "GLN", "OTHER"],
-                                  "max_length": 20
-                                }
-                              },
-                              "value": {
-                                "id": "value",
-                                "display_name": "Identifier Value",
-                                "value_type": "string",
-                                "is_mandatory": true,
-                                "is_checkout_collectable": false,
-                                "is_visible_in_admin_ui": true,
-                                "validation": {
-                                  "min_length": 1,
-                                  "max_length": 100
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
                     }
                   }
                 }
