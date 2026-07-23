@@ -388,12 +388,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -404,12 +399,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -486,12 +476,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -502,12 +487,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -581,7 +561,7 @@ paths:
                     },
                     {
                       "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\"",
-                      "source": "customer.cf_einvoice_scheme_id"
+                      "source": "custom_fields[cf_einvoice_scheme_id]"
                     },
                     {
                       "target": "Invoice.cac:TaxTotal.cbc:TaxAmount",
@@ -650,6 +630,7 @@ paths:
                     "invoice.note": "Payment due in 28 days.",
                     "business.address.country": "DE",
                     "customer.billing_address.country": "DE",
+                    "custom_fields[cf_einvoice_scheme_id]": "9930",
                     "invoice.tax_total": 14.0,
                     "line_items": [
                       {
@@ -717,12 +698,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -733,12 +709,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -814,12 +785,7 @@ paths:
                     "city": "Cologne",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE987654321"
-                    }
-                  ]
+                  "tax_registration_number": "DE987654321"
                 },
                 "accounting_customer_party": {
                   "name": "Example Buyer GmbH",
@@ -830,12 +796,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_scheme": [
-                    {
-                      "scheme": "VAT",
-                      "id": "DE123456789"
-                    }
-                  ]
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -905,7 +866,7 @@ paths:
                     },
                     {
                       "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cbc:EndpointID",
-                      "source": "business.legal_entity.company_id"
+                      "source": "tax_reg_number"
                     },
                     {
                       "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
@@ -913,11 +874,11 @@ paths:
                     },
                     {
                       "target": "Creditnote.cac:AccountingSupplierParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName",
-                      "source": "business.legal_entity.registration_name"
+                      "source": "organization_details.organization_name"
                     },
                     {
                       "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cbc:EndpointID",
-                      "source": "customer.legal_entity.company_id"
+                      "source": "customer.vat_number"
                     },
                     {
                       "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PostalAddress.cac:Country.cbc:IdentificationCode",
@@ -925,11 +886,11 @@ paths:
                     },
                     {
                       "target": "Creditnote.cac:AccountingCustomerParty.cac:Party.cac:PartyLegalEntity.cbc:RegistrationName",
-                      "source": "customer.legal_entity.registration_name"
+                      "source": "customer.company"
                     },
                     {
                       "target": "Invoice.cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.@schemeID\"",
-                      "source": "customer.cf_einvoice_scheme_id"
+                      "source": "custom_fields[cf_einvoice_scheme_id]"
                     },
                     {
                       "target": "Creditnote.cac:TaxTotal.cbc:TaxAmount",
@@ -999,11 +960,12 @@ paths:
                     },
                     "credit_note.note": "Refund for April invoice",
                     "business.address.country": "DE",
-                    "business.legal_entity.company_id": "987654321",
-                    "business.legal_entity.registration_name": "Example Seller GmbH",
+                    "tax_reg_number": "DE987654321",
+                    "organization_details.organization_name": "Example Seller GmbH",
                     "customer.billing_address.country": "DE",
-                    "customer.legal_entity.company_id": "123456789",
-                    "customer.legal_entity.registration_name": "Example Buyer GmbH",
+                    "customer.vat_number": "DE123456789",
+                    "customer.company": "Example Buyer GmbH",
+                    "custom_fields[cf_einvoice_scheme_id]": "9930",
                     "credit_note.tax_total": 40.0,
                     "invoiceResponse": {
                     "events": [
@@ -1068,16 +1030,12 @@ paths:
                 "document_type": "ubl-applicationresponse",
                 "issue_date": "2025-04-04",
                 "sender_party": {
-                  "legal_entity": {
-                    "registration_name": "Example Sender GmbH",
-                    "company_id": "DE998877665"
-                  }
+                  "name": "Example Sender GmbH",
+                  "tax_registration_number": "DE987654321"
                 },
                 "receiver_party": {
-                  "legal_entity": {
-                    "registration_name": "Example Receiver GmbH",
-                    "company_id": "DE112233445"
-                  }
+                  "name": "Example Receiver GmbH",
+                  "tax_registration_number": "DE123456789"
                 },
                 "document_response": {
                   "response": {
@@ -1106,16 +1064,12 @@ paths:
                 "document_type": "ubl-applicationresponse",
                 "issue_date": "2025-04-03",
                 "sender_party": {
-                  "legal_entity": {
-                    "registration_name": "Example Sender GmbH",
-                    "company_id": "DE123456789"
-                  }
+                  "name": "Example Sender GmbH",
+                  "tax_registration_number": "DE987654321"
                 },
                 "receiver_party": {
-                  "legal_entity": {
-                    "registration_name": "Example Receiver GmbH",
-                    "company_id": "DE987654321"
-                  }
+                  "name": "Example Receiver GmbH",
+                  "tax_registration_number": "DE123456789"
                 },
                 "document_response": {
                   "response": {
@@ -1142,11 +1096,11 @@ paths:
                     },
                     {
                       "target": "ApplicationResponse.cac:SenderParty.cac:PartyLegalEntity.cbc:RegistrationName",
-                      "source": "application_response.sender_party.legal_entity.registration_name"
+                      "source": "application_response.sender_party.name"
                     },
                     {
                       "target": "ApplicationResponse.cac:ReceiverParty.cac:PartyLegalEntity.cbc:RegistrationName",
-                      "source": "application_response.receiver_party.legal_entity.registration_name"
+                      "source": "application_response.receiver_party.name"
                     },
                     {
                       "target": "ApplicationResponse.cac:DocumentResponse.cac:Response.cbc:ResponseCode",
@@ -1164,8 +1118,8 @@ paths:
                   "values": {
                     "application_response.id": "APPRESP-20240401-001",
                     "application_response.issue_date": "2025-04-03",
-                    "application_response.sender_party.legal_entity.registration_name": "Example Sender GmbH",
-                    "application_response.receiver_party.legal_entity.registration_name": "Example Receiver GmbH",
+                    "application_response.sender_party.name": "Example Sender GmbH",
+                    "application_response.receiver_party.name": "Example Receiver GmbH",
                     "application_response.document_response.response.status": "Accepted",
                     "application_response.document_response.response.note": "Invoice accepted without issues",
                     "application_response.document_response.document_reference.id": "INV-20240330-567"
@@ -2084,18 +2038,11 @@ components:
             address:
               description: Address of the Supplier party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
-              type: array
-              description: List of tax identifiers associated with the supplier.
-              items:
-                $ref: '#/components/schemas/tax_scheme'
-            legal_entity:
-              description: Legal entity of the supplier party.
-              $ref: '#/components/schemas/party_legal_entity'
+            tax_registration_number:
+              type: string
+              description: Tax registration number of the supplier (for example VAT / GST number), when available.
           required:
             - address
-            - taxScheme
-            - legalEntity
         accounting_customer_party:
           type: object
           description: Party responsible for receiving the invoice (i.e., the customer).
@@ -2106,22 +2053,15 @@ components:
             address:
               description: Address of the customer party.
               $ref: '#/components/schemas/address'
-            tax_scheme:
-              type: array
-              description: List of tax identifiers associated.
-              items:
-                $ref: '#/components/schemas/tax_scheme'
-            legal_entity:
-              description: Legal entity of the customer party.
-              $ref: '#/components/schemas/party_legal_entity'
+            tax_registration_number:
+              type: string
+              description: Tax registration number of the customer (for example VAT / GST number), when available.
             custom_fields:
               description: Customer custom field values keyed by API name (e.g. `cf_tax_id`).
               allOf:
                 - $ref: '#/components/schemas/custom_fields'
           required:
             - address
-            - taxScheme
-            - legalEntity
         payment_means:
           type: array
           description: A list of payment methods with corresponding payment details.
@@ -2281,19 +2221,11 @@ components:
           type: string
           format: date
         sender_party:
-          type: object
-          required:
-            - legal_entity
-          properties:
-            legal_entity:
-              $ref: '#/components/schemas/party_legal_entity'
+          description: Party that sends the application response.
+          $ref: '#/components/schemas/application_response_party'
         receiver_party:
-          type: object
-          required:
-            - legal_entity
-          properties:
-            legal_entity:
-              $ref: '#/components/schemas/party_legal_entity'
+          description: Party that receives the application response.
+          $ref: '#/components/schemas/application_response_party'
         document_response:
           type: object
           required:
@@ -2756,6 +2688,16 @@ components:
         - REFUNDED
         - REFUND_DUE
       example: PAYMENT_DUE
+    application_response_party:
+      type: object
+      description: Party information for the sender or receiver of an application response document.
+      properties:
+        name:
+          type: string
+          description: Name of the party.
+        tax_registration_number:
+          type: string
+          description: Tax registration number of the party (for example VAT / GST number), when available.
     address:
       type: object
       properties:
@@ -2780,31 +2722,6 @@ components:
         country:
           type: string
           description: ISO 3166-1 alpha-2 country code.
-    tax_scheme:
-      type: object
-      properties:
-        scheme:
-          type: string
-          description: A code identifying the tax regime under which this party is registered—such as VAT, GST, or a region-specific tax scheme. This enables the adapter or e‑invoicing provider to apply the correct tax logic or reporting rules.
-        id:
-          type: string
-          description: The tax identification number assigned to the party by the relevant authority (for example, VAT number or legal registration ID). It is used for official identification and compliance in the e‑invoicing process.
-      required:
-        - scheme
-        - id
-    party_legal_entity:
-      type: object
-      description: Legal entity information of the party.
-      properties:
-        registration_name:
-          type: string
-          description: The full formal name by which the party is registered.
-        company_id:
-          type: string
-          description: An identifier issued by an official registrar that identifies
-            the party as a legal entity or person.
-      required:
-        - registrationName
     custom_fields:
       type: object
       description: |
