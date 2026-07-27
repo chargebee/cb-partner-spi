@@ -477,7 +477,7 @@
                 }
               }
             ],
-            "EU": [
+            "RU": [
               {
                 "id": "buyer_reference",
                 "display_name": "Buyer Reference",
@@ -505,8 +505,7 @@
     },
     "CustomerIdentifiers": {
       "type": "object",
-      "description": "Specifies the customer identifiers required for E-invoicing as a map keyed by ISO 3166-1 alpha-2 country code (or a 2-letter region code such as 'EU'). The value for each country/region is the ordered list of identifier fields the provider expects for customers in that jurisdiction.",
-      "minProperties": 1,
+      "description": "Specifies the customer identifiers required for E-invoicing as a map keyed by ISO 3166-1 alpha-2 country code (or a 2-letter region code such as 'EU'). The value for each country/region is the ordered list of identifier fields the provider expects for customers in that jurisdiction. An empty object is allowed for providers that do not require country-specific identifiers.",
       "propertyNames": {
         "pattern": "^[A-Z]{2}$",
         "description": "Two-letter uppercase country code (ISO 3166-1 alpha-2) or a 2-letter region code such as 'EU'."
