@@ -352,7 +352,9 @@ paths:
           \ delivery via specific formats like OIOUBL.\n- FACE: Spain’s centralized\
           \ system (FACe/FACeB2B) for routing invoices to government or private recipients.\n\
           - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices\
-          \ directly to the tax agency.\n"
+          \ directly to the tax agency.\n- TEAPPS: Finland’s TEAPPSXML eInvoicing\
+          \ format used for domestic electronic invoice exchange.\n- FINVOICE: Finland’\
+          s Finvoice eInvoicing format used for domestic electronic invoice exchange.\n"
         explode: true
         in: query
         name: model
@@ -368,6 +370,8 @@ paths:
           - NEMHANDEL
           - FACE
           - VERIFACTU
+          - TEAPPS
+          - FINVOICE
           example: PEPPOL
           type: string
         style: form
@@ -1346,7 +1350,9 @@ paths:
           \ delivery via specific formats like OIOUBL.\n- FACE: Spain’s centralized\
           \ system (FACe/FACeB2B) for routing invoices to government or private recipients.\n\
           - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices\
-          \ directly to the tax agency.\n"
+          \ directly to the tax agency.\n- TEAPPS: Finland’s TEAPPSXML eInvoicing\
+          \ format used for domestic electronic invoice exchange.\n- FINVOICE: Finland’\
+          s Finvoice eInvoicing format used for domestic electronic invoice exchange.\n"
         explode: true
         in: query
         name: model
@@ -1362,6 +1368,8 @@ paths:
           - NEMHANDEL
           - FACE
           - VERIFACTU
+          - TEAPPS
+          - FINVOICE
           example: PEPPOL
           type: string
         style: form
@@ -1719,6 +1727,8 @@ components:
         - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
         - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
         - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+        - TEAPPS: Finland’s TEAPPSXML eInvoicing format used for domestic electronic invoice exchange.
+        - FINVOICE: Finland’s Finvoice eInvoicing format used for domestic electronic invoice exchange.
       enum:
       - PEPPOL
       - EINVOICE
@@ -1729,6 +1739,8 @@ components:
       - NEMHANDEL
       - FACE
       - VERIFACTU
+      - TEAPPS
+      - FINVOICE
       example: PEPPOL
       type: string
     activation:
@@ -1884,6 +1896,7 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         country:
           description: The ISO country code for the scenario.
