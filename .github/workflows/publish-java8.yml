@@ -1,0 +1,208 @@
+name: Publish Java 8 SPI jar
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Override build_version (default: value in gradle.properties)'
+        required: false
+        type: string
+      open_chargebee_app_pr:
+        description: 'After prod publish, open a version-bump PR on chargebee-app'
+        required: false
+        type: boolean
+        default: true
+  push:
+    branches:
+      - dev
+    tags:
+      - 'release/*'
+
+run-name: "Publish Java 8 SPI${{ github.event.inputs.version && format(' - {0}', github.event.inputs.version) || '' }}"
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+env:
+  AWS_REGION: us-east-1
+  # Platform must provision role cb-builds-us-e1-cb-provider-spi-ci-role
+  # (same pattern as cb-taxadapter-service / cb-openpay-libraries).
+  # Override via repo variable CODEARTIFACT_CI_ROLE_ARN if the name differs.
+
+jobs:
+  publish-java8:
+    runs-on: cicd-self-hosted-runner
+    outputs:
+      published_version: ${{ steps.resolve.outputs.version }}
+      is_prod: ${{ steps.urls.outputs.is_prod }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'corretto'
+          cache: 'gradle'
+
+      - name: Resolve version
+        id: resolve
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "${{ github.ref }}" == refs/tags/release/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/release/}"
+          else
+            VERSION=$(grep -E '^build_version=' gradle.properties | cut -d= -f2 | tr -d '[:space:]')
+          fi
+          if [ -z "$VERSION" ]; then
+            echo "Could not resolve build version" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Publishing cb-partner-spi-java8:$VERSION"
+
+      - name: Set CodeArtifact URLs
+        id: urls
+        run: |
+          REF="${{ github.ref }}"
+          IS_PROD=false
+          # Prod: release tags or manual workflow_dispatch
+          if [[ "$REF" == refs/tags/release/* ]] || [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            IS_PROD=true
+            PUBLISH_URL="https://cb-artifactory-606027973764.d.codeartifact.us-east-1.amazonaws.com/maven/cb-private-prod/"
+            BUILD_URL="https://cb-artifactory-606027973764.d.codeartifact.us-east-1.amazonaws.com/maven/cb-build-prod/"
+          else
+            # Merges to dev → CodeArtifact dev
+            PUBLISH_URL="https://cb-artifactory-606027973764.d.codeartifact.us-east-1.amazonaws.com/maven/cb-private-dev/"
+            BUILD_URL="https://cb-artifactory-606027973764.d.codeartifact.us-east-1.amazonaws.com/maven/cb-build-dev/"
+          fi
+          echo "ARTIFACTORY_PUBLISH_URL=$PUBLISH_URL" >> "$GITHUB_ENV"
+          echo "ARTIFACTORY_BUILD_URL=$BUILD_URL" >> "$GITHUB_ENV"
+          echo "is_prod=$IS_PROD" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS Credentials for CodeArtifact
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.CODEARTIFACT_CI_ROLE_ARN || 'arn:aws:iam::606027973764:role/cb-builds-us-e1-cb-provider-spi-ci-role' }}
+          role-duration-seconds: 3600
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup CodeArtifact auth
+        run: |
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r '.Account')
+          CODEARTIFACT_AUTH_TOKEN=$(aws codeartifact get-authorization-token \
+            --domain cb-artifactory \
+            --domain-owner "$AWS_ACCOUNT_ID" \
+            --query authorizationToken \
+            --output text)
+          echo "::add-mask::$CODEARTIFACT_AUTH_TOKEN"
+          echo "CODEARTIFACT_USER=aws" >> "$GITHUB_ENV"
+          echo "CODEARTIFACT_AUTH_TOKEN=$CODEARTIFACT_AUTH_TOKEN" >> "$GITHUB_ENV"
+
+      - name: Validate, generate, build (Java 8)
+        run: |
+          ./gradlew validateSpec generateSpec build \
+            -Pjava8=true \
+            -Penv=ci \
+            -Pbuild_version=${{ steps.resolve.outputs.version }} \
+            -Partifactory_build_url=$ARTIFACTORY_BUILD_URL \
+            -Partifactory_publish_url=$ARTIFACTORY_PUBLISH_URL \
+            -x test \
+            --warning-mode all
+
+      - name: Publish to CodeArtifact
+        run: |
+          ./gradlew publish \
+            -Pjava8=true \
+            -Penv=ci \
+            -Pbuild_version=${{ steps.resolve.outputs.version }} \
+            -Partifactory_build_url=$ARTIFACTORY_BUILD_URL \
+            -Partifactory_publish_url=$ARTIFACTORY_PUBLISH_URL \
+            -x test
+
+      - name: Upload jar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cb-partner-spi-java8-${{ steps.resolve.outputs.version }}
+          path: build/libs/cb-partner-spi-java8-*.jar
+          if-no-files-found: error
+
+  # Opens a chargebee-app PR that bumps depLib + lockfile (OpenPay-style). Never auto-merges.
+  bump-chargebee-app:
+    needs: publish-java8
+    if: |
+      needs.publish-java8.outputs.is_prod == 'true' &&
+      (github.event_name != 'workflow_dispatch' || github.event.inputs.open_chargebee_app_pr == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout chargebee-app
+        uses: actions/checkout@v4
+        with:
+          repository: chargebee/chargebee-app
+          ref: develop/subscriptions
+          token: ${{ secrets.CB_APP_BUMP_PAT }}
+          path: chargebee-app
+
+      - name: Bump cb-partner-spi-java8 version
+        working-directory: chargebee-app
+        env:
+          VERSION: ${{ needs.publish-java8.outputs.published_version }}
+        run: |
+          set -euo pipefail
+          if ! grep -q "cb-partner-spi-java8" build.gradle; then
+            echo "cb-partner-spi-java8 not declared in build.gradle yet; skip automated bump."
+            echo "skip=true" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_ENV"
+
+          # Update strictly version in build.gradle
+          perl -0pi -e "s/(depLib \\(group: 'com\\.chargebee', name: 'cb-partner-spi-java8'\\) \\{\\s*version \\{ strictly ')[^']+(')/\$1$VERSION\$2/s" build.gradle
+
+          # Update lockfile entry
+          if grep -q 'com.chargebee:cb-partner-spi-java8:' gradle/dependency-locks/depLib.lockfile; then
+            sed -i.bak -E "s|com\\.chargebee:cb-partner-spi-java8:[^[:space:]]+|com.chargebee:cb-partner-spi-java8:${VERSION}|" \
+              gradle/dependency-locks/depLib.lockfile
+            rm -f gradle/dependency-locks/depLib.lockfile.bak
+          else
+            echo "com.chargebee:cb-partner-spi-java8:${VERSION}" >> gradle/dependency-locks/depLib.lockfile
+          fi
+
+          git config user.name "cb-provider-spi-bot"
+          git config user.email "noreply@chargebee.com"
+          BRANCH="chore/bump-cb-partner-spi-java8-${VERSION}"
+          git checkout -b "$BRANCH"
+          git add build.gradle gradle/dependency-locks/depLib.lockfile
+          git commit -m "TAXENGG: bump cb-partner-spi-java8 to ${VERSION}"
+          git push -u origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_ENV"
+
+      - name: Open PR against develop/subscriptions
+        if: env.skip != 'true'
+        working-directory: chargebee-app
+        env:
+          GH_TOKEN: ${{ secrets.CB_APP_BUMP_PAT }}
+          VERSION: ${{ needs.publish-java8.outputs.published_version }}
+        run: |
+          gh pr create \
+            --base develop/subscriptions \
+            --head "${{ env.branch }}" \
+            --title "TAXENGG: bump cb-partner-spi-java8 to ${VERSION}" \
+            --body "$(cat <<EOF
+          ## Summary
+          - Bumps \`com.chargebee:cb-partner-spi-java8\` to \`${VERSION}\` (published from cb-provider-spi).
+          - Updates \`depLib.lockfile\` only — jar is resolved from CodeArtifact via \`./gradlew download\`.
+
+          ## Test plan
+          - [ ] \`./gradlew download\` pulls \`cb-partner-spi-java8-${VERSION}.jar\` into \`app_lib/gradle_managed/\`
+          - [ ] chargebee-app compiles against the new SPI
+
+          Auto-opened by [Publish Java 8 SPI jar](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}). Do not auto-merge.
+          EOF
+          )"
