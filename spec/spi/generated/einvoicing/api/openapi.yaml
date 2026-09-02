@@ -133,13 +133,15 @@ paths:
 
         On each `country_activation`, `einvoicing_type` and `supported_document_types` are optional:
 
-        - Include them **only** when Chargebee must collect explicit transaction-type
-          (for example B2B / B2C / B2G) and/or document-type setup for that country and model.
-          When present and non-empty, Chargebee surfaces those choices in the merchant
-          configuration UI.
+        - Include them **only** when provider configuration in Chargebee needs
+          explicit transaction-type (for example B2B / B2C / B2G) and/or
+          document-type steps for that country and model (for example
+          model → transaction type → document type). When present and non-empty,
+          Chargebee shows those choices in the e-invoice configuration section.
         - Omit them (or return an empty `supported_document_types` array) when the
-          activation is a simple **country → model** mapping and both invoices and credit
-          notes should be sent under that model without further selection in Chargebee.
+          activation is a simple **country → model** mapping and both **invoices**
+          and **credit notes** should be sent under that model without further
+          selection in Chargebee.
 
         **Business Entity Concept**
 
@@ -1772,8 +1774,9 @@ components:
             Optional. Specifies the type of business transaction for which e-invoicing
             is applied (for example B2B, B2C, or B2G).
 
-            Include this field only when Chargebee should prompt merchants to configure
-            that transaction type for the country and model. Omit it for a simple
+            Include this field only when provider configuration in Chargebee needs
+            merchants to select a transaction type for the country and model (for example
+            model → transaction type → document type). Omit it for a simple
             country → model activation where no explicit transaction-type selection is required.
           enum:
           - B2B
@@ -1786,12 +1789,12 @@ components:
             country activation (for example `ubl-invoice`, `ubl-creditnote`,
             `ubl-applicationresponse`).
 
-            Include a non-empty list **only** when Chargebee must run document-type
-            setup steps for this activation (for example limiting which document kinds
-            are enabled, or collecting APPLICATION_RESPONSE configuration).
+            Include a non-empty list **only** when provider configuration in Chargebee
+            needs document-type setup for this activation (for example limiting which
+            document kinds are enabled, or collecting APPLICATION_RESPONSE configuration).
 
             Omit this field, or return an empty array, when the activation is a simple
-            **country → model** mapping and both invoices and credit notes should be sent
+            **country → model** mapping and both **invoices** and **credit notes** should be sent
             under that model without explicit document-type selection in Chargebee.
           example:
           - ubl-invoice
