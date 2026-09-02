@@ -70,7 +70,7 @@ paths:
           explicit transaction-type (for example B2B / B2C / B2G) and/or
           document-type steps for that country and model (for example
           model → transaction type → document type). When present and non-empty,
-          Chargebee shows those choices in the e-invoice configuration section.
+          **Chargebee shows those choices in the e-invoice configuration section.**
         - Omit them (or return an empty `supported_document_types` array) when the
           activation is a simple **country → model** mapping and both **invoices**
           and **credit notes** should be sent under that model without further
