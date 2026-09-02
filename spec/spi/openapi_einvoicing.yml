@@ -274,6 +274,8 @@ paths:
             - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
             - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
             - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+            - TEAPPS: Finland’s TEAPPSXML eInvoicing format used for domestic electronic invoice exchange.
+            - FINVOICE: Finland’s Finvoice eInvoicing format used for domestic electronic invoice exchange.
           schema:
             type: string
             enum:
@@ -286,6 +288,8 @@ paths:
               - NEMHANDEL
               - FACE
               - VERIFACTU
+              - TEAPPS
+              - FINVOICE
             example: "PEPPOL"
         - name: document_type
           in: query
@@ -1530,6 +1534,8 @@ paths:
             - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
             - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
             - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+            - TEAPPS: Finland’s TEAPPSXML eInvoicing format used for domestic electronic invoice exchange.
+            - FINVOICE: Finland’s Finvoice eInvoicing format used for domestic electronic invoice exchange.
           schema:
             type: string
             enum:
@@ -1542,6 +1548,8 @@ paths:
               - NEMHANDEL
               - FACE
               - VERIFACTU
+              - TEAPPS
+              - FINVOICE
             example: "PEPPOL"
         - name: document_type
           in: query
@@ -1695,6 +1703,8 @@ components:
         - NEMHANDEL: Denmark’s national infrastructure for eInvoicing that supports secure delivery via specific formats like OIOUBL.
         - FACE: Spain’s centralized system (FACe/FACeB2B) for routing invoices to government or private recipients.
         - VERIFACTU: Spain’s mechanism for validating and reporting sales invoices directly to the tax agency.
+        - TEAPPS: Finland’s TEAPPSXML eInvoicing format used for domestic electronic invoice exchange.
+        - FINVOICE: Finland’s Finvoice eInvoicing format used for domestic electronic invoice exchange.
       enum:
         - PEPPOL
         - EINVOICE
@@ -1705,6 +1715,8 @@ components:
         - NEMHANDEL
         - FACE
         - VERIFACTU
+        - TEAPPS
+        - FINVOICE
       example: "PEPPOL"
     activation:
       type: object
