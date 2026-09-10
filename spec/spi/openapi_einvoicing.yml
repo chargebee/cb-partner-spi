@@ -423,13 +423,11 @@ paths:
                 },
                 "payment_means": [
                   {
-                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "code": "CREDIT_TRANSFER",
+                    "account": "DE89370400440532013000",
+                    "branch_code": "COBADEFFXXX",
                     "payment_id": "PAY-2024-00987",
-                    "card_account": {
-                      "primary_account_number_id": "4111********1111",
-                      "card_holder_name": "Jane Smith",
-                      "network_id": "MASTERCARD"
-                    }
+                    "holder": "Example Seller GmbH"
                   }
                 ],
                 "lines": [
@@ -511,13 +509,11 @@ paths:
                 },
                 "payment_means": [
                   {
-                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "code": "CREDIT_TRANSFER",
+                    "account": "DE89370400440532013000",
+                    "branch_code": "COBADEFFXXX",
                     "payment_id": "PAY-2024-00987",
-                    "card_account": {
-                      "primary_account_number_id": "4111********1111",
-                      "card_holder_name": "Jane Smith",
-                      "network_id": "MASTERCARD"
-                    }
+                    "holder": "Example Seller GmbH"
                   }
                 ],
                 "lines": [
@@ -733,13 +729,11 @@ paths:
                 },
                 "payment_means": [
                   {
-                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "code": "CREDIT_TRANSFER",
+                    "account": "DE89370400440532013000",
+                    "branch_code": "COBADEFFXXX",
                     "payment_id": "PAY-2024-01002",
-                    "card_account": {
-                      "primary_account_number_id": "4111********2222",
-                      "card_holder_name": "John Doe",
-                      "network_id": "VISA"
-                    }
+                    "holder": "Example Seller GmbH"
                   }
                 ],
                 "lines": [
@@ -820,13 +814,11 @@ paths:
                 },
                 "payment_means": [
                   {
-                    "code": "ONLINE_PAYMENT_SERVICE",
+                    "code": "CREDIT_TRANSFER",
+                    "account": "DE89370400440532013000",
+                    "branch_code": "COBADEFFXXX",
                     "payment_id": "PAY-2024-01002",
-                    "card_account": {
-                      "primary_account_number_id": "4111********2222",
-                      "card_holder_name": "John Doe",
-                      "network_id": "VISA"
-                    }
+                    "holder": "Example Seller GmbH"
                   }
                 ],
                 "lines": [
@@ -2413,7 +2405,8 @@ components:
             ```
     payment_means:
       type: object
-      description: Defines the method and details for payment.
+      description: Payment details of the supplier (payee) for settling the document,
+        such as bank transfer account information.
       properties:
         code:
           type: string
@@ -2423,48 +2416,33 @@ components:
             - CREDIT_TRANSFER
             - ONLINE_PAYMENT_SERVICE
             - DIRECT_DEBIT
+        account:
+          type: string
+          description: A unique identifier of the financial payment account, at
+            a payment service provider, to which payment should be made. Such
+            as IBAN or BBAN (e.g., IBAN).
+        branch_code:
+          type: string
+          description: An identifier for the payment service provider where the
+            payment account is located. Such as a BIC, SWIFT code, routing number,
+            or sort code.
         payment_id:
           type: string
           description: A textual value used to establish a link between the payment
             and the Invoice, issued by the Seller. Used for creditor's critical reconciliation
             information. This information element helps the Seller to assign an incoming
             payment to the relevant payment process.
-        payee_financial_account:
-          type: object
-          description: A group of business terms to specify credit transfer payments.
-          properties:
-            id:
-              type: string
-              description: A unique identifier of the financial payment account, at
-                a payment service provider, to which payment should be made. Such
-                as IBAN or BBAN (e.g., IBAN).
-          required:
-            - id
-        payment_mandate:
-          type: object
-          description: A group of business terms to specify a direct debit.
-          properties:
-            id:
-              type: string
-              description: Unique identifier assigned by the Payee for referencing
-                the direct debit mandate.
-            mandate_type:
-              type: string
-              description: Type of mandate (e.g., SEPA, national DD agreement).
-        card_account:
-          type: object
-          description: A group of business terms providing information about card
-            used for payment contemporaneous with invoice issuance.
-          properties:
-            primary_account_number_i_d:
-              type: string
-              description: The Primary Account Number (PAN) of the card used for payment.
-            card_holder_name:
-              type: string
-              description: The name of the payment card holder.
-            network_id:
-              type: string
-              description: The identifier of the card network. (e.g., VISA, MasterCard).
+        holder:
+          type: string
+          description: The name of the payee financial account or bank.
+        mandate:
+          type: string
+          description: Unique identifier assigned by the Payee for referencing the
+            direct debit mandate (when code is DIRECT_DEBIT).
+        network:
+          type: string
+          description: Identifier of the online payment or card network when applicable
+            (e.g., Paypal, VISA, MasterCard).
     document_submission_response:
       type: object
       properties:
