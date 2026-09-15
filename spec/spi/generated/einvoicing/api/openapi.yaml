@@ -563,13 +563,11 @@ paths:
               },
               "payment_means": [
                 {
-                  "code": "ONLINE_PAYMENT_SERVICE",
+                  "code": "CREDIT_TRANSFER",
+                  "account": "DE89370400440532013000",
+                  "branch_code": "COBADEFFXXX",
                   "payment_id": "PAY-2024-00987",
-                  "card_account": {
-                    "primary_account_number_id": "4111********1111",
-                    "card_holder_name": "Jane Smith",
-                    "network_id": "MASTERCARD"
-                  }
+                  "holder": "Example Seller GmbH"
                 }
               ],
               "lines": [
@@ -623,14 +621,13 @@ paths:
           \ 123\",\n        \"line_2\": \"2nd Floor\",\n        \"zip\": \"10115\"\
           ,\n        \"city\": \"Berlin\",\n        \"country\": \"DE\"\n      },\n\
           \      \"tax_registration_number\": \"DE123456789\"\n    },\n    \"payment_means\"\
-          : [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\",\n        \"\
-          payment_id\": \"PAY-2024-00987\",\n        \"card_account\": {\n       \
-          \   \"primary_account_number_id\": \"4111********1111\",\n          \"card_holder_name\"\
-          : \"Jane Smith\",\n          \"network_id\": \"MASTERCARD\"\n        }\n\
-          \      }\n    ],\n    \"lines\": [\n      {\n        \"id\": \"1\",\n  \
-          \      \"description\": \"Consulting Services - April\",\n        \"quantity\"\
-          : 1,\n        \"unit_price\": 100.0,\n        \"amount\": 100.0,\n     \
-          \   \"item_code\": \"CONS-APRIL\",\n        \"classified_tax_category\"\
+          : [\n      {\n        \"code\": \"CREDIT_TRANSFER\",\n        \"account\"\
+          : \"DE89370400440532013000\",\n        \"branch_code\": \"COBADEFFXXX\"\
+          ,\n        \"payment_id\": \"PAY-2024-00987\",\n        \"holder\": \"Example\
+          \ Seller GmbH\"\n      }\n    ],\n    \"lines\": [\n      {\n        \"\
+          id\": \"1\",\n        \"description\": \"Consulting Services - April\",\n\
+          \        \"quantity\": 1,\n        \"unit_price\": 100.0,\n        \"amount\"\
+          : 100.0,\n        \"item_code\": \"CONS-APRIL\",\n        \"classified_tax_category\"\
           : [\n          {\n            \"percentage\": 14,\n            \"category\"\
           : \"VAT\",\n            \"country\": \"DE\"\n          }\n        ]\n  \
           \    }\n    ],\n    \"tax_total\": {\n      \"tax_amount\": 14.0,\n    \
@@ -749,13 +746,11 @@ paths:
               },
               "payment_means": [
                 {
-                  "code": "ONLINE_PAYMENT_SERVICE",
+                  "code": "CREDIT_TRANSFER",
+                  "account": "DE89370400440532013000",
+                  "branch_code": "COBADEFFXXX",
                   "payment_id": "PAY-2024-01002",
-                  "card_account": {
-                    "primary_account_number_id": "4111********2222",
-                    "card_holder_name": "John Doe",
-                    "network_id": "VISA"
-                  }
+                  "holder": "Example Seller GmbH"
                 }
               ],
               "lines": [
@@ -808,15 +803,14 @@ paths:
           \     \"line_1\": \"Berliner Str. 123\",\n        \"line_2\": \"2nd Floor\"\
           ,\n        \"zip\": \"10115\",\n        \"city\": \"Berlin\",\n        \"\
           country\": \"DE\"\n      },\n      \"tax_registration_number\": \"DE123456789\"\
-          \n    },\n    \"payment_means\": [\n      {\n        \"code\": \"ONLINE_PAYMENT_SERVICE\"\
-          ,\n        \"payment_id\": \"PAY-2024-01002\",\n        \"card_account\"\
-          : {\n          \"primary_account_number_id\": \"4111********2222\",\n  \
-          \        \"card_holder_name\": \"John Doe\",\n          \"network_id\":\
-          \ \"VISA\"\n        }\n      }\n    ],\n    \"lines\": [\n      {\n    \
-          \    \"id\": \"1\",\n        \"description\": \"Refund for overcharge in\
-          \ April\",\n        \"quantity\": 1,\n        \"unit_price\": 50.0,\n  \
-          \      \"amount\": 50.0,\n        \"item_code\": \"APRIL-REFUND\",\n   \
-          \     \"classified_tax_category\": [\n          {\n            \"percentage\"\
+          \n    },\n    \"payment_means\": [\n      {\n        \"code\": \"CREDIT_TRANSFER\"\
+          ,\n        \"account\": \"DE89370400440532013000\",\n        \"branch_code\"\
+          : \"COBADEFFXXX\",\n        \"payment_id\": \"PAY-2024-01002\",\n      \
+          \  \"holder\": \"Example Seller GmbH\"\n      }\n    ],\n    \"lines\":\
+          \ [\n      {\n        \"id\": \"1\",\n        \"description\": \"Refund\
+          \ for overcharge in April\",\n        \"quantity\": 1,\n        \"unit_price\"\
+          : 50.0,\n        \"amount\": 50.0,\n        \"item_code\": \"APRIL-REFUND\"\
+          ,\n        \"classified_tax_category\": [\n          {\n            \"percentage\"\
           : 14,\n            \"category\": \"VAT\",\n            \"country\": \"DE\"\
           \n          }\n        ]\n      }\n    ],\n    \"tax_total\": {\n      \"\
           tax_amount\": 7.0,\n      \"tax_sub_totals\": [\n        {\n          \"\
@@ -1928,7 +1922,6 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
-          - APPLICATION_RESPONSE
           type: string
         country:
           description: The ISO country code for the scenario.
@@ -2172,7 +2165,8 @@ components:
           type: object
       type: object
     payment_means:
-      description: Defines the method and details for payment.
+      description: "Payment details of the supplier (payee) for settling the document,\
+        \ such as bank transfer account information."
       properties:
         code:
           description: "The means, expressed as code, for how a payment is expected\
@@ -2182,18 +2176,33 @@ components:
           - ONLINE_PAYMENT_SERVICE
           - DIRECT_DEBIT
           type: string
+        account:
+          description: "A unique identifier of the financial payment account, at a\
+            \ payment service provider, to which payment should be made. Such as IBAN\
+            \ or BBAN (e.g., IBAN)."
+          type: string
+        branch_code:
+          description: "An identifier for the payment service provider where the payment\
+            \ account is located. Such as a BIC, SWIFT code, routing number, or sort\
+            \ code."
+          type: string
         payment_id:
           description: "A textual value used to establish a link between the payment\
             \ and the Invoice, issued by the Seller. Used for creditor's critical\
             \ reconciliation information. This information element helps the Seller\
             \ to assign an incoming payment to the relevant payment process."
           type: string
-        payee_financial_account:
-          $ref: '#/components/schemas/payment_means_payee_financial_account'
-        payment_mandate:
-          $ref: '#/components/schemas/payment_means_payment_mandate'
-        card_account:
-          $ref: '#/components/schemas/payment_means_card_account'
+        holder:
+          description: The name of the payee financial account or bank.
+          type: string
+        mandate:
+          description: Unique identifier assigned by the Payee for referencing the
+            direct debit mandate (when code is DIRECT_DEBIT).
+          type: string
+        network:
+          description: "Identifier of the online payment or card network when applicable\
+            \ (e.g., Paypal, VISA, MasterCard)."
+          type: string
       type: object
     document_submission_response:
       example:
@@ -3030,42 +3039,6 @@ components:
           type: string
       required:
       - target
-      type: object
-    payment_means_payee_financial_account:
-      description: A group of business terms to specify credit transfer payments.
-      properties:
-        id:
-          description: "A unique identifier of the financial payment account, at a\
-            \ payment service provider, to which payment should be made. Such as IBAN\
-            \ or BBAN (e.g., IBAN)."
-          type: string
-      required:
-      - id
-      type: object
-    payment_means_payment_mandate:
-      description: A group of business terms to specify a direct debit.
-      properties:
-        id:
-          description: Unique identifier assigned by the Payee for referencing the
-            direct debit mandate.
-          type: string
-        mandate_type:
-          description: "Type of mandate (e.g., SEPA, national DD agreement)."
-          type: string
-      type: object
-    payment_means_card_account:
-      description: A group of business terms providing information about card used
-        for payment contemporaneous with invoice issuance.
-      properties:
-        primary_account_number_i_d:
-          description: The Primary Account Number (PAN) of the card used for payment.
-          type: string
-        card_holder_name:
-          description: The name of the payment card holder.
-          type: string
-        network_id:
-          description: "The identifier of the card network. (e.g., VISA, MasterCard)."
-          type: string
       type: object
     document_submission_response_provider_interaction_request:
       description: Details of the HTTP request sent by the adapter to the external
