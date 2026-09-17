@@ -14,7 +14,7 @@ jobs:
       !startsWith(github.head_ref, 'revert-') &&
       !startsWith(github.head_ref, 'parent-branch-sync/') &&
       contains(github.event.pull_request.labels.*.name, 'pr-size-exception') }}
-    runs-on: graviton-small-runner
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
@@ -36,7 +36,7 @@ jobs:
   pr-size-check:
     name: Check PR size
     if: ${{ (github.base_ref == 'develop' || github.base_ref == 'dev') && github.event.pull_request.user.login != 'distributed-gitflow-app[bot]' && !startsWith(github.head_ref, 'revert-') && !startsWith(github.head_ref, 'parent-branch-sync/') }}
-    runs-on: graviton-small-runner
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
