@@ -7,9 +7,13 @@ plugins {
     id "java"
     id 'maven-publish'
     id 'signing'
-//    id "org.openapi.generator" version "6.6.0" //for java 8
-    id "org.openapi.generator" version "7.0.1"
+    id "org.openapi.generator"
 }
+
+// -Pjava8=true → Java 8 bytecode artifact for chargebee-app (CodeArtifact)
+// default → Java 17 partner artifact (Maven Central)
+def isJava8 = project.hasProperty('java8') && project.property('java8').toString() == 'true'
+def publishedArtifactId = isJava8 ? 'cb-partner-spi-java8' : rootProject.name
 
 group build_group
 version build_version
@@ -20,14 +24,33 @@ sourceSets {
 
 repositories {
     mavenCentral()
+    def buildUrl = findProperty('artifactory_build_url')
+    def caUser = System.getenv('CODEARTIFACT_USER')
+    def caToken = System.getenv('CODEARTIFACT_AUTH_TOKEN')
+    if (buildUrl && caUser && caToken) {
+        maven {
+            url = uri(buildUrl)
+            credentials {
+                username = caUser
+                password = caToken
+            }
+        }
+    }
 }
 
 java {
-//     sourceCompatibility = "8" //for java 8
-//     targetCompatibility = "8" //for java 8
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
-    withJavadocJar()  // Enable Javadoc generation
+    if (isJava8) {
+        sourceCompatibility = "8"
+        targetCompatibility = "8"
+    } else {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+        withJavadocJar()
+    }
+}
+
+tasks.named('jar', Jar) {
+    archiveBaseName.set(publishedArtifactId)
 }
 
 // Pre-commit hook installation task
@@ -100,6 +123,10 @@ def openApiTask() {
 
 openApiTask()
 
+tasks.named('compileJava').configure {
+    dependsOn(generateSpec)
+}
+
 tasks.openApiGenerate.configure {
     actions.clear()
     dependsOn(generateSpec)
@@ -112,6 +139,7 @@ tasks.openApiValidate.configure {
 
 task sourcesJar(type: Jar) {
     archiveClassifier.set('sources')
+    archiveBaseName.set(publishedArtifactId)
     from sourceSets.main.allJava
 }
 
@@ -149,12 +177,12 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = project.group
-            artifactId = rootProject.name
+            artifactId = publishedArtifactId
             version = project.version
-            from components.java  // Publish the compiled Java artifact
+            from components.java
 
             pom {
-                name.set("CB Partner SPI")
+                name.set(isJava8 ? "CB Partner SPI (Java 8)" : "CB Partner SPI")
                 description.set("Service Provider Interface (SPI) library for integrating partner solutions with Chargebee")
                 url.set("https://github.com/chargebee/cb-partner-spi")
 
@@ -191,33 +219,52 @@ publishing {
     }
 
     repositories {
-        maven {
-            name = "MavenCentral"
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-            url = project.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        if (isJava8) {
+            // Java 8 jar → AWS CodeArtifact (chargebee-app consumes via cb-build-*)
+            maven {
+                name = "CodeArtifact"
+                url = uri(findProperty('artifactory_publish_url'))
+                credentials {
+                    username = System.getenv("CODEARTIFACT_USER") ?: ""
+                    password = System.getenv("CODEARTIFACT_AUTH_TOKEN") ?: ""
+                }
+            }
+        } else {
+            // Java 17 partner jar → Maven Central
+            maven {
+                name = "MavenCentral"
+                def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+                url = project.version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
 
-            credentials {
-                username = project.findProperty("maven_username") ?: System.getenv("MAVEN_USERNAME")
-                password = project.findProperty("maven_password") ?: System.getenv("MAVEN_PASSWORD")
+                credentials {
+                    username = project.findProperty("maven_username") ?: System.getenv("MAVEN_USERNAME")
+                    password = project.findProperty("maven_password") ?: System.getenv("MAVEN_PASSWORD")
+                }
             }
         }
     }
 }
 
 signing {
+    required { !isJava8 && gradle.taskGraph.hasTask("publish") }
     useInMemoryPgpKeys(
             findProperty("SIGNING_KEY") ?: System.getenv("SIGNING_KEY"),
             findProperty("SIGNING_PASSWORD") ?: System.getenv("SIGNING_PASSWORD")
     )
-    sign publishing.publications.mavenJava
+    if (!isJava8) {
+        sign publishing.publications.mavenJava
+    }
 }
 
 // Dependencies
 dependencies {
-    // implementation 'org.openapitools:jackson-databind-nullable:0.2.1' //for java 8
-    // implementation 'org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2' //for java 8
-    //comment off implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0' for java 8
+    if (isJava8) {
+        implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
+        implementation 'org.apache.oltu.oauth2:org.apache.oltu.oauth2.client:1.0.2'
+    } else {
+        implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
+    }
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -225,7 +272,6 @@ dependencies {
     implementation 'io.gsonfire:gson-fire:1.8.5'
     implementation 'javax.ws.rs:jsr311-api:1.1.1'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
     implementation 'org.apache.commons:commons-lang3:3.13.0'
     implementation 'jakarta.annotation:jakarta.annotation-api:1.3.5'
     testImplementation 'org.mockito:mockito-core:5.6.0'

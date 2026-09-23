@@ -46,11 +46,16 @@
 - These files will be located in the `generated/<capability_name>` folder. **Example:** `generated/tax`
 
 #### 4. Generate SPI jar
-- To build the SPI jar for Java, use the following command:
+- To build the SPI jar for Java 17 (partner / Maven Central), use:
   ```bash
   sh gradlew build
   ```
+- To build the Java 8 jar for chargebee-app (CodeArtifact artifact `cb-partner-spi-java8`):
+  ```bash
+  sh gradlew build -Pjava8=true -Penv=ci -x test
+  ```
 - The generated SPI jar will be located in the `./build/libs/` directory.
+- See [release.md](./release.md) for publish targets (Maven Central vs CodeArtifact).
 
 #### 5. Update postman collection
 - Refer to the [Updating & Using Postman Collection](./postman-collection.md) section to follow the steps to update the Postman collection.

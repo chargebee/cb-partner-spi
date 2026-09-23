@@ -1,1 +1,13 @@
+pluginManagement {
+    def isJava8 = settings.startParameter.projectProperties.getOrDefault('java8', 'false') == 'true'
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        // OpenAPI Generator 6.6.0 emits Java 8-friendly clients; 7.x is for the Java 17 partner artifact
+        id 'org.openapi.generator' version (isJava8 ? '6.6.0' : '7.0.1')
+    }
+}
+
 rootProject.name = build_project_name
