@@ -10,12 +10,9 @@ Chargebee leverages external payment services to execute the following operation
 Create, update, retrieve, confirm, and delete payment methods, along with associated customer profiles, in the payment gateway.
 
 ### 2. Payment Processing
-Process, verify, capture, refund, and void payments through the configured gateway.
+Process, verify, capture, refund, and void payments through the configured gateway. Retrieve a payment to sync the latest transaction state.
 
-### 3. Payment Intents
-Create payment intents to prepare for payment transactions, including setting up amount, currency, and customer details.
-
-### 4. Gateway Setup
+### 3. Gateway Setup
 Set up and validate gateway account credentials, supporting both direct gateway integrations and orchestrator-based setups.
 
 ## The Role of the OpenPay Adapter
@@ -37,6 +34,67 @@ In some cases, you may want to go beyond the built-in adapter. Implementing the 
 
 - **System Integrator:**
   You are building a connector on behalf of a merchant or gateway, bridging a payment service with Chargebee.
+
+## Gateway credentials and setup parameters
+
+Before an OpenPay SPI integration is onboarded, share the gateway credential fields the merchant must fill in when connecting the gateway. Describe every field as follows:
+
+- **Field name.** A unique name for the field. Chargebee sends this same name on every API request inside the `gateway_credentials` object of the `Authorization` header.
+- **Type.** `plain_text`, `secret`, or `list`.
+- **Allowed values.** When the type is `list`, include the allowed values.
+- **Required or optional.** Whether the merchant must provide the field.
+
+| Field name | Type | Allowed values | Required |
+| --- | --- | --- | --- |
+| `api_key` | `secret` | — | Required |
+| `merchant_id` | `plain_text` | — | Required |
+| `environment` | `list` | `sandbox`, `live` | Optional |
+
+The names above show the format to share. Replace them with the fields your gateway actually needs.
+
+The `Authorization` header is a JSON object. Chargebee base64-encodes that JSON and sends it as a Bearer token. It carries `gateway_credentials` and, after gateway setup, `set_up_parameters`.
+
+### Gateway setup
+
+When a merchant connects the gateway and submits the credential fields, Chargebee calls [Set up gateway connection](../endpoints/v1/setup-gateway) with those credentials.
+
+If the adapter needs to assign a unique id for the connection, or keep any other metadata for later calls, return that data in the Gateway Setup response. Chargebee then sends those values on every subsequent API request as `set_up_parameters` in the same `Authorization` JSON, alongside `gateway_credentials`.
+
+```json
+{
+  "gateway_credentials": {
+    "api_key": "<value the merchant entered>",
+    "merchant_id": "<value the merchant entered>"
+  },
+  "set_up_parameters": {
+    "connection_id": "<id returned by gateway setup>"
+  }
+}
+```
+
+```
+Authorization: Bearer <base64-encoded-JSON>
+```
+
+## PCI DSS Compliance
+
+The provider that implements the OpenPay SPI (the "Adapter Provider"), whether a payment gateway, orchestrator, or system integrator, is solely responsible for the collection, transmission, processing, and storage of payment method data (such as card numbers, bank account details, and other sensitive authentication data) within its own environment.
+
+By integrating with Chargebee through the OpenPay SPI, the Adapter Provider acknowledges and agrees that:
+
+- **PCI DSS responsibility.** The Adapter Provider must be PCI DSS compliant at the level applicable to its role and must maintain that compliance for as long as it is integrated with Chargebee. On request, it must provide evidence of compliance, such as a current Attestation of Compliance (AOC).
+- **Payment method collection.** Where the Adapter Provider collects payment methods (for example, through hosted fields, hosted payment pages, SDKs, or APIs), it is responsible for securing that collection flow.
+- **Tokenization.** The Adapter Provider should return tokens or references to Chargebee, not sensitive cardholder data. Sensitive authentication data must never be stored after authorization.
+- **Security of credentials and data.** The Adapter Provider is responsible for securing the gateway credentials and any payment data it handles, and for notifying Chargebee promptly of any security incident affecting that data.
+
+## Webhooks
+
+Coming soon.
+
+OpenPay SPI integrations are synchronous. If a payment or payment method needs asynchronous handling, use the retrieve APIs to sync the latest details:
+
+- [Retrieve payment method details](../endpoints/v1/retrieve-payment-method)
+- [Retrieve payment details](../endpoints/v1/retrieve-payment) to sync the transaction
 
 ## Integrate your OpenPay Adapter
 

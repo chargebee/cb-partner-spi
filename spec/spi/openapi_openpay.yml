@@ -200,6 +200,7 @@ paths:
   /{env}/payment-intents:
     post:
       summary: Create a payment intent
+      x-hidden: true
       description: >
         Initiates a payment intent for processing a payment through the specified gateway.
         This operation is used to prepare for a payment transaction, including setting up necessary details like amount, currency, and customer information.
@@ -572,18 +573,26 @@ components:
         type: string
         x-field-extra-annotation: "@Secret"
       description: |
-        * **Gateway Credentials** – Used to authenticate with the payment gateway.
-        * **Platform Credentials** – Credentials for payment orchestrators such as Spreedly, Payfurl, etc, if gateway is communicated via orchestrators.
-        * **Setup Parameters** – Additional parameters required for communication with the orchestrator or gateway.
-          Some orchestrators provide parameters during setup that need to be included in every request made to the orchestrator.
-        ```
+        JSON object sent on every request. Chargebee base64-encodes the JSON and sends it as a Bearer token.
+
+        The object contains:
+
+        * **gateway_credentials** — Values the merchant entered for the gateway credential fields shared before onboarding. Each key is the unique field name from that definition.
+        * **set_up_parameters** — Metadata returned by the Gateway Setup API, such as a connection id. Chargebee includes these values on every subsequent request.
+
+        ```json
         {
-          "gateway_credentials": { "cred": "sk_test_123" },
-          "platform_credentials": { "key": "sk_test_324" },
-          "set_up_parameters": { "provider_id": "provider_123" }
+          "gateway_credentials": {
+            "<field_name>": "<merchant-provided value>"
+          },
+          "set_up_parameters": {
+            "<field_name>": "<value returned by gateway setup>"
+          }
         }
-        ```  
+        ```
+
         Example header:
+
         ```
         Authorization: Bearer <base64-encoded-JSON>
         ```  
@@ -2541,9 +2550,10 @@ components:
     SetupGatewayResponse:
       type: object
       description: >
-        The response can contain any key-value pairs depending on the gateway's specific requirements
-        and the outcome of the setup operation. 
-        This detail is usually returned via set_up_parameters inside auth header as part of the following requests to the gateway/orchestrator.
+        Key-value pairs returned by gateway setup. Return a unique connection id or any other
+        metadata the adapter needs on later calls. Chargebee sends these values on every
+        subsequent request as set_up_parameters inside the Authorization JSON, alongside
+        gateway_credentials.
       additionalProperties:
         type: string
       example:

@@ -134,12 +134,6 @@
                 ]
               },
               {
-                "group": "Payment Intents",
-                "pages": [
-                  "api-reference/openpay-spi/endpoints/v1/create-payment-intent"
-                ]
-              },
-              {
                 "group": "Payments",
                 "pages": [
                   "api-reference/openpay-spi/endpoints/v1/process-payment",
