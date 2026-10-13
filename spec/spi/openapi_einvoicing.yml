@@ -419,7 +419,10 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789"
+                  "tax_registration_number": "DE123456789",
+                  "contact": {
+                    "email": "billing@example-buyer.de"
+                  }
                 },
                 "payment_means": [
                   {
@@ -505,7 +508,10 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789"
+                  "tax_registration_number": "DE123456789",
+                  "contact": {
+                    "email": "billing@example-buyer.de"
+                  }
                 },
                 "payment_means": [
                   {
@@ -725,7 +731,10 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789"
+                  "tax_registration_number": "DE123456789",
+                  "contact": {
+                    "email": "billing@example-buyer.de"
+                  }
                 },
                 "payment_means": [
                   {
@@ -810,7 +819,10 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789"
+                  "tax_registration_number": "DE123456789",
+                  "contact": {
+                    "email": "billing@example-buyer.de"
+                  }
                 },
                 "payment_means": [
                   {
@@ -2092,6 +2104,13 @@ components:
             tax_registration_number:
               type: string
               description: Tax registration number of the customer (for example VAT / GST number), when available.
+            contact:
+              type: object
+              description: Contact details of the customer party.
+              properties:
+                email:
+                  type: string
+                  description: Email address of the customer, when available. Used by networks that deliver the document by email (for example ZUGFeRD).
             custom_fields:
               description: Customer custom field values keyed by API name (e.g. `cf_tax_id`).
               allOf:
