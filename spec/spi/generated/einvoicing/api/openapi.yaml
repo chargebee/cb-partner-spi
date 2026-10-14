@@ -1979,8 +1979,9 @@ components:
           type: string
         buyer_reference:
           description: "Reference assigned by the buyer, taken from the PO number\
-            \ of the invoice or credit note, when available. For example, the Leitweg-ID\
-            \ required for German public-sector (XRechnung) invoices."
+            \ of the invoice (for a credit note, the PO number of the referenced invoice),\
+            \ when available. For example, the Leitweg-ID required for German public-sector\
+            \ (XRechnung) invoices."
           type: string
         custom_fields:
           allOf:
