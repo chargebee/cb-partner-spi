@@ -1922,6 +1922,7 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         country:
           description: The ISO country code for the scenario.
@@ -1975,6 +1976,12 @@ components:
           description: A textual note that gives unstructured information that is
             relevant to the Document as a whole. Such as the reason for any correction
             or assignment note in case the document has been factored.
+          type: string
+        buyer_reference:
+          description: "Reference assigned by the buyer, taken from the PO number\
+            \ of the invoice (for a credit note, the PO number of the referenced invoice),\
+            \ when available. For example, the Leitweg-ID required for German public-sector\
+            \ (XRechnung) invoices."
           type: string
         custom_fields:
           allOf:
@@ -2869,6 +2876,14 @@ components:
       required:
       - address
       type: object
+    main_document_accounting_customer_party_contact:
+      description: Contact details of the customer party.
+      properties:
+        email:
+          description: "Email address of the customer, when available. Used by networks\
+            \ that deliver the document by email (for example ZUGFeRD)."
+          type: string
+      type: object
     main_document_accounting_customer_party:
       description: "Party responsible for receiving the invoice (i.e., the customer)."
       properties:
@@ -2881,6 +2896,8 @@ components:
           description: "Tax registration number of the customer (for example VAT /\
             \ GST number), when available."
           type: string
+        contact:
+          $ref: '#/components/schemas/main_document_accounting_customer_party_contact'
         custom_fields:
           allOf:
           - $ref: '#/components/schemas/custom_fields'

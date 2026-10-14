@@ -2032,6 +2032,9 @@ components:
           description: A textual note that gives unstructured information that is
             relevant to the Document as a whole. Such as the reason for any correction
             or assignment note in case the document has been factored.
+        buyer_reference:
+          type: string
+          description: Reference assigned by the buyer, taken from the PO number of the invoice (for a credit note, the PO number of the referenced invoice), when available. For example, the Leitweg-ID required for German public-sector (XRechnung) invoices.
         custom_fields:
           description: Invoice or credit note custom field values keyed by API name (e.g. `cf_invoice_reference`).
           allOf:
@@ -2092,6 +2095,13 @@ components:
             tax_registration_number:
               type: string
               description: Tax registration number of the customer (for example VAT / GST number), when available.
+            contact:
+              type: object
+              description: Contact details of the customer party.
+              properties:
+                email:
+                  type: string
+                  description: Email address of the customer, when available. Used by networks that deliver the document by email (for example ZUGFeRD).
             custom_fields:
               description: Customer custom field values keyed by API name (e.g. `cf_tax_id`).
               allOf:
