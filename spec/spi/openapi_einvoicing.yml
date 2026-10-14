@@ -419,10 +419,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789",
-                  "contact": {
-                    "email": "billing@example-buyer.de"
-                  }
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -508,10 +505,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789",
-                  "contact": {
-                    "email": "billing@example-buyer.de"
-                  }
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -731,10 +725,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789",
-                  "contact": {
-                    "email": "billing@example-buyer.de"
-                  }
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -819,10 +810,7 @@ paths:
                     "city": "Berlin",
                     "country": "DE"
                   },
-                  "tax_registration_number": "DE123456789",
-                  "contact": {
-                    "email": "billing@example-buyer.de"
-                  }
+                  "tax_registration_number": "DE123456789"
                 },
                 "payment_means": [
                   {
@@ -2044,6 +2032,9 @@ components:
           description: A textual note that gives unstructured information that is
             relevant to the Document as a whole. Such as the reason for any correction
             or assignment note in case the document has been factored.
+        buyer_reference:
+          type: string
+          description: Reference assigned by the buyer, taken from the PO number of the invoice or credit note, when available. For example, the Leitweg-ID required for German public-sector (XRechnung) invoices.
         custom_fields:
           description: Invoice or credit note custom field values keyed by API name (e.g. `cf_invoice_reference`).
           allOf:
