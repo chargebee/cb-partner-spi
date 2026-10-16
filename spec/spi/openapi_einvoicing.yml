@@ -241,8 +241,9 @@ paths:
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
               --data-urlencode 'related_documents[0][document_type]=ubl-applicationresponse' \
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
-            --data-urlencode 'related_documents[0][flow]=INBOUND' \
+              --data-urlencode 'related_documents[0][flow]=INBOUND' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
+              --data-urlencode 'related_documents[0][code]=REJECTED' \
               --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
   /einvoicing/data_input_fields:
     get:
@@ -1259,7 +1260,8 @@ paths:
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=ACCEPTED' \
-              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
+              --data-urlencode 'business_status=ACCEPTED' \
+              --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z' \
               --data-urlencode 'provider_response={
                 "source":"avalara",
                 "received_at":"2025-12-29T12:17:47.791Z",
@@ -1268,6 +1270,7 @@ paths:
                   "id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
                   "companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5",
                   "status":"Complete",
+                  "businessStatus":"Approved",
                   "events":[
                     {"eventDateTime":"2025-12-29T12:17:47.791","message":"Document started processing"},
                     {"eventDateTime":"2025-12-29T12:17:47.934","message":"Validations for the submitted document were successful"},
@@ -1303,7 +1306,9 @@ paths:
               --data-urlencode 'related_documents[0][document_id]=appresp_7gH1KLM' \
               --data-urlencode 'related_documents[0][document_type]=ubl-applicationresponse' \
               --data-urlencode 'related_documents[0][status]=SUCCESS' \
+              --data-urlencode 'related_documents[0][flow]=INBOUND' \
               --data-urlencode 'related_documents[0][timestamp]=2025-09-04T08:17:23.380Z' \
+              --data-urlencode 'related_documents[0][code]=REJECTED' \
               --data-urlencode 'related_documents[0][provider_response]={"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
 
   /api/v2/credit_notes/{document_id}/einvoice_status :
@@ -1382,6 +1387,7 @@ paths:
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data-urlencode 'einvoicing_provider_id=avalara' \
               --data-urlencode 'status=ACCEPTED' \
+              --data-urlencode 'business_status=ACCEPTED' \
               --data-urlencode 'timestamp=2025-05-23T13:22:50.519Z'
 
         - lang: cURL
@@ -1441,8 +1447,9 @@ paths:
                   value:
                     document_id: DOC-20250402-0001
                     status: SUCCESS
+                    business_status: ACCEPTED
                     submission_date: '2025-04-02T07:39:31.815Z'
-                    provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+                    provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete","businessStatus":"Approved"}}'
                 failed_einvoice_document_submission_response:
                   summary: Failed validation at provider
                   description: A sample failed document status response due to unregistered VAT number.
@@ -2516,6 +2523,8 @@ components:
             - UNDER_QUERY
             - CONDITIONALLY_ACCEPTED
             - PAID
+        business_status:
+          $ref: '#/components/schemas/document_business_status'
         submission_date:
           type: string
           format: date-time
@@ -2538,11 +2547,36 @@ components:
       example:
         document_id: DOC-20250402-0001
         status: SUCCESS
+        business_status: ACCEPTED
         submission_date: 2025-04-02T07:39:31.815Z
-        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
+        provider_response: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete","businessStatus":"Approved"}}'
       required:
         - document_id
         - status
+    document_business_status:
+      type: string
+      description: |
+        Optional buyer business lifecycle state for the **primary** e-invoice (invoice or credit note),
+        distinct from technical processing `status`.
+
+        Adapters must send only Chargebee-recognized enum names (aligned with the merchant-facing
+        e-invoice `business_status`). Chargebee updates stored `business_status` only when the value
+        matches one of the names below; unrecognized values are ignored and the stored status is
+        left unchanged. If a non-empty `business_status` is sent and does not match, Chargebee does
+        not fall back to values from `related_documents`.
+
+        Map provider- or mandate-specific signals (for example Peppol application response codes or
+        buyer ERP labels) to these names in the adapter before calling back. When no mapping exists,
+        omit this field and convey the raw signal on `related_documents[].code` instead.
+      enum:
+        - ACCEPTED
+        - REJECTED
+        - MESSAGE_ACKNOWLEDGEMENT
+        - IN_PROCESS
+        - UNDER_QUERY
+        - CONDITIONALLY_ACCEPTED
+        - PAID
+      example: ACCEPTED
     download_document_response:
       type: object
       required:
@@ -2774,6 +2808,8 @@ components:
             - CONDITIONALLY_ACCEPTED
             - PAID
           description: Current status of the document after processing by the provider.
+        business_status:
+          $ref: '#/components/schemas/document_business_status'
         timestamp:
           type: string
           description: Timestamp (UTC) in seconds indicating when the status was determined.
@@ -2804,10 +2840,13 @@ components:
           description: |
             Optional list of related (secondary) document status objects, encoded using Chargebee's
             form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
-            
-            Use this to include secondary documents such as `ubl-applicationresponse` that influenced the
-            primary document outcome. Chargebee may store this for diagnostics; it does not change the
-            primary idempotency key.
+
+            Use this for secondary documents such as inbound `ubl-applicationresponse` (many may relate
+            to one parent e-invoice). Chargebee persists each entry as an e-invoice artifact and stores
+            `code` on that artifact. When top-level `business_status` is omitted, Chargebee may derive the
+            parent e-invoice `business_status` from the last related entry whose `code` matches a
+            recognized buyer status name; list entries oldest-to-newest when sending multiple updates in
+            one callback. This does not change the primary idempotency key.
           maxItems: 10
           items:
             $ref: '#/components/schemas/callback_related_document_status'
@@ -2873,6 +2912,18 @@ components:
         timestamp:
           type: string
           description: Timestamp (UTC) in seconds indicating when the related document status was determined.
+
+        code:
+          type: string
+          description: |
+            Optional business response code for this related document (for example a Peppol application
+            response code such as `AP` or `RE`, or a canonical buyer status name such as `REJECTED`).
+            Chargebee stores the value on the related e-invoice artifact regardless of format. When the
+            value matches a recognized buyer status enum name, it may contribute to updating the parent
+            e-invoice `business_status` (see `document_business_status`). Adapters should prefer canonical
+            enum names when a mapping exists; otherwise send the provider-native code unchanged.
+          maxLength: 100
+          example: REJECTED
 
         provider_response:
           type: string
@@ -2940,7 +2991,15 @@ components:
       value:
         einvoicing_provider_id: avalara
         status: ACCEPTED
+        business_status: ACCEPTED
         timestamp: '2025-05-23T13:22:50.519Z'
+        related_documents:
+          - document_id: appresp_7gH1KLM
+            document_type: ubl-applicationresponse
+            status: SUCCESS
+            flow: INBOUND
+            timestamp: '2025-09-04T08:17:23.380Z'
+            code: REJECTED
         provider_response: >
             {
               "source": "avalara",
@@ -2950,6 +3009,7 @@ components:
                 "id": "ad110f2d-9d0a-4435-a8ea-a36caaceb8c7",
                 "companyId": "304382fd-1268-4e7b-86db-a8d51ff309d5",
                 "status": "Complete",
+                "businessStatus": "Approved",
                 "events": [
                   {
                     "eventDateTime": "2025-12-29T12:17:47.791",
