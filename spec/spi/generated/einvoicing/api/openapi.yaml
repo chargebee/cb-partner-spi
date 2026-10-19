@@ -2107,24 +2107,9 @@ components:
         - `values`:
         Each key in this object uses dot-notation to reference the source path, including arrays and nested arrays — for example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.
 
-            - **Scalar values** (e.g., strings, numbers, dates) should be represented as flat keys:
-              ```json
-              {
-                "invoice.id": "INV-10001",
-                "invoice.issue_date": "2025-04-02",
-                "invoice.currency_code": "EUR"
-              }
-              ```
-
-            - **Complex types like arrays** (e.g., `line_items`) should be represented as nested JSON:
-              ```json
-              {
-                "line_items": [
-                  { "id": "1", "line_item_tax": [ {"name" : "VAT" }] },
-                  { "id": "2", "line_item_tax": [ {"name" : "Local Tax"}] }
-                ]
-              }
-              ```
+            - Scalar values (strings, numbers, dates) use flat keys such as invoice.id, invoice.issue_date,
+              invoice.currency_code.
+            - Complex types such as line_items use nested JSON arrays and objects in the values map.
 
         This model supports maximum flexibility by separating the actual data values from Chargebee's internal schema structure. It enables provider-specific document construction without tightly coupling the adapter to Chargebee's native schema.
       properties:
@@ -2151,17 +2136,12 @@ components:
             $ref: '#/components/schemas/overrides_field_mapping_inner'
           type: array
         values:
-          description: "Flattened key-value representation of the data to be mapped\
-            \ using `field_mapping`. \n\nEach key in this object uses dot-notation\
-            \ to reference the source path, including arrays and nested arrays — for\
-            \ example: invoice.issue_date, line_items[].id, or line_items[].tax_category[].id.\n\
-            \n- **Scalar values** (e.g., strings, numbers, dates) should be represented\
-            \ as flat keys:\n```json\n{\n  \"invoice.id\": \"INV-10001\",\n  \"invoice.issue_date\"\
-            : \"2025-04-02\",\n  \"invoice.currency_code\": \"EUR\"\n}\n```\n\n- **Complex\
-            \ types like arrays** (e.g., `line_items`) should be represented as nested\
-            \ JSON:\n```json\n{\n  \"line_items\": [\n    { \"id\": \"1\", \"line_item_tax\"\
-            : [ {\"name\" : \"VAT\" }] },\n    { \"id\": \"2\", \"line_item_tax\"\
-            : [ {\"name\" : \"Local Tax\"}] }\n  ]\n}\n```\n"
+          description: |
+            Flattened key-value representation of the data to be mapped using `field_mapping`.
+
+            Each key uses dot-notation (for example invoice.issue_date, line_items[].id). Scalar fields
+            use flat keys; arrays such as line_items are nested JSON structures in this object. See the
+            `overrides` schema description for examples.
           type: object
       type: object
     payment_means:
@@ -2263,7 +2243,7 @@ components:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
-            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+            array of objects with string fields source and received_at (date-time) and a payload JSON object
           example: "{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
             ,\"payload\":{\"id\":\"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7\",\"companyId\"\
             :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}"
@@ -2271,7 +2251,7 @@ components:
         provider_references:
           description: |
             Optional JSON array of key-value pairs from the e-invoicing provider (e.g. Receipt Message ID, Response Message ID).
-            Format: [{"key": "string", "value": "string"}, ...]
+            Format: array of objects, each with string key and string value properties
           example: "[{\"key\":\"Receipt Message ID\",\"value\":\"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.provider.io\"\
             },{\"key\":\"Response Message ID\",\"value\":\"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.provider.io\"\
             }]"
@@ -2294,6 +2274,14 @@ components:
         Map provider- or mandate-specific signals (for example Peppol application response codes or
         buyer ERP labels) to these names in the adapter before calling back. When no mapping exists,
         omit this field and convey the raw signal on `related_documents[].code` instead.
+      enum:
+      - ACCEPTED
+      - REJECTED
+      - MESSAGE_ACKNOWLEDGEMENT
+      - IN_PROCESS
+      - UNDER_QUERY
+      - CONDITIONALLY_ACCEPTED
+      - PAID
       example: ACCEPTED
       type: string
     download_document_response:
@@ -2459,7 +2447,7 @@ components:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
-            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+            array of objects with string fields source and received_at (date-time) and a payload JSON object
           example: "{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
             ,\"payload\":{\"id\":\"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7\",\"companyId\"\
             :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}"
@@ -2468,7 +2456,7 @@ components:
           description: |
             Optional JSON array of key-value pairs returned by the e-invoicing provider (e.g. Receipt Message ID, Response Message ID, Receiver ID).
             Chargebee stores this in einvoice properties and appends entries on each callback, similar to provider_response.
-            Format: [{"key": "string", "value": "string"}, ...]
+            Format: array of objects, each with string key and string value properties
           example: "[{\"key\":\"Receipt Message ID\",\"value\":\"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.avalara.io\"\
             },{\"key\":\"Response Message ID\",\"value\":\"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.avalara.io\"\
             },{\"key\":\"Receiver ID\",\"value\":\"3ed9530e-f2e8-4733-ace8-f868a5e077eb@sbx.avalara.io\"\
@@ -2524,7 +2512,13 @@ components:
       - message
       type: object
     callback_related_document_status:
-      description: Related/secondary document status details.
+      description: |
+        Related/secondary document status details (for example an inbound `ubl-applicationresponse`).
+
+        Processing vs business outcome: `status` is the technical processing state of that related
+        document (SUCCESS, IN_PROGRESS, FAILED). Buyer or mandate business status for the related
+        document is carried in `code` (not in `status`). Chargebee persists `code` on the matching
+        e-invoice artifact; recognized enum names may roll up to the parent e-invoice `business_status`.
       properties:
         document_id:
           description: Unique identifier of the related submitted document in Chargebee
@@ -2537,7 +2531,9 @@ components:
           maxLength: 100
           type: string
         status:
-          description: Current status of the related document.
+          description: |
+            Technical processing state of this related document in the adapter/Chargebee pipeline.
+            This is not the buyer business outcome; use `code` for business status on this artifact.
           enum:
           - SUCCESS
           - IN_PROGRESS
@@ -2555,12 +2551,16 @@ components:
           type: string
         code:
           description: |
-            Optional business response code for this related document (for example a Peppol application
-            response code such as `AP` or `RE`, or a canonical buyer status name such as `REJECTED`).
-            Chargebee stores the value on the related e-invoice artifact regardless of format. When the
-            value matches a recognized buyer status enum name, it may contribute to updating the parent
-            e-invoice `business_status` (see `document_business_status`). Adapters should prefer canonical
-            enum names when a mapping exists; otherwise send the provider-native code unchanged.
+            Business status for this related document (per-artifact buyer/mandate outcome). Chargebee
+            maps this SPI field to `einvoice_artifacts.code` for the inbound or outbound artifact
+            identified by `document_id`.
+
+            Send a canonical buyer status name from `document_business_status` when the adapter can map
+            provider or Peppol signals (for example `ACCEPTED`, `REJECTED`); otherwise send the
+            provider-native or Peppol code unchanged (for example `AP`, `RE`). Chargebee always stores
+            the string on the artifact; it updates the parent e-invoice `business_status` only when
+            `code` matches a recognized enum name (see `document_business_status`). Omit `code` when
+            there is no business signal for this related document.
           example: REJECTED
           maxLength: 100
           type: string
@@ -2568,7 +2568,7 @@ components:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
-            [{"source": "string", "received_at": "date-time", "payload": {object}}]
+            array of objects with string fields source and received_at (date-time) and a payload JSON object
           example: "{\"source\":\"avalara\",\"received_at\":\"2025-12-29T12:17:47.791Z\"\
             ,\"payload\":{\"id\":\"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7\",\"companyId\"\
             :\"304382fd-1268-4e7b-86db-a8d51ff309d5\",\"status\":\"Complete\"}}"
@@ -2577,7 +2577,7 @@ components:
           description: |
             Optional JSON array of key-value pairs for this related document (e.g. Receipt Message ID, Response Message ID).
             Chargebee stores this in the artifact properties and appends entries on each callback, similar to provider_response.
-            Format: [{"key": "string", "value": "string"}, ...]
+            Format: array of objects, each with string key and string value properties
           example: "[{\"key\":\"Receipt Message ID\",\"value\":\"3ed9530e-f2e8-4733-ace8-f868a5e077eb@einvoicing.sbx.avalara.io\"\
             },{\"key\":\"Response Message ID\",\"value\":\"3ed9530e-f2e8-4733-aeffe8-f868a5e077eb@einvoicing.sbx.avalara.io\"\
             }]"
