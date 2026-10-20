@@ -1988,10 +1988,7 @@ components:
           enum:
             - INVOICE
             - CREDIT_NOTE
-          description: |
-            Type of document for this schema — `INVOICE` or `CREDIT_NOTE` only.
-            Application responses use `application_response_document` (`type` = `APPLICATION_RESPONSE`)
-            via the parent `document` oneOf discriminator, not this schema.
+          description: "Type of document, either an invoice or a credit note."
         country:
           type: string
           description: The ISO country code for the scenario.
@@ -2538,7 +2535,7 @@ components:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
-            [{"source": "string", "received_at": "date-time", "payload": &#123;object&#125;}]
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
         provider_references:
           type: string
@@ -2814,7 +2811,7 @@ components:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
-            [{"source": "string", "received_at": "date-time", "payload": &#123;object&#125;}]
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
         provider_references:
           type: string
@@ -2836,7 +2833,7 @@ components:
           description: |
             Optional list of related (secondary) document status objects, encoded using Chargebee's
             form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
-
+            
             Use this to include secondary documents such as `ubl-applicationresponse` that influenced the
             primary document outcome. Optional `code` on each entry is the canonical buyer business status
             for that artifact (see `document_business_status`). Chargebee may update parent
@@ -2923,7 +2920,7 @@ components:
           description: |
             JSON string containing an optional array of raw payloads received from the e-invoicing provider that is used for downstream mapping and for audits.
             The JSON should be an array of objects with the following structure:
-            [{"source": "string", "received_at": "date-time", "payload": &#123;object&#125;}]
+            [{"source": "string", "received_at": "date-time", "payload": {object}}]
           example: '{"source":"avalara","received_at":"2025-12-29T12:17:47.791Z","payload":{"id":"ad110f2d-9d0a-4435-a8ea-a36caaceb8c7","companyId":"304382fd-1268-4e7b-86db-a8d51ff309d5","status":"Complete"}}'
         provider_references:
           type: string
