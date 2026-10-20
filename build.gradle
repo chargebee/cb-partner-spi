@@ -57,6 +57,24 @@ tasks.register("generateSpec")
 
 tasks.register("validateSpec")
 
+/**
+ * OpenAPI Generator 7 merges all discriminator mapping keys into each oneOf branch's `type` enum.
+ * Strip APPLICATION_RESPONSE from main_document only (it belongs on application_response_document).
+ */
+def fixMainDocumentDiscriminatorEnumPollution(String yamlText) {
+    def start = yamlText.indexOf("    main_document:")
+    if (start < 0) {
+        return yamlText
+    }
+    def end = yamlText.indexOf("    application_response_document:", start)
+    if (end < 0) {
+        return yamlText
+    }
+    def section = yamlText.substring(start, end)
+    section = section.replace("\n          - APPLICATION_RESPONSE", "")
+    return yamlText.substring(0, start) + section + yamlText.substring(end)
+}
+
 def openApiTask() {
     loadSpecConfig()
 
@@ -87,7 +105,10 @@ def openApiTask() {
             def targetYamlDir = file("$rootDir/spec/spi/generated/${spec.name}/api")
             def targetFile = new File(targetYamlDir, "openapi.yaml")
             targetYamlDir.mkdirs()
-            targetFile.text = sourceYamlFile.text
+            def yamlText = sourceYamlFile.text
+            yamlText = fixMainDocumentDiscriminatorEnumPollution(yamlText)
+            sourceYamlFile.text = yamlText
+            targetFile.text = yamlText
         }
 }
 
