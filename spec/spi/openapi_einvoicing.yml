@@ -1988,7 +1988,7 @@ components:
           enum:
             - INVOICE
             - CREDIT_NOTE
-          description: "Type of document, either an invoice or a credit note."
+          description: Type of document, either an invoice or a credit note.
         country:
           type: string
           description: The ISO country code for the scenario.
