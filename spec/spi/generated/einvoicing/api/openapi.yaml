@@ -1930,6 +1930,7 @@ components:
           enum:
           - INVOICE
           - CREDIT_NOTE
+          - APPLICATION_RESPONSE
           type: string
         country:
           description: The ISO country code for the scenario.
@@ -2305,12 +2306,15 @@ components:
       type: object
     document_business_status:
       description: |
-        Optional buyer business lifecycle state for the primary e-invoice, distinct from processing
-        `status`. Returned on GET document status. On status callbacks, send canonical enum names as
-        top-level `business_status` on the primary document, or on `related_documents[].code` for
-        Application Response artifacts. When both are present, top-level `business_status` takes
-        precedence. Map provider signals in the adapter before calling Chargebee. Unrecognized values
-        are ignored.
+        Buyer lifecycle state for the primary e-invoice (invoice or credit note), separate from
+        technical processing `status`.
+
+        On GET document status, Chargebee returns this when a value is stored. On status callbacks,
+        send one of the enum names below as top-level `business_status` only when the adapter has
+        mapped the provider or mandate outcome for the parent document. Perform that mapping in the
+        adapter before calling Chargebee. Omitted or unrecognized values are ignored and do not change
+        the stored buyer status. Related-document provider codes use `related_documents[].code`, not
+        this field.
       enum:
       - ACCEPTED
       - REJECTED
@@ -2504,10 +2508,10 @@ components:
             form-urlencoded bracket notation, e.g. `related_documents[0][document_id]`.
 
             Use this to include secondary documents such as `ubl-applicationresponse` that influenced the
-            primary document outcome. Optional `code` on each entry is the canonical buyer business status
-            for that artifact (see `document_business_status`). Chargebee may update parent
-            `einvoices.business_status` from recognized codes when top-level `business_status` is omitted.
-            This does not change the primary idempotency key.
+            primary document outcome. Optional `code` on each entry is stored on the related e-invoice
+            artifact: recognized `document_business_status` names are persisted in canonical form; other
+            values are stored as sent. Parent `einvoices.business_status` is updated only via top-level
+            `business_status` on the callback. This does not change the primary idempotency key.
           items:
             $ref: '#/components/schemas/callback_related_document_status'
           maxItems: 10
@@ -2570,10 +2574,10 @@ components:
           type: string
         code:
           description: |
-            Optional canonical buyer business status for this related document (for example an inbound
-            Application Response). Must be a `document_business_status` enum name (for example `REJECTED`).
-            Chargebee maps to `einvoice_artifacts.code` and may update parent `einvoices.business_status`.
-            Omit when there is no business signal.
+            Optional code for this related document (for example Peppol `AP` or `RE` on an inbound
+            Application Response, or a `document_business_status` name). Chargebee persists
+            `einvoice_artifacts.code`: when the value matches a recognized `document_business_status`
+            name, the canonical enum name is stored; otherwise the string is stored as received.
           example: REJECTED
           maxLength: 100
           type: string
