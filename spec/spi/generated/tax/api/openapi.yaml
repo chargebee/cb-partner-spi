@@ -245,19 +245,14 @@ paths:
             examples:
               TaxEstimationRequestSimple:
                 $ref: '#/components/examples/TaxEstimationRequestSimple'
-                value: null
               TaxEstimationRequestWithTaxInclusive:
                 $ref: '#/components/examples/TaxEstimationRequestWithTaxInclusive'
-                value: null
               TaxEstimationRequestWithLineItemDiscount:
                 $ref: '#/components/examples/TaxEstimationRequestWithLineItemDiscount'
-                value: null
               TaxEstimationRequestWithCustomerExemption:
                 $ref: '#/components/examples/TaxEstimationRequestWithCustomerExemption'
-                value: null
               TaxEstimationRequestWithLocationEvidence:
                 $ref: '#/components/examples/TaxEstimationRequestWithLocationEvidence'
-                value: null
             schema:
               $ref: '#/components/schemas/TaxEstimationRequest'
       responses:
@@ -267,16 +262,12 @@ paths:
               examples:
                 TaxEstimationResponseSimple:
                   $ref: '#/components/examples/TaxEstimationResponseSimple'
-                  value: null
                 TaxEstimationResponseWithTaxInclusive:
                   $ref: '#/components/examples/TaxEstimationResponseWithTaxInclusive'
-                  value: null
                 TaxEstimationResponseWithLineItemDiscount:
                   $ref: '#/components/examples/TaxEstimationResponseWithLineItemDiscount'
-                  value: null
                 TaxEstimationResponseWithCustomerExemption:
                   $ref: '#/components/examples/TaxEstimationResponseWithCustomerExemption'
-                  value: null
               schema:
                 $ref: '#/components/schemas/TaxEstimationResponse'
           description: Tax estimated successfully for given line items.
@@ -286,10 +277,8 @@ paths:
               examples:
                 Error400ResponseInvalidTaxCode:
                   $ref: '#/components/examples/Error400ResponseInvalidTaxCode'
-                  value: null
                 Error400ResponseMissingCustomerAddress:
                   $ref: '#/components/examples/Error400ResponseMissingCustomerAddress'
-                  value: null
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
           description: Bad request.
@@ -363,13 +352,10 @@ paths:
             examples:
               InvoiceRequestSimple:
                 $ref: '#/components/examples/InvoiceRequestSimple'
-                value: null
               InvoiceRequestWithTaxInclusive:
                 $ref: '#/components/examples/InvoiceRequestWithTaxInclusive'
-                value: null
               InvoiceRequestWithLocationEvidence:
                 $ref: '#/components/examples/InvoiceRequestWithLocationEvidence'
-                value: null
             schema:
               $ref: '#/components/schemas/InvoiceRequest'
       responses:
@@ -379,10 +365,8 @@ paths:
               examples:
                 InvoiceResponseSimple:
                   $ref: '#/components/examples/InvoiceResponseSimple'
-                  value: null
                 InvoiceResponseWithTaxInclusive:
                   $ref: '#/components/examples/InvoiceResponseWithTaxInclusive'
-                  value: null
               schema:
                 $ref: '#/components/schemas/Invoice'
           description: Invoice created successfully.
@@ -392,10 +376,8 @@ paths:
               examples:
                 Error400ResponseInvalidTaxCode:
                   $ref: '#/components/examples/Error400ResponseInvalidTaxCode'
-                  value: null
                 Error400ResponseMissingCustomerAddress:
                   $ref: '#/components/examples/Error400ResponseMissingCustomerAddress'
-                  value: null
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
           description: Bad request.
@@ -627,7 +609,6 @@ paths:
             examples:
               VoidInvoiceRequest:
                 $ref: '#/components/examples/VoidInvoiceRequest'
-                value: null
             schema:
               $ref: '#/components/schemas/VoidRequest'
       responses:
@@ -704,10 +685,8 @@ paths:
             examples:
               CreditNoteRequestFull:
                 $ref: '#/components/examples/CreditNoteRequestFull'
-                value: null
               CreditNoteRequestFullWithTaxInclusive:
                 $ref: '#/components/examples/CreditNoteRequestFullWithTaxInclusive'
-                value: null
             schema:
               $ref: '#/components/schemas/CreditNoteRequest'
       responses:
@@ -717,10 +696,8 @@ paths:
               examples:
                 CreditNoteResponseFull:
                   $ref: '#/components/examples/CreditNoteResponseFull'
-                  value: null
                 CreditNoteResponseFullWithTaxInclusive:
                   $ref: '#/components/examples/CreditNoteResponseFullWithTaxInclusive'
-                  value: null
               schema:
                 $ref: '#/components/schemas/CreditNote'
           description: Credit note created successfully.
@@ -730,10 +707,8 @@ paths:
               examples:
                 Error400ResponseInvalidCreditNoteId:
                   $ref: '#/components/examples/Error400ResponseInvalidCreditNoteId'
-                  value: null
                 Error400ResponseMissingCustomerAddress:
                   $ref: '#/components/examples/Error400ResponseMissingCustomerAddress'
-                  value: null
               schema:
                 $ref: '#/components/schemas/ValidationErrorResponse'
           description: Bad request.
@@ -993,7 +968,6 @@ paths:
             examples:
               VoidInvoiceRequest:
                 $ref: '#/components/examples/VoidInvoiceRequest'
-                value: null
             schema:
               $ref: '#/components/schemas/VoidRequest'
       responses:
@@ -1069,10 +1043,8 @@ paths:
             examples:
               AddressValidationValidRequest:
                 $ref: '#/components/examples/AddressValidationValidRequest'
-                value: null
               AddressValidationInvalidRequest:
                 $ref: '#/components/examples/AddressValidationInvalidRequest'
-                value: null
             schema:
               $ref: '#/components/schemas/AddressValidationRequest'
       responses:
@@ -1082,10 +1054,8 @@ paths:
               examples:
                 AddressValidationValidResponse:
                   $ref: '#/components/examples/AddressValidationValidResponse'
-                  value: null
                 AddressValidationInvalidResponse:
                   $ref: '#/components/examples/AddressValidationInvalidResponse'
-                  value: null
               schema:
                 $ref: '#/components/schemas/AddressValidationResponse'
           description: Address is validated successfully
@@ -1169,22 +1139,16 @@ paths:
             examples:
               CheckAddressTaxabilityValidRequest-Option1:
                 $ref: '#/components/examples/CheckAddressTaxabilityValidRequest-Option1'
-                value: null
               CheckAddressTaxabilityInvalidRequest-Option1:
                 $ref: '#/components/examples/CheckAddressTaxabilityInvalidRequest-Option1'
-                value: null
               CheckAddressTaxabilityValidRequest-Option2:
                 $ref: '#/components/examples/CheckAddressTaxabilityValidRequest-Option2'
-                value: null
               CheckAddressTaxabilityInvalidRequest-Option2:
                 $ref: '#/components/examples/CheckAddressTaxabilityInvalidRequest-Option2'
-                value: null
               CheckAddressTaxabilityValidRequest-Option3:
                 $ref: '#/components/examples/CheckAddressTaxabilityValidRequest-Option3'
-                value: null
               CheckAddressTaxabilityInvalidRequest-Option3:
                 $ref: '#/components/examples/CheckAddressTaxabilityInvalidRequest-Option3'
-                value: null
             schema:
               $ref: '#/components/schemas/CheckAddressTaxabilityRequest'
       responses:
@@ -1194,22 +1158,16 @@ paths:
               examples:
                 CheckAddressTaxabilityValidResponse-Option1:
                   $ref: '#/components/examples/CheckAddressTaxabilityValidResponse-Option1'
-                  value: null
                 CheckAddressTaxabilityInvalidResponse-Option1:
                   $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option1'
-                  value: null
                 CheckAddressTaxabilityValidResponse-Option2:
                   $ref: '#/components/examples/CheckAddressTaxabilityValidResponse-Option2'
-                  value: null
                 CheckAddressTaxabilityInvalidResponse-Option2:
                   $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option2'
-                  value: null
                 CheckAddressTaxabilityValidResponse-Option3:
                   $ref: '#/components/examples/CheckAddressTaxabilityValidResponse-Option3'
-                  value: null
                 CheckAddressTaxabilityInvalidResponse-Option3:
                   $ref: '#/components/examples/CheckAddressTaxabilityInvalidResponse-Option3'
-                  value: null
               schema:
                 $ref: '#/components/schemas/CheckAddressTaxabilityResponse'
           description: Tax can be calculated for the address provided.
@@ -2582,10 +2540,8 @@ components:
           examples:
             Error400ResponseInvalidTaxCode:
               $ref: '#/components/examples/Error400ResponseInvalidTaxCode'
-              value: null
             Error400ResponseMissingCustomerAddress:
               $ref: '#/components/examples/Error400ResponseMissingCustomerAddress'
-              value: null
           schema:
             $ref: '#/components/schemas/ValidationErrorResponse'
       description: Bad request.
@@ -2595,10 +2551,8 @@ components:
           examples:
             Error400ResponseInvalidTaxCode:
               $ref: '#/components/examples/Error400ResponseInvalidTaxCode'
-              value: null
             Error400ResponseMissingCustomerAddress:
               $ref: '#/components/examples/Error400ResponseMissingCustomerAddress'
-              value: null
           schema:
             $ref: '#/components/schemas/ValidationErrorResponse'
       description: Bad request.
@@ -2608,10 +2562,8 @@ components:
           examples:
             Error400ResponseInvalidCreditNoteId:
               $ref: '#/components/examples/Error400ResponseInvalidCreditNoteId'
-              value: null
             Error400ResponseMissingCustomerAddress:
               $ref: '#/components/examples/Error400ResponseMissingCustomerAddress'
-              value: null
           schema:
             $ref: '#/components/schemas/ValidationErrorResponse'
       description: Bad request.
