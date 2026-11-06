@@ -114,9 +114,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -188,9 +187,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -295,9 +293,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -393,9 +390,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -473,9 +469,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -548,9 +543,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -631,9 +625,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -728,9 +721,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -817,9 +809,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -901,9 +892,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -994,9 +984,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -1090,9 +1079,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -1203,9 +1191,8 @@ paths:
         "500":
           content:
             application/json:
-              examples:
-                Error500:
-                  $ref: '#/components/examples/Error500Response'
+              example:
+                message: Unexpected error during processing the request.
               schema:
                 $ref: '#/components/schemas/BasicErrorResponse'
           description: Unexpected error while processing request.
@@ -2585,9 +2572,8 @@ components:
     Error500:
       content:
         application/json:
-          examples:
-            Error500:
-              $ref: '#/components/examples/Error500Response'
+          example:
+            message: Unexpected error during processing the request.
           schema:
             $ref: '#/components/schemas/BasicErrorResponse'
       description: Unexpected error while processing request.
@@ -2836,7 +2822,7 @@ components:
             \ to the line item. If the line item corresponds to a one-off charge,\
             \ then this identifier is not provided. If entity_type is `adhoc`, the\
             \ `itemCode` parameter will be set to `adhoc_charge`."
-          maxLength: 50
+          maxLength: 100
           type: string
         description:
           description: The description of the line item.
@@ -3457,7 +3443,7 @@ components:
             \ to the line item. If the line item corresponds to a one-off charge,\
             \ then this identifier is not present. If entity_type is `adhoc`, the\
             \ `itemCode` parameter will be set to `adhoc_charge`."
-          maxLength: 50
+          maxLength: 100
           type: string
         description:
           description: The description of the line item.
